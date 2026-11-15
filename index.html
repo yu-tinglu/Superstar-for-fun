@@ -68,7 +68,11 @@ details .g2{margin-top:8px}
 .mt{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.14);margin:2px 4px 0 0}
 @keyframes inn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 #app>*{animation:inn .3s both}
-@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+button:focus-visible,.fld:focus-visible,summary:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
+.back{padding:10px 4px;min-height:40px}
+.sec2{font-size:12px;opacity:.65;margin:14px 0 6px;font-weight:700;letter-spacing:.5px}
+.grid .btn small{font-size:11.5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 #copy{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:6px 14px calc(env(safe-area-inset-bottom) + 22px);text-align:center;font-size:11.5px;line-height:1.7;opacity:.55}
 .fld{width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;font:inherit;font-size:16px}
 textarea.fld{min-height:130px;resize:vertical;line-height:1.55}
@@ -96,6 +100,8 @@ input[type=range]{accent-color:#ffb83d}
 })();
 
 const app=document.getElementById('app');
+try{const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML'),ttl=h=>(String(h).match(/<h[12][^>]*>(.*?)<\/h[12]>/)||[])[1]||'';
+Object.defineProperty(app,'innerHTML',{configurable:true,get(){return d.get.call(this)},set(v){const o=ttl(d.get.call(this)),n=ttl(v);d.set.call(this,v);if(o!==n)window.scrollTo(0,0)}})}catch(e){}
 const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const cl=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
 const pick=a=>a[R(0,a.length-1)];
@@ -311,18 +317,18 @@ function home(){
   const ap=d.ap||{},aps=MKORDER.filter(k=>ap[k]).map(k=>`${MK[k].e}${ap[k].l}`).join(' ');
   app.innerHTML=`
   <h1>⭐ 明星模擬器 ⭐</h1>
-  <div class="sub">八大演藝圈 · 45 間商店 · 9 國籍 · 216 位新人 · 每人 57 項數值 · 數十萬種結果</div>
+  <div class="sub">四種模式 · 八大演藝圈 · 45 間商店 · 9 國籍 · 216 位新人 · 每人 57 項數值 · 數十萬種結果</div>
   ${runInfo()?B('▶️ 繼續上次的遊戲',runInfo(),'resumeGame()','gold'):''}
   ${!d.seen?`<div class="card" style="font-size:13px;line-height:1.7">👋 第一次玩?點下方「❓ 玩法說明」,30 秒看懂怎麼玩。</div>`:''}
+  <div class="sec2">開始遊戲</div>
   ${B('🎬 明星製作人','你是經紀公司製作人,在 16 週內培育單人或組合出道','mkSelect("p")')}
   ${B('🌟 做明星','你就是主角!選擇國籍、市場與起點,經歷 5 個人生階段','natSelect("s")','gold')}
   ${B('🛤️ 星途生涯(長期)','從素人出發:直播、面試、簽公司、練習,直到出道。失敗了也能繼續!','natSelect("c")','gold')}
-  ${B('📂 讀檔','從手動存檔繼續遊戲(最多 3 個欄位)','saveMenu("h")','alt')}
-  ${B('🏆 成就與圖鑑',`成就 ${(d.ach||[]).length}/${ACH.length} · 商品 ${Object.keys(d.col||{}).length}/${SHOPS.reduce((a,x)=>a+x.it.length,0)}`,'achMenu()','alt')}
-  ${B('💬 遊玩評論','留下你的心得與建議,可選擇寄給作者','reviewMenu()','alt')}
-  ${B('❓ 玩法說明','三種模式、商城、戀愛、整容怎麼玩','helpMenu()','alt')}
+  ${B('🎙️ 參加選秀','16 人 5 關淘汰賽,評審與觀眾投票,拿下冠軍出道!','natSelect("a")','gold')}
+  <div class="sec2">其他</div>
+  <div class="grid">${B('📂 讀檔','','saveMenu("h")','alt')}${B('🏆 成就圖鑑','','achMenu()','alt')}${B('💬 遊玩評論','','reviewMenu()','alt')}${B('❓ 玩法說明','','helpMenu()','alt')}</div>
+  ${B('🏆 收集進度',`成就 ${(d.ach||[]).length}/${ACH.length} · 商品 ${Object.keys(d.col||{}).length}/${SHOPS.reduce((a,x)=>a+x.it.length,0)}`,'achMenu()','alt')}
   ${B('⚙️ 設定(性別、主題、音效)',`目前:我是${GL[GEN]},戀愛對象:${PL[LP]}`,'genderMenu()','alt')}
-  ${B('🎙️ 參加選秀','16 人 5 關淘汰賽,評審與觀眾投票,拿下冠軍出道!','natSelect("a")','alt')}
   <div class="card center" style="font-size:13px;line-height:1.7">🏆 結局收集 ${(d.ends||[]).length}/12${bps?`<br>製作人最佳評級:${bps}`:''}${aps?`<br>選秀最佳成績:${aps}`:''}<br>🎲 已解鎖結果 ${(d.out||[]).length} 種 / 共約 ${TOTALTXT} 種組合<br><span style="opacity:.6;font-size:12px">(僅記錄在這個瀏覽器)</span></div>
   <div class="card center" style="font-size:12.5px;opacity:.7">本遊戲中的人物、組合與事件皆為虛構</div>`;
 }
@@ -1792,7 +1798,7 @@ function msWeekly(k){G.ms=G.ms||{};(G.mks||[G.mk]).forEach(m=>{if(m===G.mk)G.ms[
 // 遊玩評論(玩家同意後,以郵件 App 寄給作者)
 // =====================================================
 // 作者請把下面這行的 REVIEW_EMAIL_PLACEHOLDER 換成收件信箱(保留前後的單引號)
-const RVTO='REVIEW_EMAIL_PLACEHOLDER';
+const RVTO='yuting312095@gmail.com';
 const RVOK=()=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(RVTO);
 const REV={r:0,n:'',t:'',ok:false};
 const MODEN={p:'明星製作人',s:'做明星',a:'參加選秀'};
