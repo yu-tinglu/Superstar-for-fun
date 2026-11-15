@@ -74,6 +74,12 @@ details .g2{margin-top:8px}
 textarea.fld{min-height:130px;resize:vertical;line-height:1.55}
 .ck{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;margin:6px 0}
 .ck input{width:20px;height:20px;margin-top:2px;flex:none}
+.av{width:34px;height:34px;border-radius:50%;object-fit:cover;vertical-align:middle;border:2px solid #ffd76a;box-shadow:0 0 8px rgba(255,215,106,.45);background:#000}
+.av.s{width:20px;height:20px;border-width:1px;box-shadow:none}
+.av.l{width:76px;height:76px;border-width:3px}
+.av.xl{width:132px;height:132px;border-width:4px;display:block;margin:4px auto 10px}
+.av.ph{display:flex;align-items:center;justify-content:center;font-size:56px;background:rgba(255,255,255,.1)}
+input[type=range]{accent-color:#ffb83d}
 </style>
 </head>
 <body>
@@ -245,14 +251,14 @@ function diff(a,b){const out=[];for(const k in b){const d=Math.round(b[k])-Math.
 function mini(l,v,c){return `<div class="mini"><b>${l}</b><div class="bar"><i style="width:${cl(v)}%;background:${c}"></i></div><span>${Math.round(v)}</span></div>`}
 function memD(m,tag){
   const lk=Math.round(look(m));
-  return `<details class="card mem"><summary>${tag?'👥 ':''}${m.e} <b>${m.n}</b><small>${tag}${m.real&&m.real!==m.n?'本名 '+m.real+' · ':''}${AR[m.a][0]}·${tr(m).n}·顏值${lk}</small><div class="g3">${mini('體力',m.energy,STAT.energy[1])}${mini('心情',m.mood,STAT.mood[1])}${mini('壓力',m.stress,STAT.stress[1])}</div></summary>`+
+  return `<details class="card mem"><summary>${tag?'👥 ':''}${avE(m)} <b>${m.n}</b><small>${tag}${m.real&&m.real!==m.n?'本名 '+m.real+' · ':''}${AR[m.a][0]}·${tr(m).n}·顏值${lk}</small><div class="g3">${mini('體力',m.energy,STAT.energy[1])}${mini('心情',m.mood,STAT.mood[1])}${mini('壓力',m.stress,STAT.stress[1])}</div></summary>`+
   CATS.map(c=>`<div class="sec">${c[1]} ${c[0]}(${c[3].length})</div><div class="g2">${c[3].map(k=>mini(SK[k],m.sk[k],SKC[k])).join('')}</div>`).join('')+
   `<div class="sec">🧠 個性(${PKK.length})</div><div class="g2">${PKK.map(k=>mini(PK[k],m.p[k],PKC[k])).join('')}</div>`+
   `<div class="sec">🪞 外貌</div><div class="g2">${mini('顏值',lk,'#f9a8d4')}${Object.keys(APK).map(k=>mini(APK[k],m.ap[k],APC[k])).join('')}</div><p style="font-size:12px;opacity:.8;margin:6px 0 0">👗 ${FIT[m.fit][0]}${m.rec>0?' · 術後恢復中':''}</p></details>`;
 }
 function panel(chip){
   const M=M_();
-  let h=`<div class="top"><span class="pill">${chip}</span><span class="pill">${M.e} ${M.n}</span><span class="pill">💰 ${Math.round(G.money)}</span><span class="pill">❤️ ${G.fan?G.fan+' ':''}${G.fans}</span></div>`;
+  let h=`<div class="top"><span class="pill">${avOn()?'<img class="av s" src="'+AV+'"> ':''}${chip}</span><span class="pill">${M.e} ${M.n}</span><span class="pill">💰 ${Math.round(G.money)}</span><span class="pill">❤️ ${G.fan?G.fan+' ':''}${G.fans}</span></div>`;
   h+='<div class="card"><div class="g2">'+Object.keys(CAR).filter(k=>k!=='chem'||G.group).map(k=>mini(CAR[k][0],G[k],CAR[k][1])).join('')+'</div></div>';
   G.m.forEach(m=>{h+=memD(m,'')});
   (G.mates||[]).forEach(m=>{h+=memD(m,'隊友 · ')});
@@ -276,7 +282,7 @@ function resumeGame(){let r;try{r=JSON.parse(localStorage.getItem(RUNK)||'null')
   else aPrep()}
 function runInfo(){try{const r=JSON.parse(localStorage.getItem(RUNK)||'null');if(!r||!r.G)return '';const g=r.G,M=MK[g.mk];
   return g.mode==='p'?`${M.e} 製作人 · 第 ${g.week}/16 週`:g.mode==='s'?`${M.e} 做明星 · 階段 ${g.ch+1}/5`:`${M.e} 選秀 · ${RN[g.r]}`}catch(e){return ''}}
-function loadSet(){const d=load();if(d.set){GEN=d.set.g||'x';LP=d.set.l||'a';SND=!!d.set.s;GM=d.set.m||'any';applyTheme(d.set.t||0)}if(d.nm)NM=Object.assign({real:'',stage:''},d.nm)}
+function loadSet(){const d=load();if(d.set){GEN=d.set.g||'x';LP=d.set.l||'a';SND=!!d.set.s;GM=d.set.m||'any';applyTheme(d.set.t||0)}if(d.nm)NM=Object.assign({real:'',stage:''},d.nm);if(d.av&&AVOK(d.av))AV=d.av}
 function saveSet(){const d=load();d.set={g:GEN,l:LP,t:THM,s:SND?1:0,m:GM};save(d)}
 function load(){try{return JSON.parse(localStorage.getItem('stargame2')||'{}')}catch(e){return {}}}
 function save(o){try{localStorage.setItem('stargame2',JSON.stringify(o))}catch(e){}}
@@ -299,7 +305,7 @@ const GL={m:'男生',f:'女生',x:'不指定'},PL={m:'男生',f:'女生',a:'都�
 function genderMenu(){
   app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>⚙️ 設定</h2><div class="card" style="font-size:13px;line-height:1.7">「我的性別」是做明星/選秀主角的性別;「戀愛對象」決定遊戲中認識的對象性別。</div><h3 style="margin:10px 0 4px">我的性別</h3>`+
   [['m','♂ 男生'],['f','♀ 女生'],['x','不指定']].map(x=>B(x[1],'',`GEN='${x[0]}';saveSet();genderMenu()`,GEN===x[0]?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">戀愛對象</h3>`+
-  [['m','♂ 男生'],['f','♀ 女生'],['a','都可以']].map(x=>B(x[1],'',`LP='${x[0]}';saveSet();genderMenu()`,LP===x[0]?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">組合/隊友性別</h3>`+[['any','不限'],['same','同性優先'],['only','只要同性']].map(x=>B(x[1],'',`GM='${x[0]}';saveSet();genderMenu()`,GM===x[0]?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">主題色</h3>`+THEMES.map((t,i)=>B(t[0],'',`applyTheme(${i});saveSet();genderMenu()`,THM===i?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">音效</h3>`+B(SND?'🔊 音效:開':'🔇 音效:關','點擊音與結局音效',`SND=!SND;saveSet();beep(660,.1);genderMenu()`,SND?'sel':'alt')+B('完成','','home()','gold');
+  [['m','♂ 男生'],['f','♀ 女生'],['a','都可以']].map(x=>B(x[1],'',`LP='${x[0]}';saveSet();genderMenu()`,LP===x[0]?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">組合/隊友性別</h3>`+[['any','不限'],['same','同性優先'],['only','只要同性']].map(x=>B(x[1],'',`GM='${x[0]}';saveSet();genderMenu()`,GM===x[0]?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">主題色</h3>`+THEMES.map((t,i)=>B(t[0],'',`applyTheme(${i});saveSet();genderMenu()`,THM===i?'sel':'alt')).join('')+`<h3 style="margin:10px 0 4px">音效</h3>`+B(SND?'🔊 音效:開':'🔇 音效:關','點擊音與結局音效',`SND=!SND;saveSet();beep(660,.1);genderMenu()`,SND?'sel':'alt')+B('🖼️ 我的頭像',AV?'已設定,點擊更換或移除':'上傳照片當作主角頭像','avMenu("genderMenu()")','alt')+B('完成','','home()','gold');
 }
 function home(){
   const d=load(),bp=d.bp||{};
@@ -571,12 +577,12 @@ function commit(msg,s0){
 function beautyMenu(){
   const m=G.m[WHO()];
   app.innerHTML=panel(hdrAny())+`<button class="back" onclick="${backB()}">← 返回</button><h2>✨ 外貌與穿搭</h2>`+whoChips('beautyMenu')+
-  `<div class="card" style="font-size:13px;line-height:1.7">${m.e} <b>${m.n}</b>${m.g==='m'?' ♂':m.g==='f'?' ♀':''} · 顏值 ${Math.round(look(m))} · 天然度 ${Math.round(m.ap.natural)}<br>👗 目前穿搭:${FIT[m.fit][0]}${m.rec>0?'<br>🩹 術後恢復中(表現略受影響)':''}</div>`+
+  `<div class="card" style="font-size:13px;line-height:1.7">${avE(m)} <b>${m.n}</b>${m.g==='m'?' ♂':m.g==='f'?' ♀':''} · 顏值 ${Math.round(look(m))} · 天然度 ${Math.round(m.ap.natural)}<br>👗 目前穿搭:${FIT[m.fit][0]}${m.rec>0?'<br>🩹 術後恢復中(表現略受影響)':''}</div>`+
   B('👗 穿搭與服飾','快時尚到高級訂製,價格差很多','outfitMenu()','alt')+
   B('💇 美髮造型','髮型、氣質','itemMenu("salon")','alt')+
   B('🧴 保養與醫美','膚質','itemMenu("skin")','alt')+
   B('🏋️ 身材管理','健身、教練、營養師','itemMenu("gym")','alt')+
-  B('🏥 整容手術','提升外貌,但會降低天然度,有風險','surgMenu()','gold');
+  B('🏥 整容手術','提升外貌,但會降低天然度,有風險','surgMenu()','gold')+(G.mode!=='p'?B('🖼️ 更換頭像','上傳或移除你的頭像','avMenu("beautyMenu()")','alt'):'');
 }
 function outfitMenu(){
   const m=G.m[WHO()];
@@ -949,7 +955,7 @@ function custMenu(){
 }
 function custP(k,d){if(d>0&&CUST.pts<=0)return;if(d<0&&CUST.p[k]<=0)return;CUST.p[k]+=d;CUST.pts-=d;custMenu()}
 function custGo(){origPick(CUST.o,true)}
-function meOf(o){const c=CUST.on,nm=myName();const me=mkMember({n:nm,nat:NAT,g:GEN,e:c?CUST.e:o.e,a:c?CUST.a:o.a,t:c?CUST.t:o.t});me.real=cleanName(NM.real)||nm;
+function meOf(o){const c=CUST.on,nm=myName();const me=mkMember({n:nm,nat:NAT,g:GEN,e:c?CUST.e:o.e,a:c?CUST.a:o.a,t:c?CUST.t:o.t});me.real=cleanName(NM.real)||nm;me.isMe=true;
   if(c)['face','body','aura'].forEach(k=>me.ap[k]=cl(me.ap[k]+CUST.p[k]*2));return me}
 
 
@@ -1599,9 +1605,9 @@ function aPerform(k){
   if(survive&&!final&&Math.random()<.4){const ev=pick(AEV);G.one=m;const sb=snap();ef(ev.e);notes.push(`<span class="ev">${ev.t}</span>`)}
   if(survive&&!final)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
   if(!survive)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
-  const rows=field.slice(0,Math.min(5,total)).map((x,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${x.me?'color:#ffd76a;font-weight:700':''}">${x.me?'⭐ '+G.m[0].n:x.n+`<small style="opacity:.55;margin-left:6px">${AR[x.m.a][0]}·${tr(x.m).n}</small>`}</span><span style="width:40px">${Math.round(x.s)}</span></div>`).join('');
+  const rows=field.slice(0,Math.min(5,total)).map((x,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${x.me?'color:#ffd76a;font-weight:700':''}">${x.me?(avOn()?'<img class="av s" src="'+AV+'"> ':'⭐ ')+G.m[0].n:x.n+`<small style="opacity:.55;margin-left:6px">${AR[x.m.a][0]}·${tr(x.m).n}</small>`}</span><span style="width:40px">${Math.round(x.s)}</span></div>`).join('');
   const verdict=final?(rank===1?'🏆 你成為了冠軍!':`你在總決賽拿下第 ${rank} 名。`):survive?`✅ 你以第 ${rank} 名晉級下一關(取前 ${K} 名)`:`❌ 你以第 ${rank} 名遭到淘汰(取前 ${K} 名)`;
-  app.innerHTML=panel(hdrA())+`<div class="card"><h2>${st.e} ${st.n}</h2><p>評審 ${Math.round(judge)} · 觀眾 ${Math.round(aud)} · 綜合 ${Math.round(mine)}</p>${rows}${total>5&&rank>5?`<div class="mini" style="font-size:13px"><b style="width:26px">${rank}.</b><span style="flex:1;color:#ffd76a;font-weight:700">⭐ ${G.m[0].n}</span><span style="width:40px">${Math.round(mine)}</span></div>`:''}</div>
+  app.innerHTML=panel(hdrA())+`<div class="card"><h2>${st.e} ${st.n}</h2><p>評審 ${Math.round(judge)} · 觀眾 ${Math.round(aud)} · 綜合 ${Math.round(mine)}</p>${rows}${total>5&&rank>5?`<div class="mini" style="font-size:13px"><b style="width:26px">${rank}.</b><span style="flex:1;color:#ffd76a;font-weight:700">${avOn()?'<img class="av s" src="'+AV+'"> ':'⭐ '}${G.m[0].n}</span><span style="width:40px">${Math.round(mine)}</span></div>`:''}</div>
   <div class="card log"><p>${verdict}</p>${notes.map(x=>`<p>${x}</p>`).join('')}${diff(s0,snap())}</div>
   <details class="card"><summary>👀 對手檔案(前 4 名,各 27 項數值)</summary>${field.filter(x=>!x.me).slice(0,4).map(x=>memD(x.m,'對手 · ')).join('')}</details>`+
   B(final||!survive?'看結果 →':'下一關 →','','aNext()');
@@ -1829,6 +1835,7 @@ function nameMenu(){
   <div class="card"><div style="font-size:13px;margin-bottom:6px">本名</div><input id="nmr" class="fld" maxlength="16" placeholder="例如:林星語" oninput="nmUpd()"><div class="chips" style="margin:8px 0 0"><button class="chip" onclick="nmRand('r')">🎲 隨機本名</button></div></div>
   <div class="card"><div style="font-size:13px;margin-bottom:6px">藝名(選填)</div><input id="nms" class="fld" maxlength="16" placeholder="例如:Luna" oninput="nmUpd()"><div class="chips" style="margin:8px 0 0"><button class="chip" onclick="nmRand('s')">🎲 隨機藝名</button></div></div>
   <div class="card center" id="nmv" style="font-size:14px;line-height:1.7"></div>
+  <div class="card center">${avPrev()}<button class="chip" onclick="nmRead();avMenu('nameMenu()')">🖼️ ${AV?'更換頭像':'上傳頭像(選填)'}</button></div>
   <button class="btn gold" id="nmb" onclick="nmGo()">✨ 就用這個名字</button>`;
   document.getElementById('nmr').value=NM.real;document.getElementById('nms').value=NM.stage;nmUpd();
 }
@@ -1839,9 +1846,9 @@ function nmRand(w){nmRead();if(w==='r')NM.real=rndReal();else NM.stage=pick(STGN
 function nmGo(){nmRead();if(!cleanName(NM.real))return;NM.real=cleanName(NM.real);NM.stage=cleanName(NM.stage);
   try{const d=load();d.nm={real:NM.real,stage:NM.stage};save(d)}catch(e){}origGo()}
 
-function idLine(){const m=G.m[0],a=[];if(G.mode!=='p')a.push(`🪪 ${m.n}${m.real&&m.real!==m.n?`(本名 ${m.real})`:''}`);
+function idLine(){const m=G.m[0],a=[],pic=avOn()?`<img class="av xl" src="${AV}">`:'';if(G.mode!=='p')a.push(`🪪 ${m.n}${m.real&&m.real!==m.n?`(本名 ${m.real})`:''}`);
   if(G.group&&G.gname)a.push(`👥 ${G.gname}`);if(G.fan)a.push(`🎀 粉絲名「${G.fan}」`);
-  return a.length?`<p style="font-size:13px;opacity:.85;line-height:1.8">${a.join(' · ')}</p>`:''}
+  return a.length?`${pic}<p style="font-size:13px;opacity:.85;line-height:1.8">${a.join(' · ')}</p>`:''}
 function fanEv(){const f=G.fan;return {mi:0,t:`🎀 「${f}」們的應援`,d:`「${f}」們準備了一場應援活動,等著你的回應。`,c:[
   ['親自到場感謝',{fans:50,image:2,all:{mood:6,energy:-8}},`「${f}」們感動得紅了眼眶。`],
   ['錄一段感謝影片',{fans:30,buzz:6,all:{mood:4}},'影片被大量轉發,留言全是祝福。'],
@@ -1849,7 +1856,7 @@ function fanEv(){const f=G.fan;return {mi:0,t:`🎀 「${f}」們的應援`,d:`�
 function pDebut(){const go=()=>{weekly();G.week++;pHubNext()};if(G.fanDone)go();else fanNameMenu(go)}
 function fanNameMenu(next){
   FNX=next;FNC=shuffle(FANP).slice(0,8);const grp=G.group,who=grp?(G.gname?`「${G.gname}」`:'你們'):G.m[0].n;
-  app.innerHTML=panel(hdrAny())+`<div class="card center"><div class="big">🎉</div><h2>${who}${G.mode==='p'?'通過選拔,':''}正式出道!</h2><p style="line-height:1.7;font-size:14px">出道了,是時候替支持你${grp?'們':''}的人取一個專屬名字。</p></div>`+
+  app.innerHTML=panel(hdrAny())+`<div class="card center"><div class="big">${avOn()?'<img class="av l" src="'+AV+'">':'🎉'}</div><h2>${who}${G.mode==='p'?'通過選拔,':''}正式出道!</h2><p style="line-height:1.7;font-size:14px">出道了,是時候替支持你${grp?'們':''}的人取一個專屬名字。</p></div>`+
   (grp?`<div class="card"><div style="font-size:13px;margin-bottom:6px">組合名稱</div><input id="fng" class="fld" maxlength="16"><div class="chips sm" style="margin:8px 0 0">${GNAMES.map((x,i)=>`<button class="chip" onclick="gnPick(${i})">${x}</button>`).join('')}</div></div>`:'')+
   `<div class="card"><div style="font-size:13px;margin-bottom:6px">粉絲名稱</div><input id="fnf" class="fld" maxlength="16" placeholder="例如:星塵" oninput="fnUpd()"><div class="chips sm" style="margin:8px 0 0">${FNC.map((x,i)=>`<button class="chip" onclick="fnPick(${i})">${x}</button>`).join('')}</div></div>
   <button class="btn gold" id="fnb" onclick="fanOk()">🎀 就叫這個名字</button><button class="btn alt" onclick="fanSkip()">略過,先叫「粉絲」</button>`;
@@ -1865,6 +1872,57 @@ function fanOk(){const f=cleanName(document.getElementById('fnf').value);if(!f)r
 }
 function fanSkip(){G.fanDone=true;if(G.group&&!G.gname)G.gname=pick(GNAMES);fanNext()}
 function fanNext(){const f=FNX;FNX=null;if(f)f()}
+
+// =====================================================
+// 頭像:上傳、裁切、儲存(只存在本機瀏覽器,不會上傳)
+// =====================================================
+let AV='',AVI=null,AVC={z:1,x:.5,y:.5},AVB='home()',AVU='';
+const AVOK=u=>typeof u==='string'&&u.length<250000&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(u);
+const avOn=()=>!!(AV&&G&&G.mode&&G.mode!=='p'&&G.m&&G.m[0]&&G.m[0].isMe);
+const avE=m=>(avOn()&&G.m[0]===m)?`<img class="av" src="${AV}">`:m.e;
+const avPrev=()=>AV?`<img class="av xl" src="${AV}">`:'<div class="av xl ph">🌟</div>';
+function avMsg(t){const e=document.getElementById('avmsg');if(e){e.style.display='block';e.textContent=t}}
+function avFree(){if(AVU){try{URL.revokeObjectURL(AVU)}catch(e){}AVU=''}AVI=null}
+function avMenu(back){
+  if(back)AVB=back;avFree();
+  app.innerHTML=`<button class="back" onclick="${AVB}">← 返回</button><h2>🖼️ 我的頭像</h2>
+  <div class="card center">${avPrev()}<p style="font-size:13px;line-height:1.7;opacity:.85">上傳一張照片當作你的頭像,會顯示在遊戲畫面、出道與結局。<br>🔒 照片只會留在這個裝置的瀏覽器裡,不會上傳到任何地方。</p></div>
+  <input type="file" id="avf" accept="image/*" style="display:none" onchange="avLoad(this)">
+  <button class="btn gold" onclick="document.getElementById('avf').click()">📷 選擇照片</button>
+  ${AV?'<button class="btn alt" onclick="avDel()">🗑️ 移除頭像</button>':''}
+  <div id="avmsg" class="card center" style="display:none;font-size:13px"></div>`;
+}
+function avLoad(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  if(!/^image\//.test(f.type)){avMsg('請選擇圖片檔(JPG、PNG 等)。');return}
+  if(f.size>25*1024*1024){avMsg('照片太大了(超過 25MB),請換一張小一點的。');return}
+  avMsg('讀取中…');avFree();
+  const u=URL.createObjectURL(f),im=new Image();AVU=u;
+  im.onload=()=>{if(!im.naturalWidth||!im.naturalHeight){avMsg('無法讀取這張照片。');return}AVI=im;AVC={z:1,x:.5,y:.5};avCropUI()};
+  im.onerror=()=>avMsg('無法讀取這張照片,請換一張(建議 JPG 或 PNG)。');
+  im.src=u;
+}
+function avCropUI(){
+  const row=(id,l,mn,mx,v)=>`<div class="mini" style="margin:8px 0;font-size:13px"><b style="width:44px">${l}</b><input type="range" id="${id}" min="${mn}" max="${mx}" step="0.01" value="${v}" style="flex:1" oninput="avDraw()"></div>`;
+  app.innerHTML=`<button class="back" onclick="avMenu()">← 重選</button><h2>✂️ 調整頭像</h2>
+  <div class="card center"><canvas id="avc" width="240" height="240" style="width:240px;height:240px;max-width:100%;border-radius:50%;border:3px solid #ffd76a"></canvas><p style="font-size:12px;opacity:.75;margin:8px 0 0">圓形範圍內就是頭像顯示的樣子</p></div>
+  <div class="card">${row('avz','縮放',1,3,1)}${row('avx','左右',0,1,.5)}${row('avy','上下',0,1,.5)}</div>
+  <button class="btn gold" onclick="avSave()">✅ 使用這張</button>
+  <div id="avmsg" class="card center" style="display:none;font-size:13px"></div>`;
+  avDraw();
+}
+function avPaint(ctx,S){const im=AVI,iw=im.naturalWidth,ih=im.naturalHeight,b=Math.max(S/iw,S/ih)*AVC.z,dw=iw*b,dh=ih*b;
+  ctx.fillStyle='#000';ctx.fillRect(0,0,S,S);ctx.drawImage(im,-(dw-S)*AVC.x,-(dh-S)*AVC.y,dw,dh)}
+function avDraw(){AVC.z=+document.getElementById('avz').value;AVC.x=+document.getElementById('avx').value;AVC.y=+document.getElementById('avy').value;
+  const c=document.getElementById('avc');if(c&&AVI)avPaint(c.getContext('2d'),240)}
+function avSave(){
+  if(!AVI)return;const c=document.createElement('canvas');c.width=c.height=192;avPaint(c.getContext('2d'),192);
+  let u='';try{u=c.toDataURL('image/jpeg',.85)}catch(e){}
+  if(!AVOK(u)){avMsg('處理照片失敗,請換一張再試試。');return}
+  AV=u;let saved=true;try{const d=load();d.av=u;localStorage.setItem('stargame2',JSON.stringify(d))}catch(e){saved=false}
+  avMenu();if(!saved)avMsg('頭像已套用,但瀏覽器無法儲存,關閉遊戲後會消失。');
+}
+function avDel(){AV='';try{const d=load();delete d.av;save(d)}catch(e){}avMenu()}
 
 loadSet();home();
 </script>
