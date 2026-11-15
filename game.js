@@ -1729,7 +1729,7 @@ function reviewMenu(){
   <div class="card"><label class="ck"><input type="checkbox" id="rvc" onchange="REV.ok=this.checked;rvUpd()"><span>我同意將以上評論${L?'與這局的遊玩資料(模式、市場、結局)':''}寄給作者,供改進遊戲使用。</span></label></div>
   <button class="btn gold" id="rvs" onclick="rvSend()">📧 寄給作者</button>
   <button class="btn alt" id="rvcp" onclick="rvCopy()">📋 複製評論內容<small>若沒有郵件 App,可複製後自行傳送給作者</small></button>
-  <div class="card center" style="font-size:12px;opacity:.7;line-height:1.7">${RVOK()?`收件人:${RVTO}<br>`:'⚠️ 作者尚未設定收件信箱,目前只能使用「複製評論內容」。<br>'}請勿在評論中填寫密碼等個人敏感資料。</div>`;
+  <div class="card center" style="font-size:12px;opacity:.7;line-height:1.7">${RVOK()?'':'⚠️ 作者尚未設定收件信箱,目前只能使用「複製評論內容」。<br>'}請勿在評論中填寫密碼等個人敏感資料。</div>`;
   document.getElementById('rvn').value=REV.n;document.getElementById('rvt').value=REV.t;document.getElementById('rvc').checked=REV.ok;rvUpd();
 }
 function rvSync(){try{REV.n=document.getElementById('rvn').value;REV.t=document.getElementById('rvt').value}catch(e){}}
