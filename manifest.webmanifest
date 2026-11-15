@@ -1,6 +1,6 @@
 {
-  "name": "明星遊戲",
-  "short_name": "明星遊戲",
+  "name": "明星模擬器",
+  "short_name": "明星模擬器",
   "description": "製作人 × 做明星 × 選秀",
   "start_url": ".",
   "display": "standalone",

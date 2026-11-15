@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>明星遊戲:製作人 × 做明星</title>
+<title>明星模擬器:製作人 × 做明星</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#120a2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="明星遊戲">
+<meta name="apple-mobile-web-app-title" content="明星模擬器">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:var(--b0,#120a2a);color:#f5f0ff;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
@@ -300,7 +300,7 @@ function home(){
   const bps=MKORDER.filter(k=>bp[k]).map(k=>`${MK[k].e}${bp[k].r}`).join(' ');
   const ap=d.ap||{},aps=MKORDER.filter(k=>ap[k]).map(k=>`${MK[k].e}${ap[k].l}`).join(' ');
   app.innerHTML=`
-  <h1>⭐ 明星遊戲 ⭐</h1>
+  <h1>⭐ 明星模擬器 ⭐</h1>
   <div class="sub">八大演藝圈 · 45 間商店 · 9 國籍 · 216 位新人 · 每人 57 項數值 · 數十萬種結果</div>
   ${runInfo()?B('▶️ 繼續上次的遊戲',runInfo(),'resumeGame()','gold'):''}
   ${!d.seen?`<div class="card" style="font-size:13px;line-height:1.7">👋 第一次玩?點下方「❓ 玩法說明」,30 秒看懂怎麼玩。</div>`:''}
