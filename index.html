@@ -245,14 +245,14 @@ function diff(a,b){const out=[];for(const k in b){const d=Math.round(b[k])-Math.
 function mini(l,v,c){return `<div class="mini"><b>${l}</b><div class="bar"><i style="width:${cl(v)}%;background:${c}"></i></div><span>${Math.round(v)}</span></div>`}
 function memD(m,tag){
   const lk=Math.round(look(m));
-  return `<details class="card mem"><summary>${tag?'👥 ':''}${m.e} <b>${m.n}</b><small>${tag}${AR[m.a][0]}·${tr(m).n}·顏值${lk}</small><div class="g3">${mini('體力',m.energy,STAT.energy[1])}${mini('心情',m.mood,STAT.mood[1])}${mini('壓力',m.stress,STAT.stress[1])}</div></summary>`+
+  return `<details class="card mem"><summary>${tag?'👥 ':''}${m.e} <b>${m.n}</b><small>${tag}${m.real&&m.real!==m.n?'本名 '+m.real+' · ':''}${AR[m.a][0]}·${tr(m).n}·顏值${lk}</small><div class="g3">${mini('體力',m.energy,STAT.energy[1])}${mini('心情',m.mood,STAT.mood[1])}${mini('壓力',m.stress,STAT.stress[1])}</div></summary>`+
   CATS.map(c=>`<div class="sec">${c[1]} ${c[0]}(${c[3].length})</div><div class="g2">${c[3].map(k=>mini(SK[k],m.sk[k],SKC[k])).join('')}</div>`).join('')+
   `<div class="sec">🧠 個性(${PKK.length})</div><div class="g2">${PKK.map(k=>mini(PK[k],m.p[k],PKC[k])).join('')}</div>`+
   `<div class="sec">🪞 外貌</div><div class="g2">${mini('顏值',lk,'#f9a8d4')}${Object.keys(APK).map(k=>mini(APK[k],m.ap[k],APC[k])).join('')}</div><p style="font-size:12px;opacity:.8;margin:6px 0 0">👗 ${FIT[m.fit][0]}${m.rec>0?' · 術後恢復中':''}</p></details>`;
 }
 function panel(chip){
   const M=M_();
-  let h=`<div class="top"><span class="pill">${chip}</span><span class="pill">${M.e} ${M.n}</span><span class="pill">💰 ${Math.round(G.money)}</span><span class="pill">❤️ ${G.fans}</span></div>`;
+  let h=`<div class="top"><span class="pill">${chip}</span><span class="pill">${M.e} ${M.n}</span><span class="pill">💰 ${Math.round(G.money)}</span><span class="pill">❤️ ${G.fan?G.fan+' ':''}${G.fans}</span></div>`;
   h+='<div class="card"><div class="g2">'+Object.keys(CAR).filter(k=>k!=='chem'||G.group).map(k=>mini(CAR[k][0],G[k],CAR[k][1])).join('')+'</div></div>';
   G.m.forEach(m=>{h+=memD(m,'')});
   (G.mates||[]).forEach(m=>{h+=memD(m,'隊友 · ')});
@@ -276,7 +276,7 @@ function resumeGame(){let r;try{r=JSON.parse(localStorage.getItem(RUNK)||'null')
   else aPrep()}
 function runInfo(){try{const r=JSON.parse(localStorage.getItem(RUNK)||'null');if(!r||!r.G)return '';const g=r.G,M=MK[g.mk];
   return g.mode==='p'?`${M.e} 製作人 · 第 ${g.week}/16 週`:g.mode==='s'?`${M.e} 做明星 · 階段 ${g.ch+1}/5`:`${M.e} 選秀 · ${RN[g.r]}`}catch(e){return ''}}
-function loadSet(){const d=load();if(d.set){GEN=d.set.g||'x';LP=d.set.l||'a';SND=!!d.set.s;GM=d.set.m||'any';applyTheme(d.set.t||0)}}
+function loadSet(){const d=load();if(d.set){GEN=d.set.g||'x';LP=d.set.l||'a';SND=!!d.set.s;GM=d.set.m||'any';applyTheme(d.set.t||0)}if(d.nm)NM=Object.assign({real:'',stage:''},d.nm)}
 function saveSet(){const d=load();d.set={g:GEN,l:LP,t:THM,s:SND?1:0,m:GM};save(d)}
 function load(){try{return JSON.parse(localStorage.getItem('stargame2')||'{}')}catch(e){return {}}}
 function save(o){try{localStorage.setItem('stargame2',JSON.stringify(o))}catch(e){}}
@@ -288,7 +288,7 @@ function helpMenu(){const d=load();d.seen=1;save(d);
   const C=(t,x)=>`<div class="card" style="font-size:13.5px;line-height:1.75"><b>${t}</b><br>${x}</div>`;
   app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>❓ 玩法說明</h2>`+
   C('🎬 明星製作人','你是經紀人,用 16 週培育新人或組合。每週選一個行動:訓練、打工、休息、商城、戀愛…最後用演唱會評級 S/A/B/C。')+
-  C('🌟 做明星','你是主角,走過 5 個人生階段。每階段先選方針,再有「個人時間」(逛商城、戀愛、整容),最後面對兩個抉擇事件,決定結局。')+
+  C('🌟 做明星','你是主角,出道前先取本名與藝名,出道後再為粉絲取名字。走過 5 個人生階段。每階段先選方針,再有「個人時間」(逛商城、戀愛、整容),最後面對兩個抉擇事件,決定結局。')+
   C('🎙️ 選秀','5 關淘汰賽。賽前準備提升狀態,再選表演類型登台。評審看重該市場的特色,觀眾看人氣與外貌。')+
   C('🛍️ 商城與外貌','45 間商店,買服飾、名牌、上才藝課、健身、旅行。名牌是永久加成,但買太多可能引爆炫富風波。整容效果好但會降低「天然度」,有失敗風險。')+
   C('💞 戀愛','認識對象 → 聊天、約會、送禮 → 好感夠高告白 → 公開 → 求婚。太久不聯絡好感會下降,戀情也可能被狗仔曝光。')+
@@ -621,6 +621,7 @@ function lifeEvents(k){const out=[];
     if(Math.random()<.03*k)out.push(rumorEv(m,mi));
   });
   if(Math.random()<.12*k){const mi=R(0,G.m.length-1);const e=pick(BIGS)(G.m[mi]);e.mi=mi;out.push(e)}
+  if(G.fan&&Math.random()<.07*k)out.push(fanEv());
   if((G.br||0)>0&&Math.random()<.05*k)out.push(exEv());
   if(G.fit0!==undefined){const fv=fitv();if(fv<.8&&Math.random()<.14*k*(1-fv))out.push(cultEv());if(G.fit0<.9&&Math.random()<.05*k)out.push(homeEv())}
   if(G.mode==='p'&&new Set(G.m.map(m=>m.nat)).size>1&&Math.random()<.1*k)out.push(mixEv());
@@ -690,6 +691,7 @@ function sEvPick(k){const c=G.pev.c[k],s0=snap();let eff=c[1],res=c[2];if(typeof
 function sRelNext(){
   if(G.rnotes&&G.rnotes.length){const n=G.rnotes;G.rnotes=[];app.innerHTML=panel(hdrS())+`<div class="card log">${n.map(x=>`<p>${x}</p>`).join('')}</div>`+B('繼續 →','','sRelNext()');return}
   if(G.q2&&G.q2.length)return sEvShow(G.q2.shift());
+  if(G.ch>=2&&!G.fanDone)return fanNameMenu(()=>sFocus());
   sFocus();
 }
 function sPersonal(){
@@ -937,7 +939,7 @@ const esc=s=>String(s).replace(/[<>&"'`\\]/g,'');
 function custMenu(){
   const chip=(sel,on)=>`<button class="chip ${sel?'sel':''}" onclick="${on}">`;
   app.innerHTML=`<button class="back" onclick="originSelect()">← 返回</button><h2>✏️ 自訂角色</h2>
-  <div class="card"><div style="font-size:13px;margin-bottom:6px">名字(最多 8 字)</div><input id="cn" value="${esc(CUST.n)}" maxlength="8" oninput="CUST.n=esc(this.value.slice(0,8))" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;font-size:16px"></div>
+  <div class="card" style="font-size:13px;line-height:1.7">🪪 名字(本名與藝名)會在下一步決定。</div>
   <div class="card"><div style="font-size:13px;margin-bottom:6px">代表圖示</div><div class="chips">${EMOS.map(x=>chip(CUST.e===x,`CUST.e='${x}';custMenu()`)+x+'</button>').join('')}</div></div>
   <div class="card"><div style="font-size:13px;margin-bottom:6px">擅長類型</div><div class="chips">${Object.keys(AR).map(k=>chip(CUST.a===k,`CUST.a='${k}';custMenu()`)+AR[k][0]+'</button>').join('')}</div></div>
   <div class="card"><div style="font-size:13px;margin-bottom:6px">個性</div><div class="chips">${Object.keys(TR).map(k=>chip(CUST.t===k,`CUST.t='${k}';custMenu()`)+TR[k].n+'</button>').join('')}</div><div style="font-size:12px;opacity:.75;margin-top:4px">${TR[CUST.t].d}</div></div>
@@ -946,8 +948,8 @@ function custMenu(){
   B('完成並開始','','custGo()','gold');
 }
 function custP(k,d){if(d>0&&CUST.pts<=0)return;if(d<0&&CUST.p[k]<=0)return;CUST.p[k]+=d;CUST.pts-=d;custMenu()}
-function custGo(){CUST.n=esc(CUST.n||'').trim()||'小星星';origPick(CUST.o,true)}
-function meOf(o){const c=CUST.on;const me=mkMember({n:c?CUST.n:'你',nat:NAT,g:GEN,e:c?CUST.e:o.e,a:c?CUST.a:o.a,t:c?CUST.t:o.t});
+function custGo(){origPick(CUST.o,true)}
+function meOf(o){const c=CUST.on,nm=myName();const me=mkMember({n:nm,nat:NAT,g:GEN,e:c?CUST.e:o.e,a:c?CUST.a:o.a,t:c?CUST.t:o.t});me.real=cleanName(NM.real)||nm;
   if(c)['face','body','aura'].forEach(k=>me.ap[k]=cl(me.ap[k]+CUST.p[k]*2));return me}
 
 
@@ -1191,7 +1193,7 @@ function pAud(){
   else{e={fans:15,buzz:2};msg='😅 勉強過關,評審建議再加強基本功。'}
   const sb=snap();ef(e);
   app.innerHTML=panel(hdrP())+`<div class="card center"><div class="big">🎙️</div><h2>第 8 週:${M.aud}</h2><p>綜合評分 ${Math.round(sc)}</p><p style="line-height:1.6">${msg}</p>${diff(sb,snap())}</div>`+
-  B('繼續培育 →','','weekly();G.week++;pHubNext()');
+  B('繼續培育 →','','pDebut()');
 }
 function pScore(){
   const core=topSk(4),chemB=G.group?(G.chem-50)/10:0;
@@ -1208,7 +1210,7 @@ function pFinal(){
   const extra=(r==='S'||r==='A'?`<p class="up">🏅 榮獲${M.aw}</p>`:'')+(G.group?`<p style="opacity:.85">組合默契 ${Math.round(G.chem)}:${G.chem>=70?'舞台上心有靈犀。':G.chem>=40?'彼此合作順暢。':'台上略顯生疏,還需磨合。'}</p>`:'');
   G.m.forEach(m=>{});
   app.innerHTML=`<div class="card center"><div class="big">${e}</div><h2>${M.e} ${M.fin} · 評級 ${r}</h2>${nb?'<p class="up">🏆 新的市場最佳紀錄!</p>':''}
-  <p style="line-height:1.7">${t}</p>${extra}<p class="delta">綜合分數 ${score} · 粉絲 ${G.fans} · 資金 ${Math.round(G.money)}</p></div>
+  <p style="line-height:1.7">${t}</p>${extra}${idLine()}<p class="delta">綜合分數 ${score} · 粉絲 ${G.fans} · 資金 ${Math.round(G.money)}</p></div>
   ${outBlock('p',r)}${achBlock('p',r)}<details class="card"><summary>📊 查看全部數值</summary>${panel('最終').replace(/<details class="card mem"/g,'<details class="mem" open')}</details>`+
   B('🔁 再培育一次','','mkSelect("p")')+B('回首頁','','home()','alt');
   if(r==='S'||r==='A')confetti();
@@ -1401,8 +1403,8 @@ function originSelect(){
   app.innerHTML=`<button class="back" onclick="mkSelect(MODE)">← 換市場</button><h2>${M.e} ${M.n}:你的起點</h2><div class="card">${MODE==='a'?`你要參加「${M.aud}」,評審特別看重<b>${PREFN[MKID]}</b>。`:''}你是故事主角。共 <b>5 個人生階段</b>,每階段先決定<b>方針</b>,再面對 2 件事。心情歸零、壓力爆表或體力耗盡,都會倦怠退出舞台!</div>`+
   B('✏️ 自訂角色','自己決定名字、擅長、個性、外貌與背景',`custMenu()`,'gold')+ORIGINS.map((o,i)=>B(`${o.e} ${o.n}`,`${AR[o.a][0]} · ${TR[o.t].n} — ${o.d}`,`origPick(${i})`,'alt')).join('');
 }
-function origPick(i,c){
-  OID=i;CUST.on=!!c;
+function origPick(i,c){OID=i;CUST.on=!!c;nameMenu()}
+function origGo(){
   if(MODE==='a')return aBegin();
   app.innerHTML=`<button class="back" onclick="originSelect()">← 換起點</button><h2>選擇出道路線</h2>`+
   B('🎤 單飛','專注個人發展,成長與抉擇都由你主導','sBegin(false)','alt')+
@@ -1483,7 +1485,7 @@ function sEnd(type){
   clearRun();track();const k=type||sKey();unlock(k);
   const M=M_(),[e,t]=ENDS[k],d=load();
   app.innerHTML=`<div class="card center"><div class="big">${e}</div><h2>結局:${t}</h2><p style="line-height:1.7">${SD[k]}</p><p style="line-height:1.7;opacity:.85">${M.e} ${k==='burn'?'':M.end}</p>
-  <p class="delta">🏆 已收集結局 ${(d.ends||[]).length}/12</p></div>
+  ${idLine()}<p class="delta">🏆 已收集結局 ${(d.ends||[]).length}/12</p></div>
   ${outBlock('s',k)}${achBlock('s',k)}<details class="card"><summary>📊 查看全部數值</summary>${panel('最終').replace(/<details class="card mem"/g,'<details class="mem" open')}</details>`+
   B('🔁 重新開始人生','','natSelect("s")')+B('回首頁','','home()','alt');
   if(k!=='burn')confetti();
@@ -1597,9 +1599,9 @@ function aPerform(k){
   if(survive&&!final&&Math.random()<.4){const ev=pick(AEV);G.one=m;const sb=snap();ef(ev.e);notes.push(`<span class="ev">${ev.t}</span>`)}
   if(survive&&!final)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
   if(!survive)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
-  const rows=field.slice(0,Math.min(5,total)).map((x,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${x.me?'color:#ffd76a;font-weight:700':''}">${x.me?'⭐ 你':x.n+`<small style="opacity:.55;margin-left:6px">${AR[x.m.a][0]}·${tr(x.m).n}</small>`}</span><span style="width:40px">${Math.round(x.s)}</span></div>`).join('');
+  const rows=field.slice(0,Math.min(5,total)).map((x,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${x.me?'color:#ffd76a;font-weight:700':''}">${x.me?'⭐ '+G.m[0].n:x.n+`<small style="opacity:.55;margin-left:6px">${AR[x.m.a][0]}·${tr(x.m).n}</small>`}</span><span style="width:40px">${Math.round(x.s)}</span></div>`).join('');
   const verdict=final?(rank===1?'🏆 你成為了冠軍!':`你在總決賽拿下第 ${rank} 名。`):survive?`✅ 你以第 ${rank} 名晉級下一關(取前 ${K} 名)`:`❌ 你以第 ${rank} 名遭到淘汰(取前 ${K} 名)`;
-  app.innerHTML=panel(hdrA())+`<div class="card"><h2>${st.e} ${st.n}</h2><p>評審 ${Math.round(judge)} · 觀眾 ${Math.round(aud)} · 綜合 ${Math.round(mine)}</p>${rows}${total>5&&rank>5?`<div class="mini" style="font-size:13px"><b style="width:26px">${rank}.</b><span style="flex:1;color:#ffd76a;font-weight:700">⭐ 你</span><span style="width:40px">${Math.round(mine)}</span></div>`:''}</div>
+  app.innerHTML=panel(hdrA())+`<div class="card"><h2>${st.e} ${st.n}</h2><p>評審 ${Math.round(judge)} · 觀眾 ${Math.round(aud)} · 綜合 ${Math.round(mine)}</p>${rows}${total>5&&rank>5?`<div class="mini" style="font-size:13px"><b style="width:26px">${rank}.</b><span style="flex:1;color:#ffd76a;font-weight:700">⭐ ${G.m[0].n}</span><span style="width:40px">${Math.round(mine)}</span></div>`:''}</div>
   <div class="card log"><p>${verdict}</p>${notes.map(x=>`<p>${x}</p>`).join('')}${diff(s0,snap())}</div>
   <details class="card"><summary>👀 對手檔案(前 4 名,各 27 項數值)</summary>${field.filter(x=>!x.me).slice(0,4).map(x=>memD(x.m,'對手 · ')).join('')}</details>`+
   B(final||!survive?'看結果 →':'下一關 →','','aNext()');
@@ -1811,6 +1813,58 @@ function rvSend(){
 }
 async function rvCopy(){rvSync();const t=`${RVOK()?`收件人:${RVTO}\n`:''}主旨:【明星模擬器】遊玩評論\n\n${rvBody()}`;const b=document.getElementById('rvcp');
   try{await navigator.clipboard.writeText(t);if(b)b.firstChild.textContent='✅ 已複製'}catch(e){if(b)b.firstChild.textContent='❗ 無法自動複製,請手動選取文字'}}
+// =====================================================
+// 命名:本名 · 藝名 · 粉絲名
+// =====================================================
+let NM={real:'',stage:''},FNX=null,FNC=[];
+const cleanName=s=>esc(String(s==null?'':s)).replace(/\s+/g,' ').trim().slice(0,16);
+const STGNM=['星野','夜櫻','Luna','Nova','Aria','小夏','Kai','Ruby','夏星','Mika','Yuna','Sora','Zoe','Neon','Ivy','Remi','Vera','Hana','Eden','Nico','Leia','Mina','Jade','Rin','Skye','Aki','Lumi','Echo'];
+const FANP=['星塵','星光','閃閃','小星星','螢火','星願','晨星','暖陽','星河','Stardust','Lumi','Sparkles','Aurora','小太陽','追星者','光芒','Twinkle','銀河','星星糖','夢想家'];
+function myName(){let n=cleanName(NM.stage)||cleanName(NM.real)||'你';while(ALLR.some(c=>c.n===n))n+='★';return n}
+function rndReal(){const g=GEN==='x'?pick(['m','f']):GEN,nat=GN[NAT]?NAT:'tw',f=pick(GN[nat][g]),sn=RIV[nat];return WEST.has(nat)?f+' '+pick(sn[1]):pick(sn[0])+f}
+function nameMenu(){
+  const o=ORIGINS[OID];
+  app.innerHTML=`<button class="back" onclick="originSelect()">← 換起點</button><h2>🪪 你的名字</h2>
+  <div class="card" style="font-size:13px;line-height:1.7">${o.e} ${o.n}。<br><b>本名</b>是你的真實姓名;<b>藝名</b>是舞台上、媒體與粉絲稱呼你的名字,不填就用本名。<br>出道之後,還能為你的粉絲取一個專屬名字。</div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">本名</div><input id="nmr" class="fld" maxlength="16" placeholder="例如:林星語" oninput="nmUpd()"><div class="chips" style="margin:8px 0 0"><button class="chip" onclick="nmRand('r')">🎲 隨機本名</button></div></div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">藝名(選填)</div><input id="nms" class="fld" maxlength="16" placeholder="例如:Luna" oninput="nmUpd()"><div class="chips" style="margin:8px 0 0"><button class="chip" onclick="nmRand('s')">🎲 隨機藝名</button></div></div>
+  <div class="card center" id="nmv" style="font-size:14px;line-height:1.7"></div>
+  <button class="btn gold" id="nmb" onclick="nmGo()">✨ 就用這個名字</button>`;
+  document.getElementById('nmr').value=NM.real;document.getElementById('nms').value=NM.stage;nmUpd();
+}
+function nmRead(){NM.real=document.getElementById('nmr').value;NM.stage=document.getElementById('nms').value}
+function nmUpd(){nmRead();const r=cleanName(NM.real),s=cleanName(NM.stage),v=document.getElementById('nmv'),b=document.getElementById('nmb');
+  if(v)v.textContent=r?(s&&s!==r?`舞台上大家會叫你「${s}」(本名 ${r})`:`大家會叫你「${r}」`):'請先輸入本名';if(b)b.disabled=!r}
+function nmRand(w){nmRead();if(w==='r')NM.real=rndReal();else NM.stage=pick(STGNM);document.getElementById('nmr').value=NM.real;document.getElementById('nms').value=NM.stage;nmUpd()}
+function nmGo(){nmRead();if(!cleanName(NM.real))return;NM.real=cleanName(NM.real);NM.stage=cleanName(NM.stage);
+  try{const d=load();d.nm={real:NM.real,stage:NM.stage};save(d)}catch(e){}origGo()}
+
+function idLine(){const m=G.m[0],a=[];if(G.mode!=='p')a.push(`🪪 ${m.n}${m.real&&m.real!==m.n?`(本名 ${m.real})`:''}`);
+  if(G.group&&G.gname)a.push(`👥 ${G.gname}`);if(G.fan)a.push(`🎀 粉絲名「${G.fan}」`);
+  return a.length?`<p style="font-size:13px;opacity:.85;line-height:1.8">${a.join(' · ')}</p>`:''}
+function fanEv(){const f=G.fan;return {mi:0,t:`🎀 「${f}」們的應援`,d:`「${f}」們準備了一場應援活動,等著你的回應。`,c:[
+  ['親自到場感謝',{fans:50,image:2,all:{mood:6,energy:-8}},`「${f}」們感動得紅了眼眶。`],
+  ['錄一段感謝影片',{fans:30,buzz:6,all:{mood:4}},'影片被大量轉發,留言全是祝福。'],
+  ['默默收下心意',{all:{mood:5,stress:-4}},'你把這份心意好好放在心裡。']]}}
+function pDebut(){const go=()=>{weekly();G.week++;pHubNext()};if(G.fanDone)go();else fanNameMenu(go)}
+function fanNameMenu(next){
+  FNX=next;FNC=shuffle(FANP).slice(0,8);const grp=G.group,who=grp?(G.gname?`「${G.gname}」`:'你們'):G.m[0].n;
+  app.innerHTML=panel(hdrAny())+`<div class="card center"><div class="big">🎉</div><h2>${who}${G.mode==='p'?'通過選拔,':''}正式出道!</h2><p style="line-height:1.7;font-size:14px">出道了,是時候替支持你${grp?'們':''}的人取一個專屬名字。</p></div>`+
+  (grp?`<div class="card"><div style="font-size:13px;margin-bottom:6px">組合名稱</div><input id="fng" class="fld" maxlength="16"><div class="chips sm" style="margin:8px 0 0">${GNAMES.map((x,i)=>`<button class="chip" onclick="gnPick(${i})">${x}</button>`).join('')}</div></div>`:'')+
+  `<div class="card"><div style="font-size:13px;margin-bottom:6px">粉絲名稱</div><input id="fnf" class="fld" maxlength="16" placeholder="例如:星塵" oninput="fnUpd()"><div class="chips sm" style="margin:8px 0 0">${FNC.map((x,i)=>`<button class="chip" onclick="fnPick(${i})">${x}</button>`).join('')}</div></div>
+  <button class="btn gold" id="fnb" onclick="fanOk()">🎀 就叫這個名字</button><button class="btn alt" onclick="fanSkip()">略過,先叫「粉絲」</button>`;
+  document.getElementById('fnf').value='';const g=document.getElementById('fng');if(g)g.value=G.gname||'';fnUpd();
+}
+function fnUpd(){const b=document.getElementById('fnb'),i=document.getElementById('fnf');if(b&&i)b.disabled=!cleanName(i.value)}
+function fnPick(i){document.getElementById('fnf').value=FNC[i];fnUpd()}
+function gnPick(i){document.getElementById('fng').value=GNAMES[i]}
+function fanOk(){const f=cleanName(document.getElementById('fnf').value);if(!f)return;const gi=document.getElementById('fng');
+  if(G.group){const g=gi?cleanName(gi.value):'';G.gname=g||G.gname||pick(GNAMES)}
+  G.fan=f;G.fanDone=true;const s0=snap();G.one=G.m[0];ef({fans:40,buzz:6,all:{mood:4}});
+  app.innerHTML=panel(hdrAny())+`<div class="card center"><div class="big">🎀</div><h2>「${f}」誕生!</h2><p style="line-height:1.7">${G.group?`「${G.gname}」`:G.m[0].n}的粉絲從今天起有了自己的名字。<br>第一次的應援聲浪,讓大家都笑開了。</p>${diff(s0,snap())}</div>`+B('繼續 →','','fanNext()','gold');
+}
+function fanSkip(){G.fanDone=true;if(G.group&&!G.gname)G.gname=pick(GNAMES);fanNext()}
+function fanNext(){const f=FNX;FNX=null;if(f)f()}
 
 loadSet();home();
 </script>
