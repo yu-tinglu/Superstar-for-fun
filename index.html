@@ -69,11 +69,17 @@ details .g2{margin-top:8px}
 @keyframes inn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 #app>*{animation:inn .3s both}
 @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+#copy{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:6px 14px calc(env(safe-area-inset-bottom) + 22px);text-align:center;font-size:11.5px;line-height:1.7;opacity:.55}
+.fld{width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;font:inherit;font-size:16px}
+textarea.fld{min-height:130px;resize:vertical;line-height:1.55}
+.ck{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;margin:6px 0}
+.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 <div id="app"></div>
+<div id="copy">© 2026 yu-tinglu. 版權所有 All rights reserved.<br>《明星模擬器》中的人物、組合與事件皆為虛構,如有雷同純屬巧合。<br>未經許可,請勿轉載、重製或作商業用途。</div>
 <script>
 // ---------- 星空背景 ----------
 (function(){
@@ -307,6 +313,7 @@ function home(){
   ${B('🎬 明星製作人','你是經紀公司製作人,在 16 週內培育單人或組合出道','mkSelect("p")')}
   ${B('🌟 做明星','你就是主角!選擇國籍、市場與起點,經歷 5 個人生階段','natSelect("s")','gold')}
   ${B('🏆 成就與圖鑑',`成就 ${(d.ach||[]).length}/${ACH.length} · 商品 ${Object.keys(d.col||{}).length}/${SHOPS.reduce((a,x)=>a+x.it.length,0)}`,'achMenu()','alt')}
+  ${B('💬 遊玩評論','留下你的心得與建議,可選擇寄給作者','reviewMenu()','alt')}
   ${B('❓ 玩法說明','三種模式、商城、戀愛、整容怎麼玩','helpMenu()','alt')}
   ${B('⚙️ 設定(性別、主題、音效)',`目前:我是${GL[GEN]},戀愛對象:${PL[LP]}`,'genderMenu()','alt')}
   ${B('🎙️ 參加選秀','16 人 5 關淘汰賽,評審與觀眾投票,拿下冠軍出道!','natSelect("a")','alt')}
@@ -530,7 +537,8 @@ function outcome(mode,tier){
 function outBlock(mode,tier){
   const o=outcome(mode,tier),d=load();d.out=d.out||[];
   const nu=!d.out.includes(o.key);if(nu){d.out.push(o.key);save(d)}
-  return `<div class="card"><span class="tag">你的專屬結果</span><h2>${o.title}</h2><p style="line-height:1.7">${o.text}</p><p class="delta">${nu?'🆕 新解鎖的結果!':'這個結果你之前解鎖過了。'}<br>累計解鎖 ${d.out.length} 種 / 共約 ${TOTALTXT} 種組合</p></div>`;
+  window.LASTRUN={mode,mk:G.mk,tier,title:o.title};
+  return `<div class="card"><span class="tag">你的專屬結果</span><h2>${o.title}</h2><p style="line-height:1.7">${o.text}</p><p class="delta">${nu?'🆕 新解鎖的結果!':'這個結果你之前解鎖過了。'}<br>累計解鎖 ${d.out.length} 種 / 共約 ${TOTALTXT} 種組合</p></div>`+B('💬 留下遊玩評論','玩得開心嗎?告訴作者你的想法','reviewMenu()','alt');
 }
 
 // =====================================================
@@ -1767,6 +1775,42 @@ function goMk(k){
 }
 function marketsWon(){return (G.mks||[]).filter(k=>(G.ms||{})[k]>=30).length}
 function msWeekly(k){G.ms=G.ms||{};(G.mks||[G.mk]).forEach(m=>{if(m===G.mk)G.ms[m]=cl((G.ms[m]||0)+(1.1+G.fame/60)*k*(.5+fitv()*.6));else G.ms[m]=cl((G.ms[m]||0)-.3*k)})}
+
+// =====================================================
+// 遊玩評論(玩家同意後,以郵件 App 寄給作者)
+// =====================================================
+// 作者請把下面這行的 REVIEW_EMAIL_PLACEHOLDER 換成收件信箱(保留前後的單引號)
+const RVTO='REVIEW_EMAIL_PLACEHOLDER';
+const RVOK=()=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(RVTO);
+const REV={r:0,n:'',t:'',ok:false};
+const MODEN={p:'明星製作人',s:'做明星',a:'參加選秀'};
+function reviewMenu(){
+  const L=window.LASTRUN;
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>💬 遊玩評論</h2>
+  <div class="card" style="font-size:13px;line-height:1.7">玩得開心嗎?歡迎留下心得、建議或遇到的問題。<br>勾選同意後按「寄給作者」,會開啟你手機或電腦的郵件 App,內容已預先填好,<b>由你確認後按送出才會寄出</b>,不會在背景自動傳送。</div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">整體評分</div><div class="chips">${[1,2,3,4,5].map(i=>`<button class="chip ${REV.r>=i?'sel':''}" onclick="rvSync();REV.r=${i};reviewMenu()">${'⭐'.repeat(i)}</button>`).join('')}</div></div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">暱稱(選填)</div><input id="rvn" class="fld" maxlength="20" placeholder="例如:小星星" oninput="REV.n=this.value"></div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">你的評論</div><textarea id="rvt" class="fld" maxlength="500" placeholder="喜歡哪個部分?哪裡可以更好?想要什麼新功能?" oninput="REV.t=this.value;rvUpd()"></textarea></div>
+  <div class="card"><label class="ck"><input type="checkbox" id="rvc" onchange="REV.ok=this.checked;rvUpd()"><span>我同意將以上評論${L?'與這局的遊玩資料(模式、市場、結局)':''}寄給作者,供改進遊戲使用。</span></label></div>
+  <button class="btn gold" id="rvs" onclick="rvSend()">📧 寄給作者</button>
+  <button class="btn alt" id="rvcp" onclick="rvCopy()">📋 複製評論內容<small>若沒有郵件 App,可複製後自行傳送給作者</small></button>
+  <div class="card center" style="font-size:12px;opacity:.7;line-height:1.7">${RVOK()?`收件人:${RVTO}<br>`:'⚠️ 作者尚未設定收件信箱,目前只能使用「複製評論內容」。<br>'}請勿在評論中填寫密碼等個人敏感資料。</div>`;
+  document.getElementById('rvn').value=REV.n;document.getElementById('rvt').value=REV.t;document.getElementById('rvc').checked=REV.ok;rvUpd();
+}
+function rvSync(){try{REV.n=document.getElementById('rvn').value;REV.t=document.getElementById('rvt').value}catch(e){}}
+function rvUpd(){const b=document.getElementById('rvs');if(b)b.disabled=!(RVOK()&&REV.ok&&REV.r>0&&REV.t.trim().length>0)}
+function rvBody(){const L=window.LASTRUN,lines=[`評分:${'★'.repeat(REV.r)}${'☆'.repeat(5-REV.r)}(${REV.r}/5)`,`暱稱:${(REV.n||'').trim()||'(未填)'}`,'','評論:',REV.t.trim(),''];
+  if(REV.ok&&L)lines.push('--- 遊玩資料(玩家已同意提供)---',`模式:${MODEN[L.mode]||L.mode}`,`市場:${MK[L.mk]?MK[L.mk].n:L.mk}`,`結局:${L.title}`);
+  lines.push('',`裝置:${navigator.userAgent.slice(0,80)}`);return lines.join('\n')}
+function rvSend(){
+  rvSync();if(!(RVOK()&&REV.ok&&REV.r>0&&REV.t.trim()))return;
+  const subj=`【明星模擬器】遊玩評論 ${'★'.repeat(REV.r)}`;
+  try{const d=load();d.rv=(d.rv||0)+1;save(d)}catch(e){}
+  location.href=`mailto:${RVTO}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(rvBody())}`;
+  setTimeout(()=>{if(document.getElementById('rvdone'))return;const c=document.createElement('div');c.id='rvdone';c.className='card center';c.style.fontSize='13px';c.innerHTML='✅ 已開啟郵件 App,請在郵件中按送出。<br>沒有跳出的話,請用下方「複製評論內容」。謝謝你的回饋!';const b=document.getElementById('rvs');if(b)b.after(c)},300);
+}
+async function rvCopy(){rvSync();const t=`${RVOK()?`收件人:${RVTO}\n`:''}主旨:【明星模擬器】遊玩評論\n\n${rvBody()}`;const b=document.getElementById('rvcp');
+  try{await navigator.clipboard.writeText(t);if(b)b.firstChild.textContent='✅ 已複製'}catch(e){if(b)b.firstChild.textContent='❗ 無法自動複製,請手動選取文字'}}
 
 loadSet();home();
 </script>
