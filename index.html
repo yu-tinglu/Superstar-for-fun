@@ -2692,7 +2692,43 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
   app.innerHTML=h}catch(e){}};
 applyPref();
 
-loadSet();home();
+// ================= 標題登入畫面、版本、檢查更新 =================
+const GAME_VER='1.00';
+const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
+const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
+const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
+const PAGE_URL='https://claude.ai/artifact/HMKpg2FeoMEbKC2oRzoFwo';
+const verNum=v=>String(v).split('.').map(n=>parseInt(n,10)||0);
+function verCmp(a,b){const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0}
+function updMsg(h){try{const e=document.getElementById('updst');if(e)e.innerHTML=h}catch(x){}}
+async function checkUpdate(silent){
+  updMsg('⏳ 檢查中……');
+  try{const c=new AbortController(),t=setTimeout(()=>c.abort(),7000);
+    const r=await fetch(VER_URL+'?t='+Date.now(),{cache:'no-store',signal:c.signal});clearTimeout(t);
+    if(!r.ok)throw new Error('http '+r.status);const j=await r.json();
+    if(!j||!j.version)throw new Error('bad');
+    if(verCmp(j.version,GAME_VER)>0){const d=load();d.newv=j.version;save(d);
+      updMsg(`🆕 有新版本 <b>${escI(j.version)}</b>${j.notes?`<br><span style="opacity:.85">${escI(j.notes)}</span>`:''}<br><a href="${PAGE_URL}" target="_blank" style="color:#ffd76a">前往更新頁面</a>(重新整理即可取得最新版)`)}
+    else updMsg('✅ 已是最新版本');
+  }catch(e){updMsg(silent?'':'⚠️ 暫時無法檢查更新(可能離線,或來源未開放)')}}
+function title(){
+  const d=load(),id=d.id||{},run=(typeof runInfo==='function')?runInfo():'';
+  app.innerHTML=`<div style="min-height:88vh;display:flex;flex-direction:column;justify-content:center;text-align:center">
+   <div style="font-size:64px;line-height:1.1;filter:drop-shadow(0 0 18px rgba(255,215,106,.7))">⭐</div>
+   <h1 style="margin:6px 0 4px;font-size:34px;letter-spacing:2px">明星遊戲</h1>
+   <div class="sub" style="margin-bottom:22px">製作人 × 做明星 × 選秀</div>
+   ${id.n?`<div class="card center" style="font-size:14px">${escI(id.e||'⭐')} 歡迎回來,<b>${escI(id.n)}</b></div>`:''}
+   ${run?B('▶️ 繼續遊戲',run,'resumeGame()','gold'):''}
+   ${B(run?'🏠 進入主畫面':'🎮 開始遊戲','','home()',run?'alt':'gold')}
+   ${B('🛠️ 進階設定','','setMenu()','alt')}
+   <div class="card" style="font-size:12.5px;line-height:1.8;margin-top:14px">版本 <b>v${GAME_VER}</b>
+     <button class="chip" style="margin-left:8px" onclick="checkUpdate()">🔄 檢查更新</button>
+     <div id="updst" style="margin-top:6px">${d.newv&&verCmp(d.newv,GAME_VER)>0?`🆕 有新版本 <b>${escI(d.newv)}</b>`:''}</div></div>
+   <div style="font-size:11.5px;opacity:.65;line-height:1.8;margin-top:14px">${GAME_COPY}<br>${GAME_NOTE}</div></div>`;
+  try{if(typeof process==='undefined'&&navigator.onLine)checkUpdate(true)}catch(e){}}
+const _setMenuE=setMenu;setMenu=function(){_setMenuE();app.innerHTML+=B('🏷️ 標題畫面','版本、版權與檢查更新','title()','alt')};
+
+loadSet();title();
 </script>
 </body>
 </html>
