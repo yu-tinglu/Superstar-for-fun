@@ -255,7 +255,7 @@ const RUNK='stargame2_run';
 function saveRun(){try{if(!G||!G.mode)return;const o=Object.assign({},G);delete o.q;delete o.pending;delete o.pev;delete o.one;
   localStorage.setItem(RUNK,JSON.stringify({G:o,MODE,MKID,GEN,LP,NAT}))}catch(e){}}
 function clearRun(){try{localStorage.removeItem(RUNK)}catch(e){}}
-function regenQ(){G.q=CHAP.map((_,i)=>{const a=MEV[G.mk][i];let b;if(Math.random()<.55)b=genDyn();else if(G.group&&Math.random()<.5)b=GEV[i];else b=pick(GENEV[i]);return shuffle([a,b])})}
+function regenQ(){G.q=CHAP.map((_,i)=>{const a=MEV[G.mk][i];let b;if(Math.random()<.55)b=genDyn();else if(G.group&&Math.random()<.5)b=GEV[i];else b=rotPick(GENEV[i],'g'+i);return shuffle([a,b])})}
 function resumeGame(){let r;try{r=JSON.parse(localStorage.getItem(RUNK)||'null')}catch(e){}
   if(!r||!r.G){clearRun();return home()}
   G=r.G;MODE=r.MODE;MKID=r.MKID;GEN=r.GEN||'x';LP=r.LP||'a';NAT=r.NAT||'tw';G.one=G.m[0];G.pending=null;
@@ -1402,7 +1402,7 @@ function sBegin(group){
   G={mode:'s',mk:MKID,m:[me],ch:0,n:0,money:o.x.money,fans:o.x.fans,fame:o.x.fame,rep:10,image:o.x.image,network:5,buzz:0,chem:50,group,q:[],log:[],dif:'',note:'',hist:[],sc:0,mates:[],rels:[],br:0,who:0,q2:[],pt:0};
   if(group){G.mates=ALLR.filter(c=>!(GM==='only'&&GEN!=='x'&&c.g!==GEN)).map(c=>[c,(c.nat===NAT?2:0)+((GM!=='any'&&GEN!=='x'&&c.g===GEN)?1:0)+Math.random()*1.8]).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).map(c=>{const m=mkMember(c);SKK.forEach(k=>m.sk[k]=cl(m.sk[k]+R(0,6)));return m});
     G.chem=cl(50+Math.round((G.mates.reduce((a,m)=>a+m.p.agree,0)/Math.max(1,G.mates.length)-50)/3))}
-  G.q=CHAP.map((_,i)=>{const a=MEV[MKID][i];let b;if(Math.random()<.55)b=genDyn();else if(group&&Math.random()<.5)b=GEV[i];else b=pick(GENEV[i]);return shuffle([a,b])});
+  G.q=CHAP.map((_,i)=>{const a=MEV[MKID][i];let b;if(Math.random()<.55)b=genDyn();else if(group&&Math.random()<.5)b=GEV[i];else b=rotPick(GENEV[i],'g'+i);return shuffle([a,b])});
   sFocus();
 }
 const hdrS=()=>`${CHAP[G.ch]}`;
@@ -1656,7 +1656,7 @@ function aToStar(){
   G={mode:'s',mk:g.mk,m:[me],ch:1,n:0,money:g.money+b.money,fans:g.fans+b.fans,fame:cl(g.fame+b.fame),rep:g.rep,image:g.image,network:g.network,buzz:g.buzz,chem:50,group:false,q:[],log:[],dif:'',note:''};
   G.hist=g.hist||[];G.sc=g.sc||0;G.mates=[];G.rels=[];
   if(gd){G.group=true;G.mates=gd;G.gname=g.gname;G.chem=cl(55+Math.round((gd.reduce((a,x)=>a+x.p.agree,0)/gd.length-50)/3)+(g.show==='gal'?-6:0));}G.br=0;G.who=0;G.q2=[];G.pt=0;
-  G.q=CHAP.map((_,i)=>shuffle([MEV[MKID][i],Math.random()<.55?genDyn():pick(GENEV[i])]));
+  G.q=CHAP.map((_,i)=>shuffle([MEV[MKID][i],Math.random()<.55?genDyn():rotPick(GENEV[i],'g'+i)]));
   sFocus();
 }
 // =====================================================
@@ -1784,7 +1784,7 @@ function expandMenu(){
     if(un)return B(`${M.e} ${M.n}${cur?'(目前)':''}`,cur?'你正在這個市場':`切換到這裡發展(旅費 $150)`,`switchMk("${k}")`,cur?'sel':'alt cp',cur||G.money<150);
     return B(`${M.e} ${M.n}(尚未進軍)`,`需要 人氣 ${rq.fame}、資金 $${rq.cost} · ${G.mode==='p'?'製作人':'你的'}適應度 ${Math.round((G.mode==='p'?G.m.reduce((a,m)=>a+FITN[m.nat||'tw'][k],0)/G.m.length:FITN[G.nat||NAT][k])*100)}%`,`goMk("${k}")`,'gold cp',G.fame<rq.fame||G.money<rq.cost)}).join('');
 }
-function regenFuture(){if(G.mode!=='s'||!G.q)return;for(let i=G.ch+1;i<5;i++){const a=MEV[G.mk][i];let b;if(Math.random()<.55)b=genDyn();else if(G.group&&Math.random()<.5)b=GEV[i];else b=pick(GENEV[i]);G.q[i]=shuffle([a,b])}}
+function regenFuture(){if(G.mode!=='s'||!G.q)return;for(let i=G.ch+1;i<5;i++){const a=MEV[G.mk][i];let b;if(Math.random()<.55)b=genDyn();else if(G.group&&Math.random()<.5)b=GEV[i];else b=rotPick(GENEV[i],'g'+i);G.q[i]=shuffle([a,b])}}
 function applyMk(k){G.mk=k;recalcFit();regenFuture();G.sale=undefined;newSale()}
 function switchMk(k){const s0=snap();G.money-=150;applyMk(k);G.m.forEach(m=>mp(m,{energy:-8}));commit(`✈️ 你轉移到${MK[k].e} ${MK[k].n},新的環境與新的挑戰。`,s0)}
 function goMk(k){
@@ -1997,7 +1997,7 @@ function x2Tick(mode){
   // 醜聞
   if(x.heat>=35&&Math.random()<(x.heat-25)/75){evs.unshift(heatEv());x.heat=Math.max(25,x.heat-15)}
   // 兩難
-  if(Math.random()<(mode==='p'?.5:.85)){const di=R(0,DIL.length-1),e=DIL[di](x.names);e.id='D'+di;e.timed=e.timed||12;evs.unshift(e)}
+  if(Math.random()<(mode==='p'?.5:.85)){const di=rotIdx(DIL,'d'),e=DIL[di](x.names);e.id='D'+di;e.timed=e.timed||12;evs.unshift(e)}
   {const d0=load();d0.sp=d0.sp||{};const si=d0.sp[G.mk]||0;
    if(si<6&&STORY[G.mk]&&x.turn>=(mode==='p'?2:1)&&x.turn-(x.lastSt===undefined?-9:x.lastSt)>=(mode==='p'?3:1)){x.lastSt=x.turn;d0.sp[G.mk]=si+1;save(d0);evs.unshift(storyBeat(G.mk,si))}}
   scenCheck(notes);
@@ -2220,7 +2220,7 @@ const PLEN={q:8,s:16,l:24},SLEN={q:3,s:5,l:5},LENN={q:'快速',s:'標準',l:'長
 function cycleLen(){RUNLEN=RUNLEN==='q'?'s':RUNLEN==='s'?'l':'q';const d=load();d.len=RUNLEN;save(d);home()}
 const lenTxt=()=>`製作人 ${PLEN[RUNLEN]} 週(約 ${Math.max(3,Math.round(PLEN[RUNLEN]*.45))} 分鐘)· 做明星 ${SLEN[RUNLEN]} 階段(約 ${Math.max(3,Math.round(SLEN[RUNLEN]*1.2))} 分鐘)`;
 let LOFF_Q=-9,LOFF_L=12;
-const LOFF=()=>({8:LOFF_Q,16:0,24:LOFF_L}[G.len||16]||0);
+const LOFF=()=>({8:LOFF_Q,16:0,24:LOFF_L}[G.len||16]||0)+(typeof DFO!=='undefined'&&G&&G.df!=null?DFO[G.df]:0);
 
 // ---- 開局劇本 ----
 const SCEN=[
@@ -2527,6 +2527,170 @@ resumeGame=function(){_resumeGame();if(!G||!G.mode)return;
 // ---- 說明補充 ----
 const _helpMenu2=helpMenu;
 helpMenu=function(){_helpMenu2();app.innerHTML+=`<div class="card" style="font-size:13.5px;line-height:1.75"><b>🆕 長短與目標</b><br>• 局長:首頁「更多功能」可切換快速、標準、長期,快速局約 3 到 4 分鐘。<br>• 開局劇本:開始製作人與做明星前,可挑一個有限時目標的劇本。<br>• 主線故事:每個市場 6 章,進度會跨局保存,完結有獎勵。<br>• 助理代管:忙的時候讓助理幫你自動安排,遇到重要抉擇會停下。<br>• 星幣與任務:每日登入、每日任務賺星幣,到商店買開局禮包。<br>• 收藏牆與挑戰模式:收集結局、事件、篇章,挑戰特殊規則。<br>• 角色塑造:設定藝名、頭像、應援色與招牌台詞。</div>`};
+
+
+// ================= 優化包 D =================
+// ---- 設定存取 ----
+const PFX=()=>{try{return load().pf||{}}catch(e){return {}}};
+function prefSet(k,v){const d=load();d.pf=d.pf||{};d.pf[k]=v;save(d)}
+
+// ---- 2. 事件輪替(避免重複) ----
+let ROT=(()=>{try{return load().rot||{}}catch(e){return {}}})(),ROTN=0;
+function rotIdx(arr,tag){const w=arr.map((_,i)=>1/Math.pow(1+(ROT[tag+i]||0),2));let t=w.reduce((a,b)=>a+b,0),r=Math.random()*t,k=0;
+  for(;k<w.length-1;k++){r-=w[k];if(r<=0)break}
+  ROT[tag+k]=(ROT[tag+k]||0)+1;if(++ROTN>=60){ROTN=0;for(const z in ROT){ROT[z]=Math.floor(ROT[z]/2);if(!ROT[z])delete ROT[z]}}
+  return k}
+function rotPick(arr,tag){return arr[rotIdx(arr,tag)]}
+function rotSave(){try{const d=load();d.rot=ROT;save(d)}catch(e){}}
+genDyn=function(){const i=rotIdx(DYN,'y');return DYN[i](genName(),pick(PLACES[G.mk]),pick(BRANDS))};
+
+// ---- 3. 難度 ----
+const DFN=['輕鬆','標準','硬派'],DFM=[.7,1,1.3],DFO=[-4,0,5],DFS=[.92,1,1.08],DFK=['fame','rep','image','fans','money','buzz'];
+const DFI=()=>{try{const v=load().df;return v==null?1:v}catch(e){return 1}};
+const DFX=()=>(G&&G.df!=null)?DFM[G.df]:1;
+function dfSet(i){const d=load();d.df=i;save(d);setMenu()}
+// ---- 4. 數值說明 ----
+const STATH={'人氣':'你有多紅。決定演出收入和粉絲成長,也是多數稱號的門檻。每週會自然衰退一點。','口碑':'業界與大眾對你的信任。影響合作機會與長期發展,醜聞會讓它快速下降。','形象':'外界眼中的你。影響代言、角色和話題,生活事件與公關操作都會牽動它。','人脈':'你認識多少圈內人。影響合作、爭取機會與危機時的求助。','話題':'短期的討論度。會快速累積也快速消退,太高容易招來爭議。','默契':'團體成員之間的合作程度。太低會吵架甚至解散,練習和團建可提升。'};
+const STKEY={'人氣':'fame','口碑':'rep','形象':'image','人脈':'network','話題':'buzz','默契':'chem'};
+function statTipHtml(label){const t=STATH[label];if(!t)return '';const k=STKEY[label],v=G&&k?Math.round(G[k]):'?';
+  const w=(G&&G.x2&&G.x2.why&&G.x2.why[k])||[];
+  return `<b>${label}:${v}</b><br>${t}`+(w.length?`<br><span style="opacity:.8">最近變化:${w.map(a=>`${a[0]>0?'+':''}${a[0]}${a[1]?'(' +escI(a[1])+')':''}`).join('、')}</span>`:'')}
+function statTip(label){const h=statTipHtml(label);if(!h)return;try{const o=document.getElementById('stip');if(o)o.remove();const d=document.createElement('div');d.id='stip';
+  d.style.cssText='position:fixed;left:10px;right:10px;bottom:12px;z-index:50;padding:14px;border-radius:14px;background:rgba(20,16,40,.96);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:13.5px;line-height:1.7';
+  d.innerHTML=h+'<div style="opacity:.6;font-size:12px;margin-top:6px">點一下關閉</div>';d.onclick=()=>d.remove();document.body.appendChild(d);setTimeout(()=>{try{d.remove()}catch(e){}},9000)}catch(e){}}
+try{document.addEventListener('click',ev=>{try{const t=ev.target&&ev.target.closest&&ev.target.closest('.mini');if(!t||!G||!G.mode)return;const b=t.querySelector('b');if(b)statTip(b.textContent.trim())}catch(e){}})}catch(e){}
+
+const _efD=ef;
+ef=function(e){
+  const f=DFX();
+  if(f!==1&&e&&typeof e==='object'){e=Object.assign({},e);DFK.forEach(k=>{if(typeof e[k]==='number'&&e[k]<0)e[k]*=f})}
+  if(!(G&&G.x2&&G.mode))return _efD(e);
+  const s0=snap(),r=_efD(e);
+  try{const s1=snap(),W=G.x2.why=G.x2.why||{};const src=(G.pending&&G.pending.t)||(G.pev&&G.pev.t)||'';
+    for(const k in STKEY){const kk=STKEY[k];if(s1[kk]==null||s0[kk]==null)continue;const dd=Math.round(s1[kk])-Math.round(s0[kk]);if(dd){(W[kk]=W[kk]||[]).push([dd,String(src).replace(/[^一-龥A-Za-z0-9]/g,'').slice(0,8)]);if(W[kk].length>3)W[kk].shift()}}}catch(x){}
+  return r};
+const _sKeyD=sKey;
+sKey=function(){const f=DFS[G.df==null?1:G.df];if(f===1)return _sKeyD();const o=Object.assign({},SE);Object.keys(SE).forEach(k=>{if(typeof SE[k]==='number')SE[k]=SE[k]*f});try{return _sKeyD()}finally{Object.assign(SE,o)}};
+const _x2iD=x2Init2;
+x2Init2=function(){_x2iD();G.df=DFI();const x=X();x.ud=DFI()===0?2:1;x.why={}};
+
+// ---- 5. 復原一步 ----
+let UNDO=null;
+function dc(o,m){m=m||new WeakMap();if(o===null||typeof o!=='object')return o;if(m.has(o))return m.get(o);const r=Array.isArray(o)?[]:{};m.set(o,r);for(const k in o)r[k]=dc(o[k],m);return r}
+function undoMark(kind){try{if(!G||!G.mode||AUTOP){UNDO=null;return}const s=Object.assign({},G);delete s.q;delete s.one;delete s.pending;delete s.pev;
+  UNDO={kind,q:G.q,pending:G.pending,pev:G.pev,mi:Math.max(0,G.m.indexOf(G.one)),s:dc(s)}}catch(e){UNDO=null}}
+function undoLeft(){const x=G&&G.x2;return x&&x.ud>0?x.ud:0}
+function undoBtn(){try{if(!UNDO||AUTOP||!G||/結局:|評級/.test(String(app.innerHTML)))return;const n=undoLeft(),c=load().coin||0;
+  if(n>0)app.innerHTML+=B(`↩️ 回上一步(剩 ${n} 次)`,'重新選一次','undoGo()','alt');
+  else if(c>=12)app.innerHTML+=B('↩️ 回上一步','花 12 星幣','undoGo()','alt')}catch(e){}}
+function undoGo(){const u=UNDO;if(!u)return;const n=undoLeft();
+  if(n<=0){const c=load().coin||0;if(c<12)return;addCoin(-12)}
+  UNDO=null;stopCD&&stopCD();const mode=G.mode;
+  G=u.s;G.q=u.q;G.one=G.m[u.mi]||G.m[0];G.pending=u.pending;G.pev=u.pev;
+  if(n>0)G.x2.ud=n-1;
+  if(mode==='p')pResult();else if(u.kind==='se')sEvShow(G.pev);else sShow()}
+const _pChooseD=pChoose;pChoose=function(k){if(G&&G.pending)undoMark('p');_pChooseD(k);undoBtn()};
+const _sChooseD=sChoose;sChoose=function(k){undoMark('sc');_sChooseD(k);undoBtn()};
+const _sEvPickD=sEvPick;sEvPick=function(k){undoMark('se');_sEvPickD(k);undoBtn()};
+
+// ---- 6. 目前走向 ----
+function trendHtml(){try{
+  if(!G)return '';
+  if(G.mode==='p'){if(G.week<3)return '';const sc=pScore(),T=P_T.map(t=>t+LOFF()),nm=['S','A','B'];let cur='C',nx=['B',T[2]-sc];
+    for(let i=0;i<3;i++){if(sc>=T[i]){cur=nm[i];nx=i>0?[nm[i-1],T[i-1]-sc]:null;break}}
+    return `<div class="card" style="font-size:13px">📈 目前走向:照現在的水準約 <b>${cur} 級</b>${nx?`(再 +${nx[1]} 分可到 ${nx[0]})`:'(已是最高)'}</div>`}
+  if(G.mode==='s'){if((G.cc||0)<1)return '';const k=sKey();if(!ENDS[k])return '';return `<div class="card" style="font-size:13px">📈 目前走向:照現在的發展,最後可能是 <b>${ENDS[k][0]} ${ENDS[k][1]}</b>(之後還會變)</div>`}
+  return ''}catch(e){return ''}}
+const _pHubD=pHub;pHub=function(){_pHubD();app.innerHTML+=trendHtml()};
+const _sFocusD=sFocus;sFocus=function(){_sFocusD();const t=trendHtml();if(t){app.innerHTML+=t;LASTF=app.innerHTML}};
+
+// ---- 7/8. 無障礙與音量 ----
+function applyPref(){try{const p=PFX(),r=document.documentElement;r.classList.toggle('bigtxt',!!p.big);r.classList.toggle('hictr',!!p.hc);
+  if(!document.getElementById('prefcss')){const s=document.createElement('style');s.id='prefcss';
+   s.textContent='html.bigtxt body{zoom:1.14}html.bigtxt .btn{padding:16px;font-size:17px}html.bigtxt .btn small{font-size:14px}html.hictr body{filter:contrast(1.22) brightness(1.06)}html.hictr .card{border:1px solid rgba(255,255,255,.4)}';document.head.appendChild(s)}}catch(e){}}
+let VOLL=(()=>{const v=PFX().vol;return v==null?2:v})();
+beep=function(f,d,ty){if(!SND||!VOLL)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=[0,.025,.05,.1][VOLL];o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}};
+try{document.addEventListener('click',ev=>{try{if(PFX().vib&&ev.target&&ev.target.closest&&ev.target.closest('.btn')&&navigator.vibrate)navigator.vibrate(12)}catch(e){}})}catch(e){}
+const _curtD=curtain;curtain=function(t,s,cb){if(PFX().nocurt)return cb();_curtD(t,s,cb)};
+
+// ---- 設定頁 ----
+function pfTog(k){const p=PFX();prefSet(k,!p[k]);applyPref();setMenu()}
+function volSet(i){VOLL=i;prefSet('vol',i);if(!SND){SND=true;saveSet()}beep(660,.12);setMenu()}
+function sndTog(){SND=!SND;saveSet();setMenu()}
+function setMenu(){const p=PFX(),df=DFI();
+  const onoff=v=>v?'開':'關';
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🛠️ 進階設定</h2>`+
+  `<h3 style="margin:10px 0 4px">難度(下一局生效)</h3><div class="card" style="font-size:12.5px;line-height:1.7">輕鬆:損失減少、評級門檻較低、復原多一次。硬派:損失加重、門檻較高。選秀模式不受影響。</div>`+
+  DFN.map((n,i)=>B(n,'',`dfSet(${i})`,df===i?'sel':'alt')).join('')+
+  `<h3 style="margin:10px 0 4px">聲音與動畫</h3>`+
+  B(`🔊 音效:${onoff(SND)}`,'','sndTog()','alt')+
+  `<div class="chips sm">`+['靜音','小聲','中聲','大聲'].map((n,i)=>`<button class="chip ${VOLL===i?'sel':''}" onclick="volSet(${i})">${n}</button>`).join('')+`</div>`+
+  B(`🎬 揭曉動畫:${onoff(!p.nocurt)}`,'關閉後直接顯示結果','pfTog("nocurt")','alt')+
+  B(`🎚️ 輕鬆模式:${onoff(load().easy)}`,'略過小遊戲與限時倒數','toggleEasy();setMenu()','alt')+
+  `<h3 style="margin:10px 0 4px">易讀性</h3>`+
+  B(`🔠 大字模式:${onoff(p.big)}`,'放大文字與按鈕','pfTog("big")','alt')+
+  B(`🌗 高對比:${onoff(p.hc)}`,'提高畫面對比','pfTog("hc")','alt')+
+  B(`📳 按鈕震動:${onoff(p.vib)}`,'點按時輕微震動(裝置支援才有)','pfTog("vib")','alt')+
+  `<h3 style="margin:10px 0 4px">其他</h3>`+
+  B('💾 存檔管理','三個存檔欄位、匯出/匯入代碼','slotMenu()','alt')+
+  B('👋 新手導覽','30 秒看懂核心玩法','tourGo(0)','alt')+
+  B('⚙️ 性別、主題色','','genderMenu()','alt')}
+
+// ---- 1. 新手導覽 ----
+const TOUR=[['⭐ 目標','你的目標是讓藝人(或自己)走紅。遊戲有「製作人」帶新人、「做明星」當主角、「選秀」三種玩法。'],
+ ['📊 核心數值','人氣是有多紅,口碑是信任度,形象是外界印象。畫面上的數值條可以點一下看說明。'],
+ ['🔋 體力與心情','藝人的體力、心情、壓力會影響表現。太累就休息,壓力爆表會倦怠退隱。'],
+ ['🎭 事件與選擇','每次選擇都有代價。選錯了可以「回上一步」(每局有限次數)。限時事件逾時會自動選預設。'],
+ ['🏁 結果','做完一局會得到評級或稱號,並累積經驗解鎖新內容。第一局建議選「快速」,約 4 分鐘就能看到結果。']];
+function tourGo(i){if(i>=TOUR.length){const d=load();d.tour=1;d.seen=1;save(d);return home()}
+  const t=TOUR[i];app.innerHTML=`<div class="card center" style="font-size:12px;opacity:.8">導覽 ${i+1}/${TOUR.length}</div><div class="card" style="line-height:1.9;font-size:15px"><h2 style="margin:0 0 8px">${t[0]}</h2>${t[1]}</div>`+B(i+1<TOUR.length?'下一步 →':'開始玩 🎉','',`tourGo(${i+1})`,'gold')+B('略過','','tourGo(99)','alt')}
+
+// ---- 9. 多存檔與匯出入 ----
+const SLK=i=>'stargame2_slot'+i;
+function slotInfo(i){try{const r=JSON.parse(localStorage.getItem(SLK(i))||'null');if(!r||!r.r||!r.r.G)return null;const g=r.r.G,M=MK[g.mk]||{e:'',n:''};
+  return `${M.e} ${g.mode==='p'?`製作人 第 ${g.week}/${g.len||16} 週`:g.mode==='s'?`做明星 階段 ${(g.cc||0)+1}/${g.slen||5}`:'選秀'} · ${r.t||''}`}catch(e){return null}}
+function slotSave(i){try{const cur=localStorage.getItem(RUNK);if(!cur){return slotMenu('目前沒有進行中的遊戲可存')}
+  const n=new Date(),t=`${n.getMonth()+1}/${n.getDate()} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  localStorage.setItem(SLK(i),JSON.stringify({t,r:JSON.parse(cur)}));slotMenu('已存入欄位 '+i)}catch(e){slotMenu('存檔失敗')}}
+function slotLoad(i){try{const r=JSON.parse(localStorage.getItem(SLK(i))||'null');if(!r||!r.r)return slotMenu('這格是空的');localStorage.setItem(RUNK,JSON.stringify(r.r));resumeGame()}catch(e){slotMenu('讀取失敗')}}
+function slotDel(i){try{localStorage.removeItem(SLK(i))}catch(e){}slotMenu('已清除欄位 '+i)}
+function slotMenu(msg){
+  app.innerHTML=`<button class="back" onclick="setMenu()">← 回設定</button><h2>💾 存檔管理</h2>`+(msg?`<div class="card center" style="font-size:13px">${msg}</div>`:'')+
+  `<div class="card" style="font-size:12.5px;line-height:1.7">遊戲會自動存「目前進度」。這裡可以把目前進度另外存到欄位,之後再讀回。</div>`+
+  [1,2,3].map(i=>{const s=slotInfo(i);return `<div class="card"><b>欄位 ${i}</b><div style="font-size:12.5px;opacity:.85;margin:4px 0 8px">${s||'(空)'}</div><div class="grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">${B('存入','',`slotSave(${i})`,'alt')}${B('讀取','',`slotLoad(${i})`,'alt',!s)}${B('清除','',`slotDel(${i})`,'alt',!s)}</div></div>`}).join('')+
+  B('📤 匯出存檔代碼','換手機或備份用','exportMenu()','alt')+B('📥 匯入存檔代碼','貼上代碼還原','importMenu()','alt')}
+const b64e=s=>btoa(unescape(encodeURIComponent(s))),b64d=s=>decodeURIComponent(escape(atob(s)));
+function exportCode(){const o={v:1,p:load(),r:null,s:[1,2,3].map(i=>{try{return JSON.parse(localStorage.getItem(SLK(i))||'null')}catch(e){return null}})};try{o.r=JSON.parse(localStorage.getItem(RUNK)||'null')}catch(e){}return 'SG1:'+b64e(JSON.stringify(o))}
+function exportMenu(){const c=exportCode();
+  app.innerHTML=`<button class="back" onclick="slotMenu()">← 回存檔</button><h2>📤 匯出代碼</h2><div class="card" style="font-size:12.5px;line-height:1.7">複製下面整段文字,存在備忘錄。包含進度、星幣、收藏和三個欄位。</div><textarea id="excode" readonly style="width:100%;height:150px;border-radius:10px;padding:8px;box-sizing:border-box;font-size:11px;background:rgba(0,0,0,.3);color:inherit">${c}</textarea>`+B('📋 複製','','copyCode()','gold')}
+function copyCode(){try{const t=document.getElementById('excode');t.select();if(navigator.clipboard)navigator.clipboard.writeText(t.value);else document.execCommand('copy')}catch(e){}}
+function importMenu(msg){app.innerHTML=`<button class="back" onclick="slotMenu()">← 回存檔</button><h2>📥 匯入代碼</h2>`+(msg?`<div class="card center" style="font-size:13px">${msg}</div>`:'')+`<div class="card" style="font-size:12.5px;line-height:1.7">貼上以 SG1: 開頭的代碼。匯入會覆蓋目前的進度與收藏。</div><textarea id="imcode" style="width:100%;height:150px;border-radius:10px;padding:8px;box-sizing:border-box;font-size:11px;background:rgba(0,0,0,.3);color:inherit"></textarea>`+B('匯入','','importGo()','gold')}
+function importCode(c){c=String(c||'').trim();if(c.indexOf('SG1:')!==0)return '代碼格式不對';let o;try{o=JSON.parse(b64d(c.slice(4)))}catch(e){return '代碼無法讀取'}
+  if(!o||o.v!==1||!o.p||typeof o.p!=='object')return '代碼內容不完整';
+  save(o.p);try{if(o.r&&o.r.G)localStorage.setItem(RUNK,JSON.stringify(o.r));else localStorage.removeItem(RUNK);(o.s||[]).forEach((s,i)=>{if(s&&s.r)localStorage.setItem(SLK(i+1),JSON.stringify(s));else localStorage.removeItem(SLK(i+1))})}catch(e){}
+  ROT=o.p.rot||{};return ''}
+function importGo(){let v='';try{v=document.getElementById('imcode').value}catch(e){}const m=importCode(v);if(m)return importMenu(m);loadSet();applyPref();slotMenu('匯入完成')}
+
+// ---- 10. 穩定與效能 ----
+let ERRN=0,ERRT=0;
+function safeScreen(msg){try{stopCD&&stopCD()}catch(e){};AUTOP=0;try{AUTO=null}catch(e){}
+  const has=(()=>{try{return !!JSON.parse(localStorage.getItem(RUNK)||'null')}catch(e){return false}})();
+  app.innerHTML=`<div class="card center" style="line-height:1.8">⚠️ 發生了一個小問題,已回到安全畫面。<br><span style="font-size:12px;opacity:.7">${escI(msg||'')}</span></div>`+(has?B('▶️ 回到上次存檔','進度不會遺失','resumeGame()','gold'):'')+B('🏠 回首頁','','home()','alt')}
+function onErr(m){const n=Date.now();if(n-ERRT<1500){if(++ERRN>3)return}else ERRN=0;ERRT=n;try{if(G&&G.mode)saveRun()}catch(e){}safeScreen(String(m).slice(0,60))}
+try{window.addEventListener('error',e=>onErr(e&&e.message||'error'));window.addEventListener('unhandledrejection',e=>onErr('promise'))}catch(e){}
+function trimG(){try{if(G&&G.hist&&G.hist.length>160)G.hist=G.hist.slice(-120);const x=G&&G.x2;if(x){if(x.news&&x.news.length>30)x.news=x.news.slice(-20);if(G.log&&G.log.length>40)G.log=G.log.slice(-20)}}catch(e){}}
+const _saveRunD=saveRun;saveRun=function(){trimG();_saveRunD()};
+const _endHookD=endHook;endHook=function(m){_endHookD(m);rotSave()};
+
+// ---- 首頁整合 ----
+const _homeD=home;
+home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
+  const tour=!d.tour&&!d.xp?B('👋 新手導覽(30 秒)','第一次玩?先看這個','tourGo(0)','gold'):'';
+  if(tour)h=h.replace('<div class="sub">',tour+'<div class="sub">');
+  const add=B('🛠️ 進階設定','難度、音量、大字、存檔管理','setMenu()','alt');
+  h=h.replace('</details>',add+'</details>');
+  app.innerHTML=h}catch(e){}};
+applyPref();
 
 loadSet();home();
 </script>
