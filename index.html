@@ -295,7 +295,7 @@ function home(){
   const ap=d.ap||{},aps=MKORDER.filter(k=>ap[k]).map(k=>`${MK[k].e}${ap[k].l}`).join(' ');
   app.innerHTML=`
   <h1>⭐ 明星遊戲 ⭐</h1>
-  <div class="sub">八大演藝圈 · 45 間商店 · 9 國籍 · 216 位新人 · 每人 57 項數值 · 數十萬種結果</div>
+  <div class="sub">八大演藝圈 · 9 國籍 · 6 種選秀節目 · 兩難抉擇 · 小遊戲 · 公司經營 · 每日挑戰</div>
   ${runInfo()?B('▶️ 繼續上次的遊戲',runInfo(),'resumeGame()','gold'):''}
   ${!d.seen?`<div class="card" style="font-size:13px;line-height:1.7">👋 第一次玩?點下方「❓ 玩法說明」,30 秒看懂怎麼玩。</div>`:''}
   ${B('🎬 明星製作人','你是經紀公司製作人,在 16 週內培育單人或組合出道','mkSelect("p")')}
@@ -303,19 +303,19 @@ function home(){
   ${B('🏆 成就與圖鑑',`成就 ${(d.ach||[]).length}/${ACH.length} · 商品 ${Object.keys(d.col||{}).length}/${SHOPS.reduce((a,x)=>a+x.it.length,0)}`,'achMenu()','alt')}
   ${B('❓ 玩法說明','三種模式、商城、戀愛、整容怎麼玩','helpMenu()','alt')}
   ${B('⚙️ 設定(性別、主題、音效)',`目前:我是${GL[GEN]},戀愛對象:${PL[LP]}`,'genderMenu()','alt')}
-  ${B('🎙️ 參加選秀','16 人 5 關淘汰賽,評審與觀眾投票,拿下冠軍出道!','natSelect("a")','alt')}
+  ${B('🎙️ 參加選秀','選擇節目:歌唱擂台、生存出道團、偶像學院、全球跨國選拔⋯⋯冠軍單飛或前幾名組團出道!','natSelect("a")','alt')}
   <div class="card center" style="font-size:13px;line-height:1.7">🏆 結局收集 ${(d.ends||[]).length}/12${bps?`<br>製作人最佳評級:${bps}`:''}${aps?`<br>選秀最佳成績:${aps}`:''}<br>🎲 已解鎖結果 ${(d.out||[]).length} 種 / 共約 ${TOTALTXT} 種組合<br><span style="opacity:.6;font-size:12px">(僅記錄在這個瀏覽器)</span></div>
   <div class="card center" style="font-size:12.5px;opacity:.7">本遊戲中的人物、組合與事件皆為虛構</div>`;
 }
 function natSelect(mode){
   MODE=mode;
   app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🌍 選擇你的國籍</h2><div class="card" style="font-size:13px;line-height:1.7">國籍決定你的出身文化、個性傾向與擅長的能力;到不同市場發展時,「適應度」會影響人氣成長。</div>`+
-  NATORDER.map(k=>{const N=NATS[k];return B(`${N.e} ${N.n}人`,`${N.d}<br>擅長加成:${Object.keys(N.S).filter(x=>N.S[x]>=3).map(x=>SK[x]).join('、')}`,`NAT="${k}";mkSelect("${mode}")`,NAT===k&&false?'sel':'alt cp')}).join('');
+  NATORDER.map(k=>{const N=NATS[k];return B(`${N.e} ${N.n}人`,`${N.d}<br>擅長加成:${Object.keys(N.S).filter(x=>N.S[x]>=3).map(x=>SK[x]).join('、')}`,`NAT="${k}";${mode==='a'?'showSelect()':'mkSelect("'+mode+'")'}`,NAT===k&&false?'sel':'alt cp')}).join('');
 }
 function mkSelect(mode){
   MODE=mode;const nat=mode!=='p';
-  app.innerHTML=`<button class="back" onclick="${nat?`natSelect('${mode}')`:'home()'}">← ${nat?'換國籍':'回首頁'}</button><h2>${mode==='p'?'🎬 明星製作人':mode==='a'?'🎙️ 參加選秀':'🌟 做明星'}</h2><div class="card">${nat?`${NATS[NAT].e} 你的國籍:<b>${NATS[NAT].n}</b>。`:''}選擇要闖蕩的演藝圈。每個市場的節奏、收入、壓力與特色活動都不同${nat?',文化差異會影響你的適應度。':'。'}</div>`+
-  MKORDER.map(k=>{const M=MK[k];return B(`${M.e} ${M.n}演藝圈`,`${nat?`<b>適應度 ${Math.round(FITN[NAT][k]*100)}%</b>:${fitNote(NAT,k)}<br>`:''}${M.d}<br>${mtags(M)}`,`pickMk("${k}")`,'alt')}).join('');
+  app.innerHTML=`<button class="back" onclick="${mode==='a'?'showSelect()':nat?`natSelect('${mode}')`:'home()'}">← ${mode==='a'?'換節目':nat?'換國籍':'回首頁'}</button><h2>${mode==='p'?'🎬 明星製作人':mode==='a'?'🎙️ 參加選秀':'🌟 做明星'}</h2><div class="card">${nat?`${NATS[NAT].e} 你的國籍:<b>${NATS[NAT].n}</b>。`:''}選擇要闖蕩的演藝圈。每個市場的節奏、收入、壓力與特色活動都不同${nat?',文化差異會影響你的適應度。':'。'}</div>`+
+  MKORDER.filter(unlM).map(k=>{const M=MK[k];return B(`${M.e} ${M.n}演藝圈`,`${nat?`<b>適應度 ${Math.round(FITN[NAT][k]*100)}%</b>:${fitNote(NAT,k)}<br>`:''}${M.d}<br>${mtags(M)}`,`pickMk("${k}")`,'alt')}).join('');
 }
 function pickMk(k){MKID=k;if(MODE==='p')fmtSelect();else originSelect()}
 function fmtSelect(){
@@ -516,7 +516,7 @@ const SBASE=(()=>{const o={};SKK.forEach(k=>o[k]=Object.values(AR).reduce((a,x)=
 function outcome(mode,tier){
   const avg=k=>G.m.reduce((a,m)=>a+m.sk[k],0)/G.m.length;
   const sk=SKK.slice().sort((a,b)=>(avg(b)-SBASE[b])-(avg(a)-SBASE[a]))[0],pk=PKK.slice().sort((a,b)=>(pavg(b)-PBASE[b])-(pavg(a)-PBASE[a]))[0],pa=pathOf();
-  const gs=mode==='p'?G.m.length:(mode==='s'?(G.group?'g':'s'):'-');
+  const gs=mode==='p'?G.m.length:(mode==='s'?(G.group?'g':'s'):(G.show||'voice'));
   const ls=lifeOf(),skn=SKT[sk]||SKT2[sk],skd=SKD[sk]||SKD2[sk];
   const mw=Math.min(2,marketsWon()),nt=mode==='p'?'-':(G.nat||NAT),trail=(G.mks||[]).length>1?`你的足跡遍及${G.mks.map(k=>MK[k].n).join('、')}。`:'';
   return {key:[mode,G.mk,tier,sk,pk,pa,gs,ls,nt,mw].join('|'),title:`${nt!=='-'?FLAG(nt)+' ':''}${PATHS[pa]}・${PKT[pk]}的${skn}${ls?'('+LSN[ls]+')':''}${mw>=2?'・全球巨星':''}`,text:`${PATHD[pa]}${PKD[pk]}${skd}${LSD[ls]}${trail}`};
@@ -788,7 +788,7 @@ const TRENDS=[
 function newTrend(){G.trend=pick(TRENDS)}
 function newSale(){G.sale=Math.random()<.6?R(0,SHOPS.length-1):null}
 function ensureX(){if(!G.mks){G.mks=[G.mk];G.ms={};G.ms[G.mk]=25}if(G.nat===undefined&&G.mode!=='p')G.nat=NAT;if(G.fit0===undefined)recalcFit();if(!G.trend)newTrend();if(G.sale===undefined)newSale();if(G.freeShop===undefined)G.freeShop=1}
-const trendCard=()=>G.trend?`<div class="card" style="font-size:12.5px;line-height:1.6">📈 <b>${G.trend.e} 本季流行:${G.trend.n}</b>(${G.trend.sk.map(k=>SK[k]).join('、')}成長 +25%)<br><span style="opacity:.75">${G.trend.d}</span></div>`:'';
+let trendCard=()=>G.trend?`<div class="card" style="font-size:12.5px;line-height:1.6">📈 <b>${G.trend.e} 本季流行:${G.trend.n}</b>(${G.trend.sk.map(k=>SK[k]).join('、')}成長 +25%)<br><span style="opacity:.75">${G.trend.d}</span></div>`:'';
 
 // ---------- 大事件 ----------
 const BIGS=[
@@ -821,7 +821,7 @@ function removeMember(idx){if(G.m.length<3||idx>=G.m.length)return;
   G.m.splice(idx,1);
   if(G.leader===idx)G.leader=null;else if(G.leader>idx)G.leader--;
   if(G.center===idx)G.center=null;else if(G.center>idx)G.center--;
-  G.who=0;G.pa=[];G.group=G.m.length>1;G.left=(G.left||0)+1;G.fans=Math.max(0,G.fans-Math.round(G.fans*.06))}
+  G.who=0;G.target='all';G.pa=[];G.group=G.m.length>1;G.left=(G.left||0)+1;G.fans=Math.max(0,G.fans-Math.round(G.fans*.06))}
 const quitEv=(i)=>{const m=G.m[i];return {mi:i,t:`🚪 ${m.n}想離開`,d:`${m.n}最近狀態很差,提出想單飛或退出。`,c:[
  O('真誠挽留','agree',{one:{mood:20,stress:-12},chem:3},{leave:i,chem:-4},`${m.n}被你說服,決定留下來。`,`${m.n}還是決定離開,隊伍少了一個人。`),
  O('加薪並安排休假','stable',{money:-300,one:{mood:28,stress:-18}},{money:-300,leave:i,chem:-4},`${m.n}感受到你的誠意,留了下來。`,`${m.n}收下了加薪,但還是離開了。`),
@@ -866,6 +866,8 @@ const ACH=[
  ['e12','👑 全結局達成','解鎖全部做明星結局',c=>(c.d.ends||[]).length>=Object.keys(ENDS).length],
  ['pS','🎬 金牌製作人','製作人拿到 S 評級',c=>c.mode==='p'&&c.tier==='S'],
  ['aW','🥇 選秀冠軍','贏得一次選秀冠軍',c=>c.mode==='a'&&c.tier==='冠軍'],
+ ['aG','👯 選秀成團','透過選秀以團體身分出道',c=>c.mode==='a'&&(c.tier==='出道'||(c.tier==='冠軍'&&G.show&&SHOWS[G.show].debut>0))],
+ ['aSh','📺 節目全制霸','六個選秀節目都拿過冠軍(C位)',c=>Object.keys(SHOWS).every(k=>((c.d.sh||{})[k]||0)>=100)],
  ['aAll','🌏 六大市場冠軍','六個市場都拿過選秀冠軍',c=>MKORDER.every(k=>(c.d.ap||{})[k]&&c.d.ap[k].s>=100)],
  ['wed','💍 步入禮堂','結局時已婚',c=>c.ls===1],
  ['pub','💑 公開戀情','公開一段戀情',c=>(G.rels||[]).some(r=>!r.gone&&(r.pub||r.stage>=4))],
@@ -993,7 +995,7 @@ function pBegin(){
      group:SEL.length>1,target:'all',gname:pick(GNAMES),hist:[],sc:0,rels:[],br:0,who:0,q2:[],hubMode:false,log:[],dif:'',pending:null,aud:false,note:''};
   pHub();
 }
-const hdrP=()=>`第 ${G.week}/16 週`;
+const hdrP=()=>`第 ${G.week}/${G.len||16} 週`;
 function pHub(){
   const n=G.m.length;ensureX();saveRun();
   app.innerHTML=panel(hdrP())+trendCard()+(G.group?`<div class="card center" style="font-size:13px">👥 組合「${G.gname}」</div>`:'')+(G.note?`<div class="card log"><span class="ev">${G.note}</span></div>`:'')+
@@ -1146,7 +1148,7 @@ function pResult(){
   if(G.pending){
     h+=`<div class="card"><span class="tag">突發事件</span><h2>${G.pending.t}</h2><p style="line-height:1.6">${G.pending.d}</p></div>`+
        G.pending.c.map((c,k)=>B(c[0],'',`pChoose(${k})`,'alt')).join('');
-  }else if(G.hubMode)h+=B('繼續 →','','pHubNext()');else h+=B(G.week===16?'前往演唱會 🎆':'下一週 →','','pNext()');
+  }else if(G.hubMode)h+=B('繼續 →','','pHubNext()');else h+=B(G.week>=(G.len||16)?'前往演唱會 🎆':'下一週 →','','pNext()');
   app.innerHTML=h;
 }
 function pChoose(k){
@@ -1164,8 +1166,9 @@ function weekly(){
   G.note=notes.join('<br>');track();
 }
 function pNext(){
-  if(G.week===8&&!G.aud)return pAud();
-  if(G.week===16)return pFinal();
+  const LL=G.len||16;
+  if(G.week===LL/2&&!G.aud)return pAud();
+  if(G.week>=LL)return pFinal();
   weekly();G.week++;pHubNext();
 }
 function pAud(){
@@ -1176,7 +1179,7 @@ function pAud(){
   else if(sc>=27){e={fans:80,fame:2,buzz:6};msg='👍 順利晉級,評審說「很有潛力」。'}
   else{e={fans:15,buzz:2};msg='😅 勉強過關,評審建議再加強基本功。'}
   const sb=snap();ef(e);
-  app.innerHTML=panel(hdrP())+`<div class="card center"><div class="big">🎙️</div><h2>第 8 週:${M.aud}</h2><p>綜合評分 ${Math.round(sc)}</p><p style="line-height:1.6">${msg}</p>${diff(sb,snap())}</div>`+
+  app.innerHTML=panel(hdrP())+`<div class="card center"><div class="big">🎙️</div><h2>第 ${G.week} 週:${M.aud}</h2><p>綜合評分 ${Math.round(sc)}</p><p style="line-height:1.6">${msg}</p>${diff(sb,snap())}</div>`+
   B('繼續培育 →','','weekly();G.week++;pHubNext()');
 }
 function pScore(){
@@ -1186,9 +1189,9 @@ function pScore(){
 function pFinal(){
   clearRun();track();const M=M_(),score=pScore();
   let r,e,t;
-  if(score>=P_T[0]){r='S';e='👑';t='票房與口碑雙贏!演唱會加開場次,媒體稱你為「最會捧紅人的製作人」。'}
-  else if(score>=P_T[1]){r='A';e='🌟';t='人氣新星誕生!演唱會氣氛熱烈,新歌登上排行榜,公司順利簽下更多新人。'}
-  else if(score>=P_T[2]){r='B';e='🎤';t='順利出道!雖然還不是最耀眼的星,但粉絲都很愛他們,未來可期。'}
+  if(score>=P_T[0]+LOFF()){r='S';e='👑';t='票房與口碑雙贏!演唱會加開場次,媒體稱你為「最會捧紅人的製作人」。'}
+  else if(score>=P_T[1]+LOFF()){r='A';e='🌟';t='人氣新星誕生!演唱會氣氛熱烈,新歌登上排行榜,公司順利簽下更多新人。'}
+  else if(score>=P_T[2]+LOFF()){r='B';e='🎤';t='順利出道!雖然還不是最耀眼的星,但粉絲都很愛他們,未來可期。'}
   else{r='C';e='🌱';t='演唱會平平淡淡,但成員說:「謝謝你一路陪我們。」明年再努力吧!'}
   const nb=bestP(G.mk,r,score);
   const extra=(r==='S'||r==='A'?`<p class="up">🏅 榮獲${M.aw}</p>`:'')+(G.group?`<p style="opacity:.85">組合默契 ${Math.round(G.chem)}:${G.chem>=70?'舞台上心有靈犀。':G.chem>=40?'彼此合作順暢。':'台上略顯生疏,還需磨合。'}</p>`:'');
@@ -1384,7 +1387,7 @@ FOCUS.push(['🌐','溝通訓練','溝通類 2 項能力提升',{catk:['溝通',
 
 function originSelect(){
   const M=MK[MKID];
-  app.innerHTML=`<button class="back" onclick="mkSelect(MODE)">← 換市場</button><h2>${M.e} ${M.n}:你的起點</h2><div class="card">${MODE==='a'?`你要參加「${M.aud}」,評審特別看重<b>${PREFN[MKID]}</b>。`:''}你是故事主角。共 <b>5 個人生階段</b>,每階段先決定<b>方針</b>,再面對 2 件事。心情歸零、壓力爆表或體力耗盡,都會倦怠退出舞台!</div>`+
+  app.innerHTML=`<button class="back" onclick="mkSelect(MODE)">← 換市場</button><h2>${M.e} ${M.n}:你的起點</h2><div class="card">${MODE==='a'?`你要參加「${SH().n}」,評審特別看重<b>${SH().pn}</b>。`:''}你是故事主角。共 <b>5 個人生階段</b>,每階段先決定<b>方針</b>,再面對 2 件事。心情歸零、壓力爆表或體力耗盡,都會倦怠退出舞台!</div>`+
   B('✏️ 自訂角色','自己決定名字、擅長、個性、外貌與背景',`custMenu()`,'gold')+ORIGINS.map((o,i)=>B(`${o.e} ${o.n}`,`${AR[o.a][0]} · ${TR[o.t].n} — ${o.d}`,`origPick(${i})`,'alt')).join('');
 }
 function origPick(i,c){
@@ -1406,8 +1409,8 @@ const hdrS=()=>`${CHAP[G.ch]}`;
 function sFocus(){
   ensureX();saveRun();
   const pool=FOCUS.slice();if(G.group)pool.push(FOCUS_T);
-  G.fo=shuffle(pool).slice(0,6);const opts=G.fo;
-  app.innerHTML=panel(hdrS())+trendCard()+`<div class="card"><span class="tag">階段 ${G.ch+1}/5</span><h2>${CHAP[G.ch]}:這段時間的方針?</h2></div>`+
+  G.fo=[MINI_FOCUS].concat(shuffle(pool).slice(0,5));const opts=G.fo;
+  app.innerHTML=panel(hdrS())+trendCard()+`<div class="card"><span class="tag">階段 ${(G.cc||0)+1}/${G.slen||5}</span><h2>${CHAP[G.ch]}:這段時間的方針?</h2></div>`+
   opts.map((f,i)=>B(`${f[0]} ${f[1]}`,f[2],`sFocusDo(${i})`,'alt')).join('');
 }
 function sFocusDo(i){
@@ -1416,7 +1419,7 @@ function sFocusDo(i){
 }
 function sShow(){
   const ev=G.q[G.ch][G.n];
-  app.innerHTML=panel(hdrS())+`<div class="card"><span class="tag">第 ${G.ch*2+G.n+1} / 10 件事</span><h2>${ev.t}</h2><p style="line-height:1.6">${ev.d}</p></div>`+
+  app.innerHTML=panel(hdrS())+`<div class="card"><span class="tag">第 ${(G.cc||0)*2+G.n+1} / ${(G.slen||5)*2} 件事</span><h2>${ev.t}</h2><p style="line-height:1.6">${ev.d}</p></div>`+
   ev.c.map((c,k)=>B(c[0],'',`sChoose(${k})`,'alt')).join('');
 }
 function sChoose(k){
@@ -1427,7 +1430,7 @@ function sDead(){const m=G.m[0];return m.mood<=0||m.stress>=100||m.energy<=0}
 function sNext(){
   if(sDead())return sEnd('burn');
   G.n++;
-  if(G.n>=2){G.n=0;G.ch++;
+  if(G.n>=2){G.n=0;G.ch++;G.cc=(G.cc||0)+1;while((G.slen||5)<5&&(G.ch===1||G.ch===3))G.ch++;
     if(G.ch>=5)return sEnd();
     G.m[0].energy=cl(G.m[0].energy+25);mp(G.m[0],{stress:-4});
     const m0=G.m[0];m0.ap.skin=cl(m0.ap.skin-1.5);m0.ap.hair=cl(m0.ap.hair-1.8);m0.ap.body=cl(m0.ap.body-1);m0.rec=Math.max(0,m0.rec-2);
@@ -1525,27 +1528,53 @@ const RIV={
  kr:[['金','李','朴','崔','鄭','姜','趙','尹'],['民俊','秀賢','智雅','道允','夏琳','泰亨','敏書','恩尚']],
  us:[['Liam','Emma','Noah','Olivia','Lucas','Sofia','Ethan','Chloe','Mason','Zara','Leo','Nina'],['Hayes','Brooks','Rivera','Foster','Kim','Moreau','Reed','Shaw']]
 };
-function genRivals(mk){
-  const [a,b]=RIV[mk],used=new Set(),r=[];
+function genRivals(mk,n,gf,mix){
+  n=n||15;const [a,b]=RIV[mk],used=new Set(),r=[];
   const ak=Object.keys(AR),tk=Object.keys(TR);
-  while(r.length<15){const rg=pick(['m','f']),n=WEST.has(mk)?pick(GN[mk][rg])+' '+pick(b):pick(a)+pick(GN[mk][rg]);if(used.has(n))continue;used.add(n);
-    const m=mkMember({n,g:rg,e:pick(['🎤','🕺','🎭','✨','🎪','🌟']),a:pick(ak),t:pick(tk)});SKK.forEach(k=>m.sk[k]=cl(m.sk[k]+R(-2,6)));r.push({n,m})}
+  if(mix){
+    const pool=shuffle(ALLR.filter(c=>!gf||c.g===gf));
+    for(const c of pool){if(r.length>=n)break;if(used.has(c.n))continue;used.add(c.n);
+      const m=mkMember(c);SKK.forEach(k=>m.sk[k]=cl(m.sk[k]+R(-2,6)));m.nat=c.nat;r.push({n:c.n,m})}
+    return r;
+  }
+  let guard=0;
+  while(r.length<n&&guard++<3000){const rg=gf||pick(['m','f']),nm=WEST.has(mk)?pick(GN[mk][rg])+' '+pick(b):pick(a)+pick(GN[mk][rg]);if(used.has(nm))continue;used.add(nm);
+    const m=mkMember({n:nm,g:rg,e:pick(['🎤','🕺','🎭','✨','🎪','🌟']),a:pick(ak),t:pick(tk)});SKK.forEach(k=>m.sk[k]=cl(m.sk[k]+R(-2,6)));m.nat=MKNAT(mk);r.push({n:nm,m})}
   return r;
 }
+const SHOWS={
+ voice:{e:'🎤',n:'星光歌聲擂台',d:'一位位唱將輪番上台,評審重視歌唱實力。每週淘汰,只有冠軍能風光出道。',field:15,keep:[12,8,5,3,1],rn:['海選','初賽','複賽','半決賽','總決賽'],wj:[.65,.65,.65,.65,.65],pref:'vocal',pn:'歌唱實力',debut:0,same:0,mix:0},
+ rap:{e:'🔥',n:'饒舌戰場',d:'一對一擂台對決,拼的是節奏、詞句與氣勢。現場觀眾反應很重要。',field:15,keep:[12,8,5,3,1],rn:['選拔','淘汰賽','團隊戰','半決賽','總決賽'],wj:[.6,.6,.55,.5,.5],pref:'rap',pn:'饒舌與氣勢',debut:0,same:0,mix:0,rbias:7},
+ act:{e:'🎭',n:'新銳演員試鏡戰',d:'導演與選角總監坐鎮評審席。比的是演技與臨場反應,冠軍直接拿下主角合約。',field:15,keep:[12,8,5,3,1],rn:['初選試鏡','角色詮釋','即興考驗','導演面試','最終選角'],wj:[.72,.72,.7,.7,.7],pref:'act',pn:'演技與臨場反應',debut:0,same:0,mix:0,rbias:-5},
+ surv:{e:'🔥',n:'出道戰線 40',d:'40 位練習生的生存競賽。前期看評審,後期全民票選,最終前 11 名組成團體出道。',field:39,keep:[30,22,16,13,11],rn:['等級評價','主題曲對決','小組競演','立場評價','出道之夜'],wj:[.6,.5,.45,.4,.3],pref:'dance',pn:'舞蹈與舞台',debut:11,same:1,mix:0,ra:31,rb:10,rbias:3},
+ acad:{e:'🏫',n:'偶像學院',d:'24 位學員入學接受訓練,月末評價與團體任務決定去留,畢業時前 7 名組成團體出道。',field:23,keep:[18,14,10,8,7],rn:['入學測驗','月末評價','團體任務','期末公演','畢業出道夜'],wj:[.5,.5,.5,.45,.4],pref:'charm',pn:'魅力與成長性',debut:7,same:1,mix:0,ra:30,rb:9,rbias:2},
+ gal:{e:'🌍',n:'銀河 99 全球選拔',d:'來自各國的 36 位參賽者,在語言與文化的碰撞中競爭。前 9 名組成跨國團體出道。',field:35,keep:[28,20,14,11,9],rn:['全球海選','區域賽','跨國組隊賽','世界舞台','出道決選夜'],wj:[.5,.45,.4,.4,.35],pref:'stage',pn:'舞台魅力與國際感',debut:9,same:1,mix:1,ra:31,rb:10,rbias:3}
+};
+let SHOWID='voice';
+const SH=()=>SHOWS[(typeof G==='object'&&G&&G.show)||SHOWID]||SHOWS.voice;
+const prefK=()=>SH().pref||PREF[G.mk],prefN=()=>SH().pn||PREFN[G.mk];
+const GPRE=['閃耀','星河','夢想','極光','彩虹','銀河','晨曦','流星','幻彩','光年'];
+const gName=g=>pick(GPRE)+(g==='m'?'少年團':g==='f'?'少女團':'Crew');
+function showSelect(){
+  MODE='a';
+  app.innerHTML=`<button class="back" onclick="natSelect('a')">← 換國籍</button><h2>📺 選擇選秀節目</h2><div class="card">${NATS[NAT].e} 你的國籍:<b>${NATS[NAT].n}</b>。每個節目的賽制、人數與出道方式都不同:有的由冠軍單人出道,有的是生存競賽,由票選前幾名組成團體出道。(節目名稱皆為虛構)</div>`+
+  Object.keys(SHOWS).filter(unlS).map(k=>{const x=SHOWS[k];return B(`${x.e} ${x.n}`,`${x.d}<br><b>${x.field+1} 人</b> · ${x.debut?`前 ${x.debut} 名${x.mix?'跨國':''}組團出道`:'冠軍單人出道'} · 看重:${x.pn}`,`SHOWID="${k}";mkSelect("a")`,'alt')}).join('');
+}
 const RB0=27,RB1=6,RB2=8;
-const hdrA=()=>`${RN[G.r]}(${G.alive.length+1}人)`;
+const hdrA=()=>`${SH().rn[G.r]}(${G.alive.length+1}人)`;
 function aBegin(){
   const o=ORIGINS[OID],me=meOf(o);me.energy=80;me.mood=60;me.stress=20;
-  G={mode:'a',mk:MKID,m:[me],r:0,money:o.x.money,fans:o.x.fans,fame:o.x.fame,rep:10,image:o.x.image,network:5,buzz:0,chem:50,group:false,
-     log:[],rivals:genRivals(MKID),alive:null,styles:[],last:null};
+  const sh=SHOWS[SHOWID]||SHOWS.voice,gf=sh.same?(me.g==='m'||me.g==='f'?me.g:pick(['m','f'])):null;
+  G={mode:'a',mk:MKID,m:[me],r:0,money:o.x.money,fans:o.x.fans,fame:o.x.fame,rep:10,image:o.x.image,network:5,buzz:0,chem:50,group:false,show:SHOWID,
+     log:[],rivals:genRivals(MKID,sh.field,gf,sh.mix),alive:null,styles:[],last:null};
   G.alive=G.rivals.map((_,i)=>i);
   const M=M_();
-  app.innerHTML=panel('選秀開幕')+`<div class="card center"><div class="big">🎙️</div><h2>${M.e} ${M.aud}</h2>
-  <p style="line-height:1.7">16 位參賽者、5 個關卡:海選 → 初賽 → 複賽 → 半決賽 → 總決賽。<br>每關成績 = 評審 65% + 觀眾 35%,評審特別看重<b>${PREFN[G.mk]}</b>。<br>每關先做準備,再選擇表演類型。</p></div>`+B('開始比賽 →','','aPrep()');
+  app.innerHTML=panel('選秀開幕')+`<div class="card center"><div class="big">${sh.e}</div><h2>${sh.n}</h2>
+  <p style="line-height:1.7">${sh.field+1} 位參賽者、5 個關卡:${sh.rn.join(' → ')}。<br>${sh.debut?`最終前 <b>${sh.debut}</b> 名${sh.mix?'(來自各國)':''}組成團體出道。後期觀眾票選比重越來越高。`:'每關成績由評審與觀眾共同決定,冠軍單人出道。'}<br>評審特別看重<b>${sh.pn}</b>。每關先做準備,再選擇表演類型。</p></div>`+B('開始比賽 →','','aPrep()');
 }
 function aPrep(){
   ensureX();saveRun();
-  app.innerHTML=panel(hdrA())+`<div class="card"><span class="tag">第 ${G.r+1}/5 關:${RN[G.r]}</span><h2>賽前準備:你要做什麼?</h2></div>`+
+  app.innerHTML=panel(hdrA())+`<div class="card"><span class="tag">第 ${G.r+1}/5 關:${SH().rn[G.r]}</span><h2>賽前準備:你要做什麼?</h2></div>`+
   AFOC.map((f,i)=>B(`${f[0]} ${f[1]}`,f[2],`aPrepDo(${i})`,'alt')).join('');
 }
 function aPrepDo(i){
@@ -1554,26 +1583,27 @@ function aPrepDo(i){
   app.innerHTML=panel(hdrA())+`<div class="card"><p>${f[0]} 你選擇了「${f[1]}」。</p>${diff(s0,snap())}</div>`+B('登台表演 →','','aStages()');
 }
 function aStages(){
-  app.innerHTML=panel(hdrA())+`<div class="card"><span class="tag">${RN[G.r]}</span><h2>選擇你的表演類型</h2><p style="font-size:13px;opacity:.8">評審看重${PREFN[G.mk]};觀眾看你的人氣與話題。</p></div>`+
+  app.innerHTML=panel(hdrA())+`<div class="card"><span class="tag">${SH().rn[G.r]}</span><h2>選擇你的表演類型</h2><p style="font-size:13px;opacity:.8">評審看重${prefN()};觀眾看你的人氣與話題(本關評審 ${Math.round(SH().wj[G.r]*100)}%、觀眾 ${100-Math.round(SH().wj[G.r]*100)}%)。</p></div>`+
   G.styles.map((st,k)=>B(`${st.e} ${st.n}`,`${st.d}(使用:${st.k.map(x=>SK[x]).join('、')})`,`aPerform(${k})`,'alt')).join('');
 }
 function aPerform(k){
   const st=G.styles[k],m=G.m[0],s0=snap();
-  const base=st.k.reduce((a,x)=>a+m.sk[x],0)/st.k.length,pref=m.sk[PREF[G.mk]];
-  const f=(0.75+m.mood/200)*(m.stress>70?.85:1)*(m.energy<25?.9:1);
+  const W=SH().wj[G.r],base=st.k.reduce((a,x)=>a+m.sk[x],0)/st.k.length,pref=m.sk[prefK()];
+  const f=(0.75+m.mood/200)*(m.stress>70?.85:1)*(m.energy<25?.9:1)*(G.mm||1);
   const judge=cl((base*.8+pref*.2)*f+R(-10,10)*st.risk,0,100);
   const aud=Math.min(100,cl(32+(lookAvg()-50)*.15+G.fame*.6+G.fans/12+G.buzz*.5,0,100)*st.ap);
-  const mine=(judge*.65+aud*.35)*(.9+.1*fitv());
+  const mine=(judge*W+aud*(1-W))*(.9+.1*fitv());
   const field=G.alive.map(i=>{const v=G.rivals[i],vm=v.m;
     let bs=0;shuffle(STY).slice(0,3).forEach(x=>{const b=x.k.reduce((a,kk)=>a+vm.sk[kk],0)/x.k.length;if(b>bs)bs=b});
-    const j=cl((bs*.8+vm.sk[PREF[G.mk]]*.2)*(.9+vm.p.confid/500)+G.r*RB1+R(-8,8),0,100);
-    const au=cl(RB0+G.r*RB2+vm.p.extro/6+R(-8,8),0,100);
-    return {i,n:v.n,m:vm,s:j*.65+au*.35}});
+    const j=cl((bs*.8+vm.sk[prefK()]*.2)*(.9+vm.p.confid/500)+G.r*(SH().rj!==undefined?SH().rj:RB1)+(SH().rbias||0)+R(-8,8),0,100);
+    const au=cl((SH().ra!==undefined?SH().ra:RB0)+G.r*(SH().rb!==undefined?SH().rb:RB2)+vm.p.extro/6+R(-8,8),0,100);
+    return {i,n:v.n,m:vm,s:j*W+au*(1-W)}});
   field.push({n:'你',s:mine,me:true});
   field.sort((a,b)=>b.s-a.s);
-  const total=field.length,rank=field.findIndex(x=>x.me)+1,K=KEEP[G.r];
+  const total=field.length,rank=field.findIndex(x=>x.me)+1,K=SH().keep[G.r];
   const final=G.r===4,survive=final?true:rank<=K;
   G.last={rank,total,judge,aud,st,field,survive,final};
+  if(final&&SH().debut){G.last.debut=rank<=SH().debut;G.last.dn=SH().debut}
   const gain=Math.round((total+1-rank)/total*100);
   const M=M_();
   const e={fans:gain*M.fm,fame:2+gain/25,buzz:gain/6,all:{stress:6,energy:-14}};
@@ -1584,7 +1614,7 @@ function aPerform(k){
   if(survive&&!final)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
   if(!survive)G.alive=field.slice(0,K).filter(x=>!x.me).map(x=>x.i);
   const rows=field.slice(0,Math.min(5,total)).map((x,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${x.me?'color:#ffd76a;font-weight:700':''}">${x.me?'⭐ 你':x.n+`<small style="opacity:.55;margin-left:6px">${AR[x.m.a][0]}·${tr(x.m).n}</small>`}</span><span style="width:40px">${Math.round(x.s)}</span></div>`).join('');
-  const verdict=final?(rank===1?'🏆 你成為了冠軍!':`你在總決賽拿下第 ${rank} 名。`):survive?`✅ 你以第 ${rank} 名晉級下一關(取前 ${K} 名)`:`❌ 你以第 ${rank} 名遭到淘汰(取前 ${K} 名)`;
+  const verdict=final?(SH().debut?(rank<=SH().debut?`🎉 你以第 ${rank} 名進入出道位(前 ${SH().debut} 名)!`:`💔 你以第 ${rank} 名,差一點就進入出道位(前 ${SH().debut} 名)。`):(rank===1?'🏆 你成為了冠軍!':`你在總決賽拿下第 ${rank} 名。`)):survive?`✅ 你以第 ${rank} 名晉級下一關(取前 ${K} 名)`:`❌ 你以第 ${rank} 名遭到淘汰(取前 ${K} 名)`;
   app.innerHTML=panel(hdrA())+`<div class="card"><h2>${st.e} ${st.n}</h2><p>評審 ${Math.round(judge)} · 觀眾 ${Math.round(aud)} · 綜合 ${Math.round(mine)}</p>${rows}${total>5&&rank>5?`<div class="mini" style="font-size:13px"><b style="width:26px">${rank}.</b><span style="flex:1;color:#ffd76a;font-weight:700">⭐ 你</span><span style="width:40px">${Math.round(mine)}</span></div>`:''}</div>
   <div class="card log"><p>${verdict}</p>${notes.map(x=>`<p>${x}</p>`).join('')}${diff(s0,snap())}</div>
   <details class="card"><summary>👀 對手檔案(前 4 名,各 27 項數值)</summary>${field.filter(x=>!x.me).slice(0,4).map(x=>memD(x.m,'對手 · ')).join('')}</details>`+
@@ -1597,17 +1627,23 @@ function aNext(){
 }
 function aEnd(){
   clearRun();track();const L=G.last,M=M_(),m=G.m[0];
-  let t,e,sc,lab,txt;
-  if(L.final&&L.rank===1){t='🏆 選秀冠軍';e='🏆';sc=100;lab='冠軍';txt='你站上了最高的領獎台,所有人為你歡呼,簽約邀請如雪片飛來。'}
+  let t,e,sc,lab,txt;const shw=SH();
+  if(L.final&&shw.debut){
+    if(L.debut){G.gname=gName(m.g);G.dm=L.field.slice(0,shw.debut).filter(x=>!x.me).map(x=>x.m);
+      if(L.rank===1){t='👑 C位出道';e='👑';sc=100;lab='冠軍';txt='你以第一名的成績站上C位,全場為你歡呼。';}
+      else{t=`第 ${L.rank} 名出道`;e='🎉';sc=88;lab='出道';txt='你擠進了出道名單,和一起拼過來的夥伴組成了團體。';}}
+    else{t='出道之夜落選';e='💔';sc=60;lab='決賽落選';txt='只差一點點,你沒能擠進出道名單,但這段經歷讓你累積了大批粉絲。';}
+  }
+  else if(L.final&&L.rank===1){t='🏆 選秀冠軍';e='🏆';sc=100;lab='冠軍';txt='你站上了最高的領獎台,所有人為你歡呼,簽約邀請如雪片飛來。'}
   else if(L.final&&L.rank===2){t='🥈 選秀亞軍';e='🥈';sc=90;lab='亞軍';txt='只差一點點就是冠軍!但你已經擁有一大群支持你的粉絲。'}
   else if(L.final){t='🥉 選秀季軍';e='🥉';sc=80;lab='季軍';txt='你站上決賽舞台並拿下前三,許多公司開始注意你。'}
-  else{t=`止步${RN[G.r]}`;e='🌱';sc=10*(G.r+1);lab=RN[G.r];txt=['剛起步就遇到強敵,但這次經驗會讓你更成熟。','你在舞台上展現了潛力,評審鼓勵你繼續努力。','只差一步就能晉級,你的努力大家都看見了。','你闖進了前四強,很多人記住了你的名字!','你打進了前三名的最後一關。'][G.r]}
-  const d=load();d.ap=d.ap||{};if(!d.ap[G.mk]||sc>d.ap[G.mk].s){d.ap[G.mk]={s:sc,l:lab};save(d)}
+  else{t=`止步${shw.rn[G.r]}`;e='🌱';sc=10*(G.r+1);lab=shw.rn[G.r];txt=['剛起步就遇到強敵,但這次經驗會讓你更成熟。','你在舞台上展現了潛力,評審鼓勵你繼續努力。','只差一步就能晉級,你的努力大家都看見了。','你闖進了前四強,很多人記住了你的名字!','你打進了前三名的最後一關。'][G.r]}
+  const d=load();d.ap=d.ap||{};if(!d.ap[G.mk]||sc>d.ap[G.mk].s){d.ap[G.mk]={s:sc,l:lab}}d.sh=d.sh||{};if(!d.sh[G.show]||sc>d.sh[G.show])d.sh[G.show]=sc;save(d)
   G.res={sc,lab};
-  app.innerHTML=`<div class="card center"><div class="big">${e}</div><h2>${M.e} ${M.aud}:${t}</h2><p style="line-height:1.7">${txt}</p>
+  app.innerHTML=`<div class="card center"><div class="big">${e}</div><h2>${shw.e} ${shw.n}:${t}</h2><p style="line-height:1.7">${txt}</p>${G.gname&&L.debut?`<div class="card"><b>👯 ${G.gname}(${G.dm.length+1} 人)</b><p style="font-size:13px;line-height:1.7">${[m].concat(G.dm).map(x=>(x.nat?FLAG(x.nat)+' ':'')+x.n).join('、')}</p></div>`:''}
   <p class="delta">人氣 ${Math.round(G.fame)} · 粉絲 ${G.fans} · 口碑 ${Math.round(G.rep)}</p></div>
   ${outBlock('a',lab)}${achBlock('a',lab)}<details class="card"><summary>📊 查看全部數值</summary>${panel('最終').replace(/<details class="card mem"/g,'<details class="mem" open')}</details>`+
-  B('🌟 帶著這份人氣踏入演藝圈','用選秀的成績直接進入「做明星」的出道階段','aToStar()','gold')+
+  B(G.gname&&L.debut?'🌟 以組合身分踏入演藝圈':'🌟 帶著這份人氣踏入演藝圈',G.gname&&L.debut?'帶著出道隊友進入「做明星」的出道階段':'用選秀的成績直接進入「做明星」的出道階段','aToStar()','gold')+
   B('🔁 再參加一次選秀','','natSelect("a")')+B('回首頁','','home()','alt');
   if(sc>=80)confetti();
 }
@@ -1615,9 +1651,11 @@ function aToStar(){
   const g=G,me=g.m[0],sc=g.res.sc;
   me.energy=80;me.mood=cl(me.mood,50,100);me.stress=cl(me.stress-10);
   const b=sc>=100?{fame:12,fans:400,money:600}:sc>=80?{fame:6,fans:200,money:300}:{fame:2,fans:60,money:0};
+  const gd=g.dm&&g.last&&g.last.debut?g.dm:null;
   MKID=g.mk;
   G={mode:'s',mk:g.mk,m:[me],ch:1,n:0,money:g.money+b.money,fans:g.fans+b.fans,fame:cl(g.fame+b.fame),rep:g.rep,image:g.image,network:g.network,buzz:g.buzz,chem:50,group:false,q:[],log:[],dif:'',note:''};
-  G.hist=g.hist||[];G.sc=g.sc||0;G.mates=[];G.rels=[];G.br=0;G.who=0;G.q2=[];G.pt=0;
+  G.hist=g.hist||[];G.sc=g.sc||0;G.mates=[];G.rels=[];
+  if(gd){G.group=true;G.mates=gd;G.gname=g.gname;G.chem=cl(55+Math.round((gd.reduce((a,x)=>a+x.p.agree,0)/gd.length-50)/3)+(g.show==='gal'?-6:0));}G.br=0;G.who=0;G.q2=[];G.pt=0;
   G.q=CHAP.map((_,i)=>shuffle([MEV[MKID][i],Math.random()<.55?genDyn():pick(GENEV[i])]));
   sFocus();
 }
@@ -1742,7 +1780,7 @@ function mktReq(mk){const f=G.fit0===undefined?1:FITN[G.mode==='p'?(G.m[0].nat||
 function expandMenu(){
   ensureX();const back=G.mode==='p'?'pHub()':'sPersonal()',hd=G.mode==='p'?hdrP():hdrS();
   app.innerHTML=panel(hd)+`<button class="back" onclick="${back}">← 返回</button><h2>🌏 拓展市場</h2><div class="card" style="font-size:13px;line-height:1.7">目前所在:<b>${MK[G.mk].e} ${MK[G.mk].n}</b>(適應度 ${Math.round(fitv()*100)}%)<br>各市場知名度:${(G.mks||[]).map(k=>`${MK[k].e}${Math.round(G.ms[k]||0)}`).join(' ')}<br><span style="opacity:.75">語言(外語)能力越高,適應度越高。到不同市場,事件、收入、壓力與特色活動都會改變;在多個市場打出知名度,能成為真正的國際巨星。</span></div>`+
-  MKORDER.map(k=>{const M=MK[k],un=(G.mks||[]).includes(k),rq=mktReq(k),cur=G.mk===k;
+  MKORDER.filter(k=>unlM(k)||(G.mks||[]).includes(k)).map(k=>{const M=MK[k],un=(G.mks||[]).includes(k),rq=mktReq(k),cur=G.mk===k;
     if(un)return B(`${M.e} ${M.n}${cur?'(目前)':''}`,cur?'你正在這個市場':`切換到這裡發展(旅費 $150)`,`switchMk("${k}")`,cur?'sel':'alt cp',cur||G.money<150);
     return B(`${M.e} ${M.n}(尚未進軍)`,`需要 人氣 ${rq.fame}、資金 $${rq.cost} · ${G.mode==='p'?'製作人':'你的'}適應度 ${Math.round((G.mode==='p'?G.m.reduce((a,m)=>a+FITN[m.nat||'tw'][k],0)/G.m.length:FITN[G.nat||NAT][k])*100)}%`,`goMk("${k}")`,'gold cp',G.fame<rq.fame||G.money<rq.cost)}).join('');
 }
@@ -1761,6 +1799,734 @@ function goMk(k){
 }
 function marketsWon(){return (G.mks||[]).filter(k=>(G.ms||{})[k]>=30).length}
 function msWeekly(k){G.ms=G.ms||{};(G.mks||[G.mk]).forEach(m=>{if(m===G.mk)G.ms[m]=cl((G.ms[m]||0)+(1.1+G.fame/60)*k*(.5+fitv()*.6));else G.ms[m]=cl((G.ms[m]||0)-.3*k)})}
+
+// =====================================================
+// 可玩性強化 A:兩難抉擇、人物記憶、風險後果、活的世界、里程碑
+// =====================================================
+const MINI_ON=()=>{if(typeof AUTOP!=='undefined'&&AUTOP)return false;if(typeof MINI_FORCE!=='undefined')return MINI_FORCE;try{if(load().easy)return false}catch(e){}return !(typeof process!=='undefined'&&process.versions&&process.versions.node)};
+const CASTD={agent:['🧑‍💼','經紀人'],senior:['🎖️','前輩'],rival:['⚔️','宿敵'],fan:['💝','粉絲站長'],press:['📰','記者']};
+function X(){const x=G.x2=G.x2||{};x.cast=x.cast||{agent:50,senior:50,rival:40,fan:55,press:50};x.later=x.later||[];x.heat=x.heat||0;x.co=x.co||{tr:0,st:0,sy:0,pr:0,md:0};x.miles=x.miles||[];x.turn=x.turn||0;x.sal=x.sal||0;x.news=x.news||[];x.cd=x.cd||{};return x}
+const cn=id=>{const x=X();return `${CASTD[id][0]}${x.names?x.names[id]:CASTD[id][1]}`};
+function mkWorld(){const w=[],used=new Set();for(let i=0;i<9;i++){const g=pick(['m','f']);let n,t=0;do{n=genName(g)}while(used.has(n)&&t++<50);used.add(n);w.push({n,g,e:pick(['🎤','🕺','🎭','🌟','💃','🎸']),f:R(22,70)})}return w}
+const myPow=()=>G.fame+Math.min(35,G.fans/50);
+const worldRank=()=>{const x=X();if(!x.world)return 5;const p=myPow();return 1+x.world.filter(n=>n.f>p).length};
+function x2Init(){
+  const x=X();if(x.init)return;x.init=1;
+  if(G.mode==='a'){x2Init2();applyLegacy();return}
+  x.names={};Object.keys(CASTD).forEach(k=>{x.names[k]=genName(k==='fan'?'f':undefined)});
+  x.world=mkWorld();x.m0=G.money;x2Init2();applyLegacy();
+}
+const _ensureX=ensureX;ensureX=function(){_ensureX();if(G&&G.mode)x2Init()};
+
+// ---- ef 擴充:cast / heat / later / inj / sal ----
+const _ef=ef;
+ef=function(e){
+  if(e&&G&&G.xs&&G.mode==='s'&&((e.fame>0)||(e.rep>0))){e=Object.assign({},e);if(e.fame>0)e.fame*=.4;if(e.rep>0)e.rep*=.45}
+  if(e&&(e.cast||e.heat!==undefined||e.later||e.inj||e.sal)){
+    const x=X();e=Object.assign({},e);
+    if(e.cast){const cs=Array.isArray(e.cast[0])?e.cast:[e.cast];cs.forEach(c=>{x.cast[c[0]]=cl((x.cast[c[0]]===undefined?50:x.cast[c[0]])+c[1])});delete e.cast}
+    if(e.heat!==undefined){x.heat=cl(x.heat+(e.heat>0?e.heat*(G.mode==='s'?2.4:1.6):e.heat));delete e.heat}
+    if(e.later){x.later.push({id:e.later[0],due:x.turn+e.later[1]});delete e.later}
+    if(e.inj){const m=G.one||G.m[0];m.inj=Math.max(m.inj||0,e.inj[0]);delete e.inj}
+    if(e.sal){x.sal+=e.sal;delete e.sal}
+  }
+  return _ef(e);
+};
+
+// ---- 兩難抉擇 ----
+// 每個選項都有明確代價;timed=限時秒數,dflt=逾時預設選項
+const DIL=[
+ n=>({t:'📸 爭議品牌代言',d:`一個口碑兩極的品牌開出高價,${n.agent}說這是撈金的好機會。`,dflt:1,c:[
+  ['接下合約(💰+600、口碑↓、醜聞熱度↑)',{money:600,rep:-4,heat:8,cast:['agent',6]},'錢入帳了,但網路上開始有人說你為錢不擇手段。'],
+  ['婉拒(口碑↑,經紀人不悅)',{rep:2,image:2,cast:['agent',-6]},`${n.agent}嘆了口氣,但業界覺得你有原則。`],
+  ['談條件改成溫和合作(💰+250、人脈↑)',{money:250,network:3,cast:['agent',3]},'你們各讓一步,簽了較溫和的合約。']]}),
+ n=>({t:'🌙 深夜加場通告',d:'臨時多了一個高酬勞的深夜通告,但你已經連續工作很久。',dflt:1,c:[
+  ['接下(💰+250、人氣↑,體力壓力代價)',{money:250,fame:2,all:{energy:-22,stress:9},heat:2,cast:['agent',3]},'你熬夜完成了通告,但整個人都累垮了。'],
+  ['推掉(體力↑,經紀人不悅)',{all:{energy:12,stress:-4},cast:['agent',-4]},'你睡了個好覺,但經紀人有些不滿。']]}),
+ n=>({t:'🎖️ 前輩邀你合作',d:`${n.senior}想找你合作新歌,但這會延後你自己的原創計畫。`,dflt:1,c:[
+  ['答應合作(人氣↑、人脈↑、前輩好感↑)',{fame:3,network:5,cast:['senior',9],later:['senior',3],all:{compose:-1}},'合作大獲好評,前輩對你刮目相看。'],
+  ['婉拒,專心做原創(創作↑)',{all:{compose:4},rep:1,cast:['senior',-8]},'你專心打磨作品,但前輩似乎有點失望。']]}),
+ n=>({t:'📷 被狗仔拍到',d:'一組私下行程的照片被爆出來,雖然沒什麼,但標題很聳動。',dflt:2,c:[
+  ['花錢壓下(💰-350、熱度↓,記者不悅)',{money:-350,heat:-10,cast:['press',-6]},'新聞被撤下了,但有人記住了你的「手腕」。'],
+  ['主動回應(話題↑、熱度↑)',{buzz:10,fame:2,heat:6,cast:['press',5]},'你大方回應,話題量暴增。'],
+  ['不予理會(形象↓、熱度↑)',{image:-2,heat:4},'新聞發酵了一陣子才平息。']]}),
+ n=>({t:'💘 被要求炒作 CP',d:'公司想用一段「假戲真做」的 CP 話題衝人氣。',dflt:1,c:[
+  ['配合炒作(話題↑、粉絲↑、形象↓)',{buzz:15,fans:130,image:-3,heat:6,cast:['agent',4],all:{stress:4}},'CP 話題爆紅,但也有人說你是靠炒作。'],
+  ['拒絕炒作(形象↑,經紀人不悅)',{image:3,cast:['agent',-5]},'你守住了底線,公司有點不高興。']]}),
+ n=>({t:'💼 高薪挖角',d:'另一家公司開出高價,邀請你轉隊。',dflt:1,c:[
+  ['接受(💰+800、人脈↓,與經紀人決裂)',{money:800,network:-6,rep:-3,cast:['agent',-12],later:['agent',2]},'你簽了新合約,舊團隊氣氛很僵。'],
+  ['留下(經紀人好感↑)',{cast:['agent',8],rep:1,later:['agent',3]},`${n.agent}很感動,說會為你爭取更多資源。`]]}),
+ n=>({t:'🤝 公益活動',d:'慈善團體邀請你出席,但行程已經很滿。',dflt:1,c:[
+  ['親自參加(形象↑、口碑↑、💰-100)',{image:4,rep:3,money:-100,all:{energy:-10},cast:['fan',4]},'你的真誠感動了很多人。'],
+  ['請公司代表出席(省時間)',{image:1,cast:['fan',-2]},'活動順利進行,但少了一點溫度。']]}),
+ n=>({t:'📱 直播翻車',d:'你在直播中說錯了話,留言區炸鍋。',dflt:1,c:[
+  ['誠懇道歉(形象小損、熱度↓)',{image:-1,fans:-20,heat:-5,cast:['fan',3]},'你的誠意獲得不少諒解。'],
+  ['硬撐到底(話題↑、熱度↑)',{buzz:12,fans:60,image:-3,heat:8},'爭議不斷,但關注度也飆升。'],
+  ['搞笑帶過(看幽默個性)',()=>pavg('humor')>=58?[{buzz:10,fans:90,heat:-2},'幽默化解了尷尬,觀眾笑翻。']:[{image:-3,fans:-30,heat:5},'玩笑開過頭,評價不佳。'],'']]}),
+ n=>({t:'🍷 神秘富商飯局',d:'一位財力雄厚的人士邀你吃飯,說可以「幫你打通關係」。',dflt:1,c:[
+  ['赴約(💰+650、人脈↑,熱度大幅↑)',{money:650,network:5,heat:11,image:-4},'飯局很「順利」,但也留下了流言。'],
+  ['婉拒(形象↑、口碑↑)',{image:2,rep:2},'你選擇不涉入灰色地帶。']]}),
+ n=>({t:'⚔️ 新作撞期',d:`${n.rival}的新作和你同一天發行,媒體都在看誰會贏。`,dflt:1,c:[
+  ['正面迎戰(賭一把)',()=>Math.random()<.5+(G.fame-45)/200?[{fame:4,fans:200,buzz:12,cast:['rival',-5]},'你贏下這場對決,媒體大篇幅報導!']:[{fame:-1,fans:-30,image:-2,cast:['rival',-5]},'聲量被蓋過,有點挫敗。'],''],
+  ['改期避戰(穩健)',{buzz:2,cast:['rival',3]},'你選擇不硬碰硬,維持穩定。']]}),
+ n=>({t:'🏕️ 魔鬼訓練營',d:'一個口碑很高的集訓營邀你參加,據說效果驚人但也非常操。',dflt:1,c:[
+  ['參加(能力大漲,但可能受傷)',()=>Math.random()<.18?[{sks:8,inj:[2],all:{energy:-25,stress:8}},'訓練太猛,你受傷了,要休養一陣。']:[{sks:10,all:{energy:-28,stress:10}},'你咬牙撐過來,實力明顯提升。'],''],
+  ['婉拒(狀態穩定)',{all:{mood:4,energy:8}},'你維持原本節奏。']]}),
+ n=>({t:'🎬 自費拍 MV',d:'你想賭一把,自費拍一支高水準 MV。',dflt:1,c:[
+  ['投資(💰-500、賭人氣)',()=>Math.random()<.65?[{money:-500,fans:300,fame:4,buzz:14,rep:2},'MV 爆紅!投資值回票價。']:[{money:-500,fans:40,buzz:3},'成效普通,錢花出去了。'],''],
+  ['保守(口碑小幅↑)',{rep:1},'你把預算留著,穩紮穩打。']]}),
+ n=>({t:'🎙️ 獨家專訪',d:`${n.press}邀你做一場獨家專訪。`,dflt:1,c:[
+  ['說真心話(口碑↑、記者好感↑)',{rep:2,image:1,cast:['press',7]},'訪談很真誠,記者很欣賞。'],
+  ['說官方套話(平淡)',{cast:['press',-2],buzz:1},'訪談平淡無奇。'],
+  ['爆料前任(話題↑↑、熱度↑↑、形象↓)',{buzz:22,fans:90,image:-6,heat:12,cast:['press',6],later:['press',3]},'話題炸開,但也引來批評。']]}),
+ n=>({t:'💸 經紀人要調高抽成',d:`${n.agent}說公司成本變高,希望調高分成比例。`,dflt:0,c:[
+  ['接受(💰-200、經紀人好感↑)',{money:-200,cast:['agent',6]},`你吞下了,${n.agent}說會更盡力。`],
+  ['強硬談判(賭一把)',()=>pavg('lead')+pavg('ambition')>=105||Math.random()<.4?[{cast:['agent',-2],network:2},'你談成了,抽成維持原樣。']:[{cast:['agent',-10],money:-100,network:-3},'談判破局,對方很不開心。'],''],
+  ['換經紀人(人脈↓、重新磨合)',{network:-8,cast:['agent',-30],money:-300,later:['agent',4]},'你換了經紀團隊,一切要重新磨合。']]}),
+ n=>({t:'💝 粉絲見面會邀約',d:`${n.fan}想辦一場粉絲見面會,場地已經訂好了。`,dflt:1,c:[
+  ['出席(粉絲↑,體力↓)',{fans:140,fame:1,all:{energy:-12,mood:5},cast:['fan',8],later:['fan',3]},'現場氣氛超熱烈,粉絲哭成一片。'],
+  ['婉拒,專心工作(粉絲站長失望)',{cast:['fan',-8],fans:-15,all:{energy:4}},'你把時間留給了工作,粉絲有些落寞。']]}),
+ n=>({t:'🧭 要不要拜師',d:`${n.senior}願意收你為徒,但你會欠下一份人情。`,dflt:1,c:[
+  ['拜師學藝(能力↑,欠人情)',{sks:9,cast:['senior',8],all:{energy:-10},later:['senior',4]},'前輩傾囊相授,但你也欠下人情。'],
+  ['自學摸索(個性成長)',{all:{open:2,resil:1}},'你決定走自己的路。']]}),
+ n=>({t:'🗨️ 黑粉帶風向',d:'網路上出現一波針對你的黑稿,轉發量不低。',dflt:2,c:[
+  ['理性澄清(形象小↑、熱度↓)',{image:1,rep:1,heat:-3},'你條理清楚地澄清,風向慢慢轉了。'],
+  ['請粉絲出面力挺(粉絲↑、熱度↑)',{fans:30,heat:3,cast:['fan',5],buzz:6},'粉絲們團結力挺,但也引來互相罵戰。'],
+  ['置之不理(心情↓)',{all:{mood:-4,stress:3},image:-1},'你選擇不回應,但心情受到影響。']]}),
+ n=>({t:'🏆 頒獎典禮與劇組撞期',d:'同一天有頒獎典禮邀約,也有一個高酬勞的拍攝。',dflt:1,c:[
+  ['出席紅毯(形象↑、人氣↑、💰-150)',{image:3,rep:2,fame:2,money:-150,all:{energy:-14}},'紅毯上的你光芒四射。'],
+  ['去拍攝(💰+400、口碑↓)',{money:400,rep:-2,cast:['agent',2]},'你賺到了酬勞,但錯過了曝光機會。']]}),
+ n=>({t:'🎁 宿敵釋出善意',d:`${n.rival}突然公開稱讚了你的作品。`,dflt:0,c:[
+  ['回禮示好(宿敵好感↑、人脈↑)',{cast:['rival',9],network:2},'氣氛和緩了不少。'],
+  ['公開叫陣(話題↑、宿敵好感↓、熱度↑)',{buzz:10,fame:1,cast:['rival',-9],heat:3},'你們的對立成了熱門話題。']]})
+];
+const PAY={
+ agent:[n=>({t:`🧑‍💼 ${n.agent}帶來好消息`,d:'長期的信任換來一個高價機會。',c:[['接下合作',{money:600,fans:100,network:3},'合作順利,收入不錯。']]}),
+        n=>({t:`🧑‍💼 ${n.agent}悄悄離開`,d:'你們的關係已經破裂,對方決定不再合作。',c:[['只能接受',{network:-6,money:-250,cast:['agent',8]},'新的經紀人接手,一切要重新建立。']]})],
+ senior:[n=>({t:`🎖️ ${n.senior}為你牽線`,d:'前輩記得你的好,幫你引薦了重要人物。',c:[['感激地接受',{network:6,fame:3,money:300},'人脈打開了,新的機會接踵而來。']]}),
+         n=>({t:`🎖️ ${n.senior}在公開場合冷落你`,d:'你們的關係冷淡,業界傳出你不懂規矩。',c:[['低調處理',{rep:-3,network:-3},'流言慢慢淡去,但印象已經留下。']]})],
+ rival:[n=>({t:`⚔️ ${n.rival}主動示好`,d:'宿敵放下成見,提議合作一個專案。',c:[['握手言和',{buzz:12,fame:2,network:3},'兩人的合作成為佳話。']]}),
+        n=>({t:`⚔️ ${n.rival}公開放話`,d:'宿敵在媒體上對你嗆聲,話題炒得很熱。',c:[['冷靜回應',{buzz:10,image:-2,cast:['rival',-3]},'話題很熱,但也讓人有點疲倦。']]})],
+ fan:[n=>({t:`💝 ${n.fan}籌辦大型應援`,d:'粉絲們自發籌了一場超大型應援。',c:[['感動收下',{fans:200,fame:2,all:{mood:8,stress:-6}},'你感動得說不出話,粉絲更死心塌地。']]}),
+      n=>({t:`💝 ${n.fan}宣布退站`,d:'因為你長期忽略粉絲,站長決定退站,粉絲群也散了一部分。',c:[['接受事實',{fans:-120,rep:-1,cast:['fan',8]},'你反省了與粉絲的距離。']]})],
+ press:[n=>({t:`📰 ${n.press}替你寫了篇好報導`,d:'一篇深度專題為你贏得好評。',c:[['感謝記者',{rep:4,image:3,buzz:8},'口碑與形象一起上升。']]}),
+        n=>({t:`📰 ${n.press}寫了篇負面報導`,d:'因為你之前的態度,記者寫了一篇批判性的文章。',c:[['誠懇回應',{image:-3,rep:-2,cast:['press',6]},'你選擇面對,風波慢慢平息。']]})]
+};
+function payEv(id,force){const x=X(),b=x.cast[id],ev=PAY[id];if(!ev)return null;
+  let e=null,g=0;
+  if(b>=58||(force&&b>=50)){e=ev[0](x.names);g=1}else if(b<=42||(force&&b<50)){e=ev[1](x.names)}
+  if(e)e.id='P'+id+g;return e}
+const heatEv=()=>({id:'H',t:'🔥 醜聞全面爆發',d:'累積的爭議終於同時引爆,媒體蜂擁而至。',timed:14,dflt:2,c:[
+  ['危機公關(💰-500)',{money:-500,image:-2,heat:-25},'公關團隊連夜處理,風波慢慢降溫。'],
+  ['公開道歉並暫停活動(粉絲↓、休息)',{fans:-60,rep:-2,heat:-30,all:{energy:15,mood:-5}},'你低調休息了一陣子,粉絲有些失望但願意等你。'],
+  ['硬扛到底(風險極高)',()=>Math.random()<.35?[{buzz:20,heat:-10},'風波意外平息,反而獲得關注。']:[{fans:-150,rep:-6,image:-6,heat:-15,money:-200},'輿論一面倒,你損失慘重。'],'']]});
+function contractEv(){const idx=R(0,G.m.length-1),m=G.m[idx];
+  return {id:'C',mi:idx,t:`📝 ${m.n}提出合約談判`,d:`${m.n}認為自己的貢獻該被重視,想談談合約條件。`,timed:14,dflt:2,c:[
+   ['加薪留人(週薪 +30、心情↑)',{sal:30,one:{mood:10,stress:-4}},`${m.n}對你的重視很滿意。`],
+   ['簽長約穩定軍心(💰-600)',{money:-600,one:{mood:6,resil:2}},`長約簽好了,${m.n}安心多了。`],
+   ['不談,維持現狀(可能離隊)',()=>(Math.random()<.4&&G.m.length>1)?[{leave:idx,rep:-2},`${m.n}失望離開了。`]:[{one:{mood:-8}},`${m.n}有點失落,但留了下來。`],'']]}}
+
+// ---- 世界:對手、排行、新聞 ----
+function worldTick(evs,notes){const x=X();if(!x.world)return;
+  x.world.forEach(n=>{n.f=cl(n.f+(48-n.f)*.06+R(-4,4)+(n.hot||0));n.hot=(n.hot||0)*.5});
+  if(Math.random()<.5){const n=pick(x.world),o=pick(x.world.filter(z=>z!==n)),r=Math.random();let s;
+    if(r<.3){n.f=cl(n.f+7);n.hot=2;s=`🎵 ${n.n}的新作空降榜首`}
+    else if(r<.5){n.f=cl(n.f-9);s=`🗞️ ${n.n}爆出醜聞,人氣下滑`}
+    else if(r<.7){n.f=cl(n.f+4);s=`📺 ${n.n}的新劇收視亮眼`}
+    else if(r<.85){n.f=cl(n.f+2);o.f=cl(o.f+2);s=`🤝 ${n.n}與${o.n}宣布合作`}
+    else{n.f=cl(n.f-5);s=`🌙 ${n.n}宣布暫停活動`}
+    x.news.unshift(s);x.news=x.news.slice(0,8);notes.push('📰 '+s);
+    if(Math.abs(n.f-myPow())<9&&Math.random()<.35&&r<.3)evs.push(Object.assign(DIL[9](X().names),{timed:12,id:'D9'}))}
+}
+// ---- 里程碑 ----
+const MS=[
+ {id:'f1',n:'百人應援',p:()=>[G.fans,300],e:{money:250},d:'獎金 $250'},
+ {id:'f2',n:'千人應援',p:()=>[G.fans,1500],e:{fame:3,rep:2},d:'人氣與口碑'},
+ {id:'f3',n:'萬人級粉絲團',p:()=>[G.fans,5000],e:{fame:4,money:800},d:'人氣與獎金 $800'},
+ {id:'m1',n:'人氣新星',p:()=>[G.fame,35],e:{network:4},d:'人脈 +4'},
+ {id:'m2',n:'一線藝人',p:()=>[G.fame,65],e:{rep:4,money:600},d:'口碑與獎金 $600'},
+ {id:'r1',n:'業界認可',p:()=>[G.rep,45],e:{money:400,fans:60},d:'獎金 $400'},
+ {id:'n1',n:'人脈廣闊',p:()=>[G.network,45],e:{fame:2,buzz:8},d:'人氣與話題'},
+ {id:'s1',n:'全能新秀',p:()=>[avgSk(),42],e:{fans:150,rep:2},d:'粉絲 +150'},
+ {id:'c1',n:'金牌班底',p:()=>[Math.max.apply(null,Object.values(X().cast)),80],e:{buzz:10,money:300},d:'話題與獎金'},
+ {id:'w1',n:'圈內前三',p:()=>[11-worldRank(),8],e:{fame:3,network:3},d:'人氣與人脈'},
+ {id:'k1',n:'清白無瑕',p:()=>[(X().turn>=6&&X().heat<12)?1:0,1],e:{image:4},d:'形象 +4'},
+ {id:'g1',n:'跨市場發展',p:()=>[marketsWon(),2],e:{money:600,fame:3},d:'獎金 $600'}
+];
+function msCheck(notes){const x=X();MS.forEach(m=>{if(x.miles.includes(m.id))return;const [a,b]=m.p();if(a>=b){x.miles.push(m.id);G.one=G.m[0];G.xs=1;try{ef(m.e)}finally{G.xs=0}notes.push(`🎯 里程碑「${m.n}」達成!獎勵:${m.d}`)}})}
+function goalCard(){if(!G.x2||G.mode==='a')return '';const x=X();
+  const left=MS.filter(m=>!x.miles.includes(m.id)).map(m=>{const [a,b]=m.p();return {m,r:Math.min(1,a/b),a,b}}).sort((p,q)=>q.r-p.r).slice(0,2);
+  const bits=(typeof scenGoal==='function'&&scenGoal()?[scenGoal()]:[]).concat(left.map(g=>`🎯 ${g.m.n} <b>${Math.round(Math.min(g.a,g.b))}/${g.b}</b>(${g.m.d})`));
+  if(x.world)bits.push(`🏆 圈內排名第 <b>${worldRank()}</b> / 10`);
+  return `<div class="card" style="font-size:12.5px;line-height:1.7">${bits.join('<br>')}</div>`}
+const _panel=panel;
+panel=function(c){let h=_panel(c);const x=G&&G.x2;if(x){const ex=[];if(x.heat>=25)ex.push(`🔥 醜聞熱度 ${Math.round(x.heat)}${x.heat>=40?'(危險)':''}`);
+  const inj=G.m.filter(m=>m.inj>0);if(inj.length)ex.push(`🩹 ${inj.map(m=>m.n).join('、')}受傷中`);
+  if(ex.length)h=h.replace('</div>','</div><div class="card center" style="font-size:12.5px;padding:8px">'+ex.join(' · ')+'</div>')}return h};
+const _perf=perf;perf=function(k){let p=_perf(k);const inj=G.m.filter(m=>m.inj>0).length;if(inj)p*=1-.18*inj/G.m.length;if(G.mm)p*=G.mm;return p};
+const _pCare=pCare;pCare=function(id){if(id==='rest'||id==='trip')G.m.forEach(m=>{if(m.inj>0)m.inj=Math.max(0,m.inj-1)});_pCare(id)};
+
+// ---- 每回合結算 ----
+function x2Tick(mode){
+  const x=X(),evs=[],notes=[];x.turn++;const k=mode==='p'?1:2.5;
+  x.heat=cl(x.heat-2);if(x.chal==='heat')x.heat=cl(x.heat+2);if(x.chal==='iron')G.m.forEach(m=>mp(m,{energy:-8,stress:5}));
+  const c=x.cast;
+  if(c.agent>=70)ef({money:60*k});else if(c.agent<=30)ef({money:-40*k});
+  if(c.senior>=70)ef({network:.8*k});
+  if(c.press>=70)ef({buzz:2*k});else if(c.press<=30)ef({image:-.6*k});
+  if(c.fan>=70)ef({fans:40*k});else if(c.fan<=30)ef({fans:-25*k});
+  G.m.forEach(m=>{if(!(m.inj>0)&&m.stress>=78&&m.energy<28&&Math.random()<.2){m.inj=2;notes.push(`🩹 ${m.n}過度勞累而受傷了,需要休養。`)}});
+  G.m.forEach(m=>{if(m.inj>0){mp(m,{energy:-12,mood:-3});m.inj--;if(m.inj===0)notes.push(`🩹 ${m.n}的傷勢痊癒了。`)}});
+  if(mode==='p'){
+    let up=0;Object.values(x.co).forEach(l=>up+=l);G.money-=15*up+x.sal;
+    const co=x.co;
+    if(co.tr)G.m.forEach(m=>mp(m,{[pick(SKK)]:.8*co.tr}));
+    if(co.st)ef({rep:.4*co.st,money:30*co.st});
+    if(co.sy){G.m.forEach(m=>mp(m,{hair:co.sy,skin:.8*co.sy}));ef({image:.4*co.sy})}
+    if(co.pr)ef({buzz:2*co.pr,fans:15*co.pr});
+    if(co.md){G.m.forEach(m=>{mp(m,{stress:-1.5*co.md});if(m.inj>0&&co.md>=2)m.inj--})}
+    if(G.week%4===0){const net=Math.round(G.money-(x.m0||G.money));notes.push(`📊 月報:本月資金${net>=0?'增加':'減少'} $${Math.abs(net)},目前 $${Math.round(G.money)}。`);x.m0=G.money}
+    if((G.week===Math.round((G.len||16)*.3)||G.week===Math.round((G.len||16)*.65))&&Math.random()<.8)evs.push(contractEv());
+  }
+  worldTick(evs,notes);
+  // 到期的人物回報
+  const due=x.later.filter(l=>l.due<=x.turn);x.later=x.later.filter(l=>l.due>x.turn);
+  due.forEach(l=>{const e=payEv(l.id);if(e)evs.push(e)});
+  // 人物關係極端時,偶爾自發出現
+  if(!due.length){Object.keys(CASTD).forEach(id=>{const b=c[id];if((b>=76||b<=24)&&Math.random()<.1){const e=payEv(id);if(e)evs.push(e)}})}
+  // 醜聞
+  if(x.heat>=35&&Math.random()<(x.heat-25)/75){evs.unshift(heatEv());x.heat=Math.max(25,x.heat-15)}
+  // 兩難
+  if(Math.random()<(mode==='p'?.5:.85)){const di=R(0,DIL.length-1),e=DIL[di](x.names);e.id='D'+di;e.timed=e.timed||12;evs.unshift(e)}
+  {const d0=load();d0.sp=d0.sp||{};const si=d0.sp[G.mk]||0;
+   if(si<6&&STORY[G.mk]&&x.turn>=(mode==='p'?2:1)&&x.turn-(x.lastSt===undefined?-9:x.lastSt)>=(mode==='p'?3:1)){x.lastSt=x.turn;d0.sp[G.mk]=si+1;save(d0);evs.unshift(storyBeat(G.mk,si))}}
+  scenCheck(notes);
+  msCheck(notes);
+  evs.forEach(e=>e.x2=1);
+  return {evs,notes};
+}
+const _weekly=weekly;weekly=function(){_weekly();const r=x2Tick('p');G.q2=r.evs.concat(G.q2||[]);if(r.notes.length)G.note=(G.note?G.note+'<br>':'')+r.notes.join('<br>')};
+const _starTeam=starTeam;starTeam=function(){const a=_starTeam();const r=x2Tick('s');const x=X();x.sn=(x.sn||[]).concat(r.notes);return r.evs.concat(a)};
+const _sRelNext=sRelNext;sRelNext=function(){const x=G.x2;if(x&&x.sn&&x.sn.length){G.rnotes=(G.rnotes||[]).concat(x.sn);x.sn=[]}_sRelNext()};
+const _pScore=pScore;pScore=function(){let s=_pScore();const x=G.x2;if(x&&x.world){const r=worldRank();s+=r===1?4:r<=3?2:0;s-=Math.min(5,Math.floor((x.heat||0)/25))}return s};
+let SEQ=.78;
+const _sKey=sKey;sKey=function(){const x=G.x2;if(x&&x.heat>=65&&Math.random()<.6)return 'contro';
+  if((G.slen||5)<5){const o=Object.assign({},SE);['lf','lc','lr','gl2','gf','act','actr','cr','vo','va','nf','glf'].forEach(k=>SE[k]=SE[k]*SEQ);try{return _sKey()}finally{Object.assign(SE,o)}}
+  return _sKey()};
+
+// ---- 人物關係 / 圈內動態 選單 ----
+let LASTF='';
+const backX=()=>G.mode==='p'?'pHub()':'app.innerHTML=LASTF';
+function castMenu(){const x=X();const bk=backX();
+  const st=b=>b>=80?'莫逆之交':b>=65?'關係良好':b>=45?'普通':b>=28?'有些疏遠':'關係惡劣';
+  app.innerHTML=`<button class="back" onclick="${bk}">← 返回</button><h2>🤝 人物關係</h2><div class="card" style="font-size:13px;line-height:1.7">你的選擇會被這些人記住。關係好會在關鍵時刻幫你,關係差則會反咬一口。聯絡感情要花 $120,每回合每人一次。<br>🔥 醜聞熱度 <b>${Math.round(x.heat)}</b>(越高越容易爆發醜聞)</div>`+
+  Object.keys(CASTD).map(id=>{const b=x.cast[id];return `<div class="card"><div class="mini"><b style="width:auto;min-width:120px;text-align:left">${cn(id)}</b><div class="bar"><i style="width:${b}%;background:${b>=60?'#7dffb0':b>=40?'#ffd76a':'#ff7a7a'}"></i></div><span>${Math.round(b)}</span></div><div style="font-size:12px;opacity:.75;margin:4px 0">${st(b)}</div>`+B('🍽️ 聯絡感情','$120,好感 +6',`castDo("${id}")`,'alt',x.cd[id]===x.turn||G.money<120)+`</div>`}).join('');
+}
+function castDo(id){const x=X();if(x.cd[id]===x.turn||G.money<120)return;G.money-=120;x.cast[id]=cl(x.cast[id]+6);x.cd[id]=x.turn;castMenu()}
+function worldMenu(){const x=X(),bk=backX();const me={n:'⭐ 你',f:myPow(),me:1};
+  const all=x.world.concat([me]).sort((a,b)=>b.f-a.f);
+  app.innerHTML=`<button class="back" onclick="${bk}">← 返回</button><h2>📰 圈內動態</h2><div class="card"><b>🏆 人氣排行榜</b>`+all.map((n,i)=>`<div class="mini" style="margin:3px 0;font-size:13px"><b style="width:26px">${i+1}.</b><span style="flex:1;text-align:left;${n.me?'color:#ffd76a;font-weight:700':''}">${n.me?n.n:`${n.e} ${n.n}`}</span><span style="width:40px">${Math.round(n.f)}</span></div>`).join('')+`</div><div class="card" style="font-size:13px;line-height:1.8"><b>最新消息</b><br>${x.news.length?x.news.join('<br>'):'目前風平浪靜。'}</div>`;
+}
+const _pHub=pHub;pHub=function(){_pHub();app.innerHTML+=B('🏢 公司經營','設施、簽約新人、月報','coMenu()','gold')+B('🤝 人物關係','經紀人、前輩、宿敵、粉絲、記者','castMenu()','alt')+B('📰 圈內動態','人氣排行榜與新聞','worldMenu()','alt')};
+const _sFocus=sFocus;sFocus=function(){_sFocus();LASTF=app.innerHTML;app.innerHTML+=B('🤝 人物關係','經紀人、前輩、宿敵、粉絲、記者','LASTF=app.innerHTML;castMenu()','alt')+B('📰 圈內動態','人氣排行榜與新聞','LASTF=app.innerHTML;worldMenu()','alt');LASTF=LASTF};
+
+// =====================================================
+// 可玩性強化 B:小遊戲、限時倒數、公司經營、等級傳承、每日挑戰、成績卡
+// =====================================================
+const _tc=trendCard;trendCard=()=>_tc()+goalCard();
+// ---- 小遊戲 ----
+let MG=null;
+function mgStop(){if(MG){if(MG.t)clearInterval(MG.t);if(MG.to)clearTimeout(MG.to)}}
+function mgDone(s){const cb=MG&&MG.cb;mgStop();MG=null;if(cb)cb(s)}
+function miniSkip(){mgDone(null)}
+function miniGame(kind,lvl,title,cb){
+  mgStop();
+  if(!MINI_ON()){MG=null;return cb(null)}
+  if(kind==='r')miniRhythm(lvl,title,cb);else miniSeq(lvl,title,cb);
+}
+function miniRhythm(lvl,title,cb){
+  const w=11+lvl*.16,tot=6;
+  MG={k:'r',n:0,sc:[],pos:0,dir:1,sp:2.2+Math.random()*.6,w,tot,cb};
+  app.innerHTML=`<div class="card center"><h2>🎵 ${title}</h2><p style="font-size:13px">指針經過中間亮區時按下「拍!」,共 ${tot} 拍。能力越高,亮區越寬。</p>
+  <div style="position:relative;height:34px;background:rgba(255,255,255,.12);border-radius:17px;margin:14px 6px;overflow:hidden"><div style="position:absolute;top:0;bottom:0;left:${50-w}%;width:${w*2}%;background:rgba(255,215,106,.4)"></div><div id="mgd" style="position:absolute;top:3px;left:-14px;width:28px;height:28px;border-radius:50%;background:#ff7ab8"></div></div>
+  <div id="mgs" style="min-height:22px;font-size:14px"></div></div>`+B('🥁 拍!','','miniTap()','gold')+B('略過(穩定發揮)','','miniSkip()','alt');
+  MG.t=setInterval(()=>{const d=document.getElementById('mgd');if(!d||!MG||MG.k!=='r'){if(MG&&MG.t)clearInterval(MG.t);return}
+    MG.pos+=MG.dir*MG.sp;if(MG.pos>=100){MG.pos=100;MG.dir=-1}if(MG.pos<=0){MG.pos=0;MG.dir=1}d.style.left=`calc(${MG.pos}% - 14px)`},30);
+}
+function miniTap(){if(!MG||MG.k!=='r')return;const d=Math.abs(MG.pos-50),s=Math.max(0,1-d/(MG.w*2.2));MG.sc.push(s);MG.n++;
+  const f=document.getElementById('mgs');if(f)f.textContent=`第 ${MG.n} 拍:${s>.8?'完美!':s>.45?'不錯':'偏了'}`;MG.sp*=1.06;
+  if(MG.n>=MG.tot)mgDone(MG.sc.reduce((a,b)=>a+b,0)/MG.tot)}
+const MGA=['⬅️','⬆️','➡️','⬇️'];
+function miniSeq(lvl,title,cb){
+  const len=4+(lvl>=40?1:0)+(lvl>=65?1:0),seq=Array.from({length:len},()=>R(0,3));
+  MG={k:'s',seq,i:0,ok:0,cb,ph:'show'};
+  app.innerHTML=`<div class="card center"><h2>💃 ${title}</h2><p style="font-size:13px">記住舞步順序,等一下依序按出來。</p><div id="mgq" style="font-size:46px;height:64px;line-height:64px"></div></div>`+B('略過(穩定發揮)','','miniSkip()','alt');
+  let i=0;
+  const step=()=>{if(!MG||MG.k!=='s')return;const q=document.getElementById('mgq');if(!q)return;
+    if(i<len){q.textContent=MGA[seq[i]];MG.to=setTimeout(()=>{q.textContent='';MG.to=setTimeout(()=>{i++;step()},180)},600)}
+    else miniSeqInput()};
+  MG.to=setTimeout(step,500);
+}
+function miniSeqInput(){if(!MG)return;MG.ph='in';
+  app.innerHTML=`<div class="card center"><h2>輪到你了!</h2><p style="font-size:13px">依序按出剛才的 ${MG.seq.length} 個舞步</p><div id="mgp" style="font-size:20px;min-height:30px">${'⬜'.repeat(MG.seq.length)}</div></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0">`+
+  MGA.map((a,k)=>`<button class="btn" style="font-size:28px;padding:14px 0;text-align:center" onclick="miniPress(${k})">${a}</button>`).join('')+`</div>`+B('略過','','miniSkip()','alt')}
+function miniPress(k){if(!MG||MG.k!=='s'||MG.ph!=='in')return;
+  if(MG.seq[MG.i]===k){MG.ok++;MG.i++;const p=document.getElementById('mgp');if(p)p.textContent='✅'.repeat(MG.i)+'⬜'.repeat(MG.seq.length-MG.i);if(MG.i>=MG.seq.length)mgDone(MG.ok/MG.seq.length)}
+  else mgDone(MG.ok/MG.seq.length*.85)}
+const skAvg=ks=>ks.reduce((a,k)=>a+G.m.reduce((b,m)=>b+m.sk[k],0)/G.m.length,0)/ks.length;
+const _aPerform=aPerform;
+aPerform=function(k){
+  const st=G&&G.styles&&G.styles[k];
+  if(!st||!MINI_ON())return _aPerform(k);
+  miniGame(Math.random()<.5?'r':'s',st.k.reduce((a,x)=>a+G.m[0].sk[x],0)/st.k.length,`${st.e} ${st.n}`,s=>{G.mm=s==null?1:.82+.36*s;try{_aPerform(k)}finally{G.mm=0}});
+};
+const _pGig=pGig;
+pGig=function(id){
+  const g=GIGS().find(x=>x.id===id);
+  if(!g||!MINI_ON()||!['演出','音樂','綜藝'].includes(g.cat))return _pGig(id);
+  miniGame(Math.random()<.5?'r':'s',skAvg(g.k),g.n,s=>{G.mm=s==null?1:.85+.3*s;try{_pGig(id)}finally{G.mm=0}});
+};
+const MINI_FOCUS=['🎤','登台演出(小遊戲)','節奏或舞步小遊戲,表現越好人氣粉絲越多',{__mini:1}];
+const _sFocusDo=sFocusDo;
+sFocusDo=function(i){const f=G.fo[i];if(!(f&&f[3]&&f[3].__mini))return _sFocusDo(i);
+  const m=G.m[0];
+  miniGame(Math.random()<.5?'r':'s',(m.sk.stage+m.sk.vocal+m.sk.dance+m.sk.charm)/4,'登台演出',s=>{
+    const q=s==null?.55:s,s0=snap();G.one=m;G.xs=1;try{ef({fame:1+3.5*q,fans:50+190*q,buzz:5+8*q,all:{energy:-14,stress:5}})}finally{G.xs=0}
+    app.innerHTML=panel(hdrS())+`<div class="card"><p>🎤 你登台演出,${q>.8?'全場沸騰!':q>.5?'表現穩定。':'有一點小失誤。'}</p>${diff(s0,snap())}</div>`+B('個人時間 →','','G.pt=2;sPersonal()')})};
+// ---- 限時倒數 ----
+let CDT=null;
+function stopCD(){if(CDT){clearInterval(CDT);CDT=null}}
+function startCD(sec,label,onEnd){stopCD();if(!MINI_ON())return;let t=sec;
+  app.insertAdjacentHTML('afterbegin',`<div class="card center" id="cdw" style="padding:8px;font-size:13px">⏱ <b id="cdn">${sec}</b> 秒內決定,逾時自動選「${label}」<div class="bar" style="margin-top:6px"><i id="cdb" style="width:100%;background:#ff7ab8"></i></div></div>`);
+  CDT=setInterval(()=>{if(!document.getElementById('cdw')){stopCD();return}t-=.25;const n=document.getElementById('cdn'),b=document.getElementById('cdb');
+    if(n)n.textContent=Math.max(0,Math.ceil(t));if(b)b.style.width=Math.max(0,t/sec*100)+'%';if(t<=0){stopCD();onEnd()}},250)}
+const lblOf=c=>c[0].replace(/\(.*$/,'');
+const _pResult=pResult;pResult=function(){stopCD();_pResult();const p=G.pending;if(p&&p.timed&&p.c[p.dflt])startCD(p.timed,lblOf(p.c[p.dflt]),()=>{if(G.pending===p)pChoose(p.dflt)})};
+const _pChoose=pChoose;pChoose=function(k){stopCD();_pChoose(k)};
+const _sEvShow=sEvShow;sEvShow=function(ev){stopCD();_sEvShow(ev);if(ev.timed&&ev.c[ev.dflt])startCD(ev.timed,lblOf(ev.c[ev.dflt]),()=>{if(G.pev===ev)sEvPick(ev.dflt)})};
+const _sEvPick=sEvPick;sEvPick=function(k){stopCD();G.xs=!!(G.pev&&G.pev.x2);try{_sEvPick(k)}finally{G.xs=0}};
+
+// ---- 公司經營(製作人)----
+const CO=[['tr','🏋️ 練習室','每週讓全員隨機一項能力成長'],['st','🎙️ 錄音棚','每週口碑與資金小幅增加'],['sy','💇 造型室','每週髮型、膚質與形象提升'],['pr','📣 宣傳部','每週話題與粉絲增加'],['md','🏥 醫務室','降低壓力、加速傷勢恢復']];
+const COST=[600,1400,2600];
+function coMenu(){const x=X();
+  app.innerHTML=panel(hdrP())+`<button class="back" onclick="pHub()">← 返回</button><h2>🏢 公司經營</h2><div class="card" style="font-size:13px;line-height:1.7">設施每週自動發揮效果,每級維護費 $15/週。<br>簽約藝人 ${G.m.length}/12 · 每週薪資 $${40*G.m.length+x.sal}${x.m0!==undefined?` · 本月收支 ${Math.round(G.money-x.m0)>=0?'+':''}${Math.round(G.money-x.m0)}`:''}</div>`+
+  CO.map(c=>{const L=x.co[c[0]];return L>=3?B(`${c[1]} Lv3(已滿)`,c[2],'','sel',true):B(`${c[1]} Lv${L}→Lv${L+1}`,`${c[2]} · 費用 $${COST[L]}`,`upCo("${c[0]}")`,'alt',G.money<COST[L])}).join('')+
+  B('🧑‍🎤 簽約新人','從 3 位候選人挑一位加入($900)','recruitMenu()','gold',G.m.length>=12||G.money<900)
+}
+function coDone(msg,s0){app.innerHTML=panel(hdrP())+`<div class="card log"><p>${msg}</p>${diff(s0,snap())}</div>`+B('返回公司 →','','coMenu()')+B('回本週安排','','pHub()','alt')}
+function upCo(k){const x=X(),L=x.co[k];if(L>=3||G.money<COST[L])return;const s0=snap();G.money-=COST[L];x.co[k]++;coDone(`🏢 「${CO.find(c=>c[0]===k)[1]}」升級到 Lv${x.co[k]}!`,s0)}
+function recruitMenu(){if(G.m.length>=12||G.money<900)return coMenu();const x=X(),have=new Set(G.m.map(m=>m.n));
+  x.cand=ALLR.map((c,i)=>[i,(c.nat===MKNAT(G.mk)?2:0)+Math.random()*2]).filter(p=>!have.has(ALLR[p[0]].n)).sort((a,b)=>b[1]-a[1]).slice(0,3).map(p=>p[0]);
+  app.innerHTML=panel(hdrP())+`<button class="back" onclick="coMenu()">← 返回</button><h2>🧑‍🎤 簽約新人</h2><div class="card" style="font-size:13px">選一位加入公司,費用 $900。新成員會讓隊伍更強,但默契與照顧難度也會增加。</div>`+
+  x.cand.map(i=>{const c=ALLR[i];return B(`${c.e} ${c.n}`,`${FLAG(c.nat)} ${AR[c.a][0]} · ${TR[c.t].n}`,`recruit(${i})`,'alt')}).join('')}
+function recruit(i){const x=X();if(G.m.length>=12||G.money<900||!x.cand||!x.cand.includes(i))return;const s0=snap(),c=ALLR[i],m=mkMember(c);
+  SKK.forEach(k=>m.sk[k]=cl(m.sk[k]+R(0,6)));m.energy=80;G.money-=900;G.m.push(m);G.group=true;if(G.m.length>2)G.chem=cl(G.chem-4);x.cand=null;
+  coDone(`🧑‍🎤 ${c.e} ${m.n} 加入了你的公司!`,s0)}
+
+// ---- 星途等級、解鎖、傳承 ----
+const LVX=[0,50,130,240,380];
+const lvlOf=xp=>LVX.filter(v=>xp>=v).length;
+const UNLM={hw:4,in:5},UNLS={acad:2,rap:2,surv:3,act:3,gal:4};
+const lvNow=()=>{const d=load();return d.unlockAll?9:lvlOf(d.xp||0)};
+const unlM=k=>lvNow()>=(UNLM[k]||1),unlS=k=>lvNow()>=(UNLS[k]||1);
+const lockCard=a=>`<div class="card" style="font-size:12.5px;line-height:1.8;opacity:.75">🔒 <b>尚未解鎖</b><br>${a.join('<br>')}</div>`;
+const _mkSelect=mkSelect;mkSelect=function(m){_mkSelect(m);const lk=MKORDER.filter(k=>!unlM(k));if(lk.length)app.innerHTML+=lockCard(lk.map(k=>`${MK[k].e} ${MK[k].n}演藝圈:星途等級 ${UNLM[k]} 解鎖`))};
+const _showSelect=showSelect;showSelect=function(){_showSelect();const lk=Object.keys(SHOWS).filter(k=>!unlS(k));if(lk.length)app.innerHTML+=lockCard(lk.map(k=>`${SHOWS[k].e} ${SHOWS[k].n}:星途等級 ${UNLS[k]} 解鎖`))};
+function legDesc(e){const L={fame:'人氣',fans:'粉絲',money:'資金',network:'人脈',rep:'口碑',image:'形象'},o=[];for(const k in e){if(L[k])o.push(`${L[k]}+${e[k]}`);else if(k==='sks')o.push('隨機能力+');else if(k==='all')o.push('全員'+Object.keys(e.all).map(x=>LBL[x]||PK[x]||x).join('、')+'+')}return o.join(' ')}
+function legMenu(){const d=load(),L=d.leg||[];
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🧬 傳承</h2><div class="card" style="font-size:13px;line-height:1.7">每完成一局會留下一份傳承。選一份,下一局開局就會生效(用掉就消失)。</div>`+(L.length?L.map((l,i)=>B(l.t,legDesc(l.e),`legPick(${i})`,d.legSel===i?'sel':'alt')).join(''):'<div class="card center">還沒有傳承,完成一局就會獲得。</div>')}
+function legPick(i){const d=load();d.legSel=d.legSel===i?-1:i;save(d);legMenu()}
+let DLY=0;
+function applyLegacy(){if(DLY)return;const d=load(),l=(d.leg||[])[d.legSel];
+  if(d.legSel>=0&&l){d.leg.splice(d.legSel,1);d.legSel=-1;save(d);const e=Object.assign({},l.e);if(G.mode==='s'){if(e.fame)e.fame*=.5;if(e.fans)e.fans*=.6}
+    G.one=G.m[0];ef(e);G.x2.legUsed=l.t}}
+function awardXP(mode){
+  if(G.xpDone)return '';G.xpDone=1;
+  const d=load();let xp=0,leg;const t1=(G.card&&G.card.t1)||'';
+  if(mode==='p'){const sc=pScore();xp=Math.round(sc*.6)+8;leg=sc>=69?['👑 金牌人脈',{network:12,money:800}]:sc>=60?['🤝 業界人脈',{network:8,money:400}]:['📘 製作人筆記',{sks:5}]}
+  else if(mode==='s'){const k=Object.keys(ENDS).find(x=>t1.includes(ENDS[x][1]))||'plain',big=['legend','groupleg','global'].includes(k);
+    xp=35+(big?25:['actor','creator','voice','variety','nation'].includes(k)?12:0);
+    leg=big?['🌟 星二代之名',{fame:8,fans:200,network:6}]:k==='burn'?['🌙 前車之鑑',{all:{resil:6,stable:4}}]:['⭐ 前輩的祝福',{fame:4,fans:100}]}
+  else{const sc=(G.res&&G.res.sc)||0;xp=15+Math.round(sc/3);leg=sc>=100?['🏆 冠軍光環',{fame:6,fans:150}]:['🎙️ 舞台經驗',{all:{stage:4,confid:3}}]}
+  xp=Math.round(xp*(mode==='p'?Math.sqrt((G.len||16)/16):mode==='s'?Math.sqrt((G.slen||5)/5):1));
+  const l0=lvlOf(d.xp||0);d.xp=(d.xp||0)+xp;const l1=lvlOf(d.xp);
+  d.leg=d.leg||[];d.leg.push({t:leg[0],e:leg[1],m:mode});if(d.leg.length>8){d.leg.shift();if(d.legSel>=0)d.legSel--}
+  save(d);
+  const un=[];for(let L=l0+1;L<=l1;L++){Object.keys(UNLS).forEach(k=>{if(UNLS[k]===L)un.push(`${SHOWS[k].e} ${SHOWS[k].n}`)});Object.keys(UNLM).forEach(k=>{if(UNLM[k]===L)un.push(`${MK[k].e} ${MK[k].n}演藝圈`)})}
+  const nx=LVX[l1];
+  return `<div class="card"><span class="tag">⭐ 星途經驗</span><p style="line-height:1.7">本局 <b>+${xp}</b> 經驗 · 星途等級 <b>Lv${l1}</b>${nx?`(${d.xp}/${nx})`:'(已滿級)'}${un.length?`<br>🎉 升級解鎖:${un.join('、')}`:''}<br>🧬 獲得傳承「${leg[0]}」,可在首頁選擇下局啟用。</p></div>`}
+let LASTEND='';
+const backEnd=()=>{app.innerHTML=LASTEND};
+function endHook(mode){
+  if(!G||G.xpDone)return;
+  const t=[];String(app.innerHTML).replace(/<h2>(.*?)<\/h2>/g,(a,b)=>{t.push(b.replace(/<[^>]+>/g,''));return a});
+  G.card={mode:mode==='p'?'🎬 製作人':mode==='s'?'🌟 做明星':'🎙️ 選秀',t1:t[0]||'',t2:t[1]||''};
+  const html=awardXP(mode)+B('📤 成績卡','截圖或複製文字分享給朋友','cardMenu()','gold');
+  const dl=(mode==='s'&&G.daily)?dailyEnd():'';
+  app.innerHTML+=dl+html;LASTEND=app.innerHTML;
+}
+const _pFinal=pFinal;pFinal=function(){_pFinal();endHook('p')};
+const _sEnd=sEnd;sEnd=function(t){_sEnd(t);endHook('s')};
+const _aEnd=aEnd;aEnd=function(){_aEnd();endHook('a')};
+// 傳承生效提示
+const legNote=()=>{const x=G&&G.x2;if(x&&x.legUsed&&!x.legShown){x.legShown=1;return `<div class="card center" style="font-size:13px">🧬 傳承「${x.legUsed}」生效了!</div>`}return ''};
+const _sFocus2=sFocus;sFocus=function(){_sFocus2();const n=legNote()+(typeof introNote==='function'?introNote():'');if(n){app.innerHTML=n+app.innerHTML;LASTF=app.innerHTML}};
+const _aPrep=aPrep;aPrep=function(){_aPrep();const n=legNote()+(typeof introNote==='function'?introNote():'');if(n)app.innerHTML=n+app.innerHTML};
+const _pHub2=pHub;pHub=function(){_pHub2();const n=legNote()+(typeof introNote==='function'?introNote():'');if(n)app.innerHTML=n+app.innerHTML};
+
+// ---- 每日挑戰與成績卡 ----
+const dayStr=()=>new Date(Date.now()+8*36e5).toISOString().slice(0,10);
+function seedOf(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function prng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+const _rand=Math.random;
+function dailyInfo(){const ds=dayStr(),r=prng(seedOf(ds));return {ds,nat:NATORDER[Math.floor(r()*NATORDER.length)],mk:['tw','hk','jp','kr','cn','us'][Math.floor(r()*6)],oid:Math.floor(r()*ORIGINS.length)}}
+function dailyMenu(){const i=dailyInfo(),d=load(),b=(d.daily||{})[i.ds],o=ORIGINS[i.oid];
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>📅 今日挑戰</h2><div class="card" style="line-height:1.8"><b>${i.ds}</b><br>${NATS[i.nat].e} 國籍:${NATS[i.nat].n}<br>${MK[i.mk].e} 市場:${MK[i.mk].n}<br>${o.e} 起點:${o.n}<br><span style="font-size:12.5px;opacity:.8">今天所有人使用同樣的起點與命運骰子,只有你的選擇不同。結束後比分數!</span>${b!==undefined?`<br>🏅 今日最佳:<b>${b}</b>`:''}</div>`+B('▶️ 開始今日挑戰','做明星模式,單飛出道','dailyGo()','gold')}
+function dailyGo(){const i=dailyInfo();MODE='s';NAT=i.nat;MKID=i.mk;OID=i.oid;CUST.on=false;Math.random=prng(seedOf(i.ds)+7);DLY=1;try{sBegin(false)}finally{DLY=0}G.daily=i.ds;saveRun()}
+function dailyScore(){return Math.round(G.fame*1.2+G.rep*.8+Math.min(50,G.fans/60)+G.network*.3+avgSk()*.4)}
+function dailyEnd(){const d=load();d.daily=d.daily||{};const sc=dailyScore(),b=Math.max(sc,d.daily[G.daily]||0);d.daily[G.daily]=b;save(d);Math.random=_rand;
+  return `<div class="card center"><span class="tag">📅 每日挑戰 ${G.daily}</span><h2>今日分數 ${sc}</h2><p style="font-size:13px">今日最佳 ${b}。分享成績卡,和朋友比同一天的挑戰!</p></div>`}
+function shareText(){const c=G.card||{};return `⭐ 明星遊戲 ${c.mode||''}\n${c.t1||''}\n${c.t2||''}\n人氣 ${Math.round(G.fame)}・粉絲 ${G.fans}・口碑 ${Math.round(G.rep)}・人脈 ${Math.round(G.network)}`+((load().id||{}).l?`\n「${(load().id||{}).l}」`:'')+(G.daily?`\n📅 每日挑戰 ${G.daily}:${dailyScore()} 分`:'')}
+function cardMenu(){const c=G.card||{};
+  app.innerHTML=`<button class="back" onclick="backEnd()">← 返回</button><h2>📤 成績卡</h2>
+  <div class="card center" style="background:linear-gradient(135deg,#6a3df0,${(load().id||{}).c||'#ff7ab8'});color:#fff;border:none"><div style="font-size:13px;opacity:.9">${c.mode||''}${G.daily?' · 📅 '+G.daily:''}</div><div style="font-size:20px;font-weight:800;margin:10px 0">${c.t2||c.t1||''}</div><div style="font-size:14px">${c.t1||''}</div>${(load().id||{}).l?`<div style="font-size:13px;margin-top:8px;opacity:.9">「${(load().id||{}).l}」</div>`:''}<div style="margin-top:12px;font-size:14px;line-height:1.9">🌟 人氣 ${Math.round(G.fame)} · ❤️ 粉絲 ${G.fans}<br>🏅 口碑 ${Math.round(G.rep)} · 🤝 人脈 ${Math.round(G.network)}${G.daily?`<br>📅 今日分數 ${dailyScore()}`:''}</div><div style="margin-top:10px;font-size:11px;opacity:.8">明星遊戲</div></div>
+  <div class="card"><textarea id="shr" readonly style="width:100%;height:110px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px;font-size:13px">${shareText()}</textarea></div>`+B('📋 複製文字','','copyShare()','gold')+`<div id="cpm" class="center" style="font-size:12.5px;opacity:.8;min-height:18px"></div>`}
+function copyShare(){const t=document.getElementById('shr'),m=document.getElementById('cpm'),hint='請長按文字選取複製,或直接截圖';
+  try{navigator.clipboard.writeText(t.value).then(()=>{m.textContent='✅ 已複製'},()=>{try{t.select()}catch(e){}m.textContent=hint})}catch(e){try{t.select()}catch(e2){}m.textContent=hint}}
+function toggleEasy(){const d=load();d.easy=!d.easy;save(d);home()}
+function unlockAllX(){const d=load();d.unlockAll=1;save(d);home()}
+const _home=home;
+home=function(){stopCD();mgStop();MG=null;if(G&&G.daily)Math.random=_rand;_home();
+  const d=load(),xp=d.xp||0,L=lvlOf(xp),nx=LVX[L]||null,full=d.unlockAll||L>=5,leg=(d.leg||[]).length;
+  const blk=`<div class="card center" style="font-size:13px;line-height:1.7">⭐ <b>星途等級 ${d.unlockAll?'MAX':'Lv'+L}</b>${nx&&!d.unlockAll?`(經驗 ${xp}/${nx})`:''}<br>${full?'已解鎖全部內容':'升級可解鎖新的節目與市場'}</div>`+
+   B('📅 今日挑戰',(d.daily||{})[dayStr()]!==undefined?`今日最佳 ${d.daily[dayStr()]}`:'每日固定起點,和朋友比分數','dailyMenu()','gold')+
+   B('🧬 傳承',`${leg} 個傳承,可在下一局啟用`,'legMenu()','alt')+
+   B(`🎚️ 輕鬆模式:${d.easy?'開':'關'}`,'開啟後略過小遊戲與限時倒數','toggleEasy()','alt')+
+   (full?'':B('🔓 解鎖全部內容','跳過成長,直接開放所有節目與市場','unlockAllX()','alt'));
+  const mk='<div class="card center" style="font-size:13px;line-height:1.7">🏆 結局收集';
+  app.innerHTML=String(app.innerHTML).replace(mk,blk+mk)};
+const _helpMenu=helpMenu;
+helpMenu=function(){_helpMenu();app.innerHTML+=`<div class="card" style="font-size:13.5px;line-height:1.75"><b>🆕 進階玩法</b><br>• 兩難抉擇:每個選項都有代價,有些會限時作答(輕鬆模式可關閉)。<br>• 人物關係:經紀人、前輩、宿敵、粉絲、記者會記住你的選擇,之後回報或反咬。<br>• 醜聞熱度:冒險的選擇會累積熱度,過高會爆發醜聞或受傷。<br>• 小遊戲:選秀登台、通告演出和「登台演出」方針有節奏或舞步小遊戲,表現影響成績。<br>• 公司經營(製作人):升級設施、簽約新人、看月報。<br>• 星途等級與傳承:每局累積經驗解鎖節目與市場,並留下傳承給下一局。<br>• 今日挑戰:每天固定起點,和朋友比分數。</div>`};
+
+// =====================================================
+// 吸引力與長短時間 C:局長、劇本、挑戰、主線故事、自動推進
+// =====================================================
+let AUTOP=0,SCENID='',SCENNEXT=null,SCENSKIP=0,FORCELEN='',CHALSET='';
+const SCEN_ON=()=>typeof SCEN_FORCE!=='undefined'?SCEN_FORCE:!(typeof process!=='undefined'&&process.versions&&process.versions.node);
+// ---- 局長 ----
+let RUNLEN=(()=>{try{return load().len||'s'}catch(e){return 's'}})();
+const PLEN={q:8,s:16,l:24},SLEN={q:3,s:5,l:5},LENN={q:'快速',s:'標準',l:'長期'};
+function cycleLen(){RUNLEN=RUNLEN==='q'?'s':RUNLEN==='s'?'l':'q';const d=load();d.len=RUNLEN;save(d);home()}
+const lenTxt=()=>`製作人 ${PLEN[RUNLEN]} 週(約 ${Math.max(3,Math.round(PLEN[RUNLEN]*.45))} 分鐘)· 做明星 ${SLEN[RUNLEN]} 階段(約 ${Math.max(3,Math.round(SLEN[RUNLEN]*1.2))} 分鐘)`;
+let LOFF_Q=-9,LOFF_L=12;
+const LOFF=()=>({8:LOFF_Q,16:0,24:LOFF_L}[G.len||16]||0);
+
+// ---- 開局劇本 ----
+const SCEN=[
+ {id:'bk',e:'💥',n:'公司倒閉危機',d:'公司宣布即將結束營業,你只剩一次機會證明價值。',g:'粉絲成長 600',dp:8,ds:3,x:{money:-600,heat:0},c:(s,m)=>G.fans-s.fans>=(m==='p'?550:300),rw:{money:900,rep:4,fame:3},pn:{fame:-4,rep:-3,image:-3,money:-300}},
+ {id:'cm',e:'🎞️',n:'過氣復出',d:'你曾紅極一時,如今被大眾遺忘,形象也受損。',g:'形象回升 9',dp:10,ds:4,x:{fame:20,image:-15,rep:-6},c:(s)=>G.image-s.image>=9,rw:{fans:300,fame:4,rep:3},pn:{fame:-6,rep:-2}},
+ {id:'rk',e:'💼',n:'富二代風波',d:'大家都說你只是靠家裡的資源。',g:'口碑提升 8',dp:10,ds:3,x:{money:1400,network:12,rep:-6,image:-4},c:(s)=>G.rep-s.rep>=(G.mode==='p'?9:7),rw:{rep:4,image:5,fame:3},pn:{rep:-3,image:-4}},
+ {id:'vr',e:'📱',n:'素人爆紅',d:'一支影片讓你一夜爆紅,但你還什麼都不會。',g:'核心能力提升 4',dp:10,ds:4,x:{fans:450,fame:12,buzz:30},c:(s)=>topSk(4)-s.top>=4,rw:{rep:4,fans:200,fame:3},pn:{fans:-250,fame:-6,image:-3}},
+ {id:'rt',e:'🌏',n:'海歸新人',d:'你在海外長大,回來發展,語言流利但人脈空白。',g:'人氣提升 42',dp:8,ds:3,x:{all:{lang:12},network:-4},c:(s)=>G.fame-s.fame>=(G.mode==='p'?42:14),rw:{money:500,network:5,fame:2},pn:{network:-3,all:{mood:-6}}},
+ {id:'kd',e:'🌟',n:'星二代',d:'你的父母是業界傳奇,所有人都在拿你比較。',g:'粉絲成長 850',dp:12,ds:4,x:{network:14,rep:4,fame:8,all:{stress:10}},c:(s,m)=>G.fans-s.fans>=(m==='p'?850:420),rw:{fans:250,rep:3,image:4},pn:{image:-5,all:{mood:-8}}},
+ {id:'zr',e:'🪙',n:'零資金創業',d:'口袋只剩一點錢,但你有滿腔熱血。',g:'資金成長 3200',dp:10,ds:3,x:{money:-900},c:(s,m)=>G.money-s.money>=(m==='p'?3200:300),rw:{fans:200,network:5,fame:2},pn:{all:{mood:-6}}},
+ {id:'rv',e:'⚔️',n:'宿敵宣戰',d:'一位同期新人公開向你宣戰,輿論都在看。',g:'圈內排名第一(製作人)/ 前三(明星)',dp:10,ds:4,x:{cast:['rival',-25],buzz:15},c:()=>worldRank()<=(G.mode==='p'?1:3),rw:{fame:4,buzz:15,fans:200,cast:['rival',15]},pn:{fame:-3,image:-2}}
+];
+function scenPick(mode){const l=shuffle(SCEN).slice(0,3);
+  app.innerHTML=`<h2>🎬 選擇開局劇本</h2><div class="card" style="font-size:13px;line-height:1.7">劇本給你不同的起點和一個限時目標:達成有獎勵,失敗有代價。</div>`+
+  l.map(s=>B(`${s.e} ${s.n}`,`${s.d}<br>🎯 ${s.g}(${mode==='p'?s.dp+' 週':s.ds+' 階段'}內)`,`scenGo("${s.id}")`,'alt')).join('')+B('🎲 標準開局','沒有劇本,自由發展','scenGo("")','alt')}
+function scenGo(id){SCENID=id;const f=SCENNEXT;SCENNEXT=null;if(f)f()}
+const _pBegin=pBegin;pBegin=function(){if(!SCEN_ON()||SCENSKIP)return _pBegin();SCENNEXT=()=>_pBegin();scenPick('p')};
+const _sBegin=sBegin;sBegin=function(g){if(!SCEN_ON()||SCENSKIP)return _sBegin(g);SCENNEXT=()=>_sBegin(g);scenPick('s')};
+function applyScen(){const s=SCEN.find(z=>z.id===SCENID);SCENID='';if(!s)return;const x=X();
+  x.sc={id:s.id,dl:G.mode==='p'?s.dp:s.ds};
+  G.xs=G.mode==='s'?1:0;try{G.one=G.m[0];ef(s.x)}finally{G.xs=0}
+  G.money=Math.max(0,G.money);
+  x.sc.s0={fans:G.fans,fame:G.fame,rep:G.rep,image:G.image,money:G.money,top:topSk(4)};
+  x.intro=`${s.e} 開局劇本「${s.n}」:${s.d}<br>🎯 目標:${s.g}(${G.mode==='p'?s.dp+' 週':s.ds+' 階段'}內)`}
+function scenCheck(notes){const x=X(),sc=x.sc;if(!sc||sc.done)return;const s=SCEN.find(z=>z.id===sc.id);if(!s)return;
+  const mode=G.mode;
+  if(s.c(sc.s0,mode)){sc.done=1;sc.ok=1;G.xs=mode==='s'?1:0;try{G.one=G.m[0];ef(s.rw)}finally{G.xs=0}addCoin(15);notes.push(`🎬 劇本「${s.n}」目標達成!獲得獎勵與 15 星幣。`)}
+  else if(x.turn>=sc.dl){sc.done=1;G.xs=0;G.one=G.m[0];ef(s.pn);notes.push(`🎬 劇本「${s.n}」目標失敗,付出了代價。`)}}
+const introNote=()=>{const x=G&&G.x2;if(x&&x.intro&&!x.introShown){x.introShown=1;return `<div class="card" style="font-size:13px;line-height:1.7">${x.intro}</div>`}return ''};
+function scenGoal(){const x=G.x2;if(!x||!x.sc||x.sc.done)return '';const s=SCEN.find(z=>z.id===x.sc.id);if(!s)return '';
+  return `🎬 劇本「${s.n}」:${s.g},剩 <b>${Math.max(0,x.sc.dl-x.turn)}</b> ${G.mode==='p'?'週':'階段'}`}
+
+// ---- 挑戰模式 ----
+const CHAL=[
+ {id:'broke',e:'🪙',n:'零資金起步',d:'資金、粉絲、人氣歸零,一切靠自己。',t:90},
+ {id:'heat',e:'🔥',n:'醜聞纏身',d:'開局醜聞熱度 40,而且很難降溫。',t:85},
+ {id:'iron',e:'🏋️',n:'鐵人行程',d:'每個階段都要額外消耗體力、累積壓力,撐住才算贏。',t:82},
+ {id:'rush',e:'⚡',n:'速成挑戰',d:'只有 3 個階段,要快速成名。',t:62}];
+function chalMenu(){const d=load(),c0=d.chal||{};
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🔥 挑戰模式</h2><div class="card" style="font-size:13px;line-height:1.7">固定規則的做明星挑戰,隨機國籍與市場。分數超過目標即通關,首次通關得 30 星幣。</div>`+
+  CHAL.map(c=>{const r=c0[c.id]||{};return B(`${c.e} ${c.n}${r.won?' ✅':''}`,`${c.d}<br>目標分數 ${c.t} · 最佳 ${r.best!==undefined?r.best:'—'}`,`chalGo("${c.id}")`,'alt')}).join('')}
+function chalGo(id){NAT=pick(NATORDER);MKID=pick(['tw','hk','jp','kr','cn','us']);OID=R(0,ORIGINS.length-1);MODE='s';CUST.on=false;
+  CHALSET=id;FORCELEN=id==='rush'?'q':'';SCENSKIP=1;try{_sBegin(false)}finally{SCENSKIP=0;FORCELEN='';CHALSET=''}}
+function chalEnd(){const d=load();d.chal=d.chal||{};const id=G.x2.chal,c=CHAL.find(z=>z.id===id),sc=dailyScore(),r=d.chal[id]||{};
+  const first=sc>=c.t&&!r.won;r.best=Math.max(sc,r.best||0);if(sc>=c.t)r.won=1;d.chal[id]=r;save(d);questBump('chal');if(first)addCoin(30);
+  return `<div class="card center"><span class="tag">${c.e} 挑戰:${c.n}</span><h2>分數 ${sc}${sc>=c.t?' ✅ 通關!':'(目標 '+c.t+')'}</h2><p style="font-size:13px">最佳 ${r.best}${first?' · 獲得 30 星幣!':''}</p></div>`}
+
+// ---- 初始化補強(局長、劇本、挑戰、角色塑造)----
+function x2Init2(){const x=X();
+  if(G.mode==='p'&&!G.len)G.len=PLEN[FORCELEN||RUNLEN];
+  if(G.mode==='s'&&!G.slen)G.slen=SLEN[FORCELEN||RUNLEN];
+  const id=(load().id)||{};if((G.mode==='s'||G.mode==='a')&&!CUST.on){if(id.n)G.m[0].n=id.n;if(id.e)G.m[0].e=id.e}
+  if(G.mode==='a')return;
+  if(CHALSET){x.chal=CHALSET;if(CHALSET==='broke'){G.money=0;G.fans=0;G.fame=Math.min(G.fame,3)}if(CHALSET==='heat')x.heat=40}
+  else if(SCENID)applyScen();
+}
+// ---- 主線故事:每個市場 6 章,進度跨局保存 ----
+const STY2={
+ bold:{fame:2.5,fans:120,buzz:8,heat:4,all:{stress:4}},
+ safe:{rep:2.5,money:250,image:1},
+ heart:{image:3,fans:80,cast:['fan',5],all:{mood:6}},
+ work:{sks:6,rep:1,all:{energy:-10,stress:4}},
+ net:{network:5,money:100,cast:['senior',4]}
+};
+const STORY={
+ tw:[['夜市裡的名片','你在夜市顧攤時,被一位星探遞上名片。',['立刻赴約','bold','你赴約了,星探說你有種親切的氣質。'],['先查清楚公司','safe','你查證後才簽約,雖然慢卻很安心。']],
+     ['綜藝試錄','%a替你爭取到一個綜藝節目的試錄機會。',['放手搞笑','bold','你的反應讓全場笑翻,導播記住了你。'],['穩穩接話','safe','你表現穩定,現場評價中規中矩。']],
+     ['新人王大賽','公司要你參加年度新人王大賽。',['苦練舞台','work','你每天加練,實力明顯進步。'],['四處拉票','net','你到處拜託,人脈擴大了。']],
+     ['舊貼文風波','有人翻出你很久以前的貼文,討論度飆升。',['誠懇道歉','heart','你坦率道歉,多數人選擇原諒。'],['冷處理','risk','你選擇沉默,風向全看運氣。|風向轉為批評。']],
+     ['頒獎典禮入圍','你入圍了本地年度最佳新人獎。',['用心準備紅毯','safe','紅毯造型獲得好評。'],['請前輩站台','net','%s出面力挺,話題度上升。']],
+     ['大型室內體育館演唱會','票一開賣就秒殺,你要在舞台上說出自己的故事。',['感謝所有人','heart','你哭著感謝每個人,全場跟著落淚。'],['放手一搏','bold','你唱了最大膽的版本,全場尖叫。'],['保持從容','safe','你穩穩唱完,留下專業的評價。']]],
+ hk:[['茶餐廳的偶遇','你在茶餐廳打工時,被一位經紀人看中。',['試試看','bold','你和經紀人聊了一晚,簽下第一份合約。'],['先婉拒','safe','你謹慎考慮,對方反而更欣賞你。']],
+     ['藝員訓練班','電視台開辦新一期藝員訓練班。',['拚命練習','work','你總是最早到、最晚走。'],['結交同學','net','你和同期成了好友,人脈打開。']],
+     ['電影配角','%a替你拿到一個電影配角,戲份不多但很關鍵。',['認真揣摩','work','導演稱讚你的眼神戲。'],['大膽搶戲','risk','你放大了表演,觀眾很有感。|你太用力,被剪掉不少。']],
+     ['狗仔追拍','娛樂記者長期跟拍你,私生活被放大。',['公開澄清','safe','你說明清楚,風波平息。'],['開玩笑帶過','bold','你玩笑帶過,話題反而更熱。']],
+     ['電影節入圍','你的演出入圍了新人獎項。',['低調出席','heart','你誠懇的感言感動了觀眾。'],['盛裝亮相','bold','你的造型成了頭條。']],
+     ['萬人體育館演唱會','你要完成人生第一場個人演唱會。',['唱給家人','heart','你點名感謝一路陪伴的人,全場落淚。'],['重編經典','bold','你把老歌改得全新,現場沸騰。'],['按部就班','safe','你穩健完成每個橋段。']]],
+ jp:[['澀谷街頭','你在街頭表演時,被事務所人員遞上名片。',['接受面談','bold','面談很順利,你成了練習生。'],['先回去想想','safe','你冷靜了幾天,條件反而更好。']],
+     ['小劇場公演','事務所安排你在小劇場出演。',['全力演出','work','觀眾席有人為你流淚。'],['與粉絲互動','heart','你認真握手,粉絲記住了你。']],
+     ['歌唱節目','%a幫你爭取到歌唱節目的演出機會。',['挑戰高音','risk','高音全開,全場驚豔。|破音了,有點遺憾。'],['選穩定曲目','safe','你唱得穩定,評價不錯。']],
+     ['前輩與規矩','事務所的規矩多,%s對你的禮儀很嚴格。',['虛心請教','net','前輩傳授了很多業界智慧。'],['堅持己見','bold','你堅持自己的做法,有人欣賞有人皺眉。']],
+     ['年末國民歌唱大賽','你受邀參加年末的國民歌唱大賽。',['準備新舞台','work','你的舞台設計獲得好評。'],['唱最熟的歌','safe','經典曲目讓全國觀眾一起合唱。']],
+     ['巨蛋巡演','你要站上巨蛋的舞台。',['感謝歌迷','heart','你鞠躬致謝,全場螢光棒搖成星海。'],['全新企劃','bold','你用大膽的演出刷新紀錄。'],['傳統路線','safe','你用最完整的演出收尾。']]],
+ kr:[['練習生選拔','你通過了大型公司的練習生選拔。',['全力以赴','work','你的努力被評審看見。'],['展現個性','bold','你的個人色彩讓人記住你。']],
+     ['月末評價','每月一次的評價決定去留。',['苦練舞蹈','work','你的舞蹈進步最大。'],['練聲與表情','safe','你的整體表現均衡。']],
+     ['出道舞台','%a宣布你即將出道,打歌舞台要準備。',['拚到最後','work','你排練到深夜,舞台零失誤。'],['注重造型','bold','你的造型讓粉絲驚呼。']],
+     ['合約風波','傳出公司與你的合約條件有爭議。',['公開溝通','heart','你坦率說明,粉絲選擇支持。'],['私下協商','net','%s居中協調,問題順利解決。']],
+     ['年度大賞','你獲邀出席年度音樂大賞。',['用心準備','safe','你的演出獲得好評。'],['驚喜合作','risk','合作舞台引爆話題。|默契不足,評價兩極。']],
+     ['世界巡演','你要展開首次世界巡演。',['感謝粉絲','heart','你用各國語言致謝,全場落淚。'],['大膽改編','bold','你加入全新橋段,粉絲瘋狂。'],['維持水準','safe','你每一站都穩定發揮。']]],
+ cn:[['短影音被發現','你的短影音被一位經紀人看到。',['立刻回覆','bold','你快速回覆,對方很欣賞行動力。'],['先觀察再說','safe','你仔細評估,簽了條件更好的約。']],
+     ['選秀節目','%a替你報名了一個大型選秀節目。',['全力表現','work','你每一輪都有進步。'],['經營人設','bold','你的人設鮮明,話題不斷。']],
+     ['直播首秀','公司安排你做第一場直播。',['真誠聊天','heart','觀眾覺得你很真實。'],['搞笑企劃','risk','企劃爆紅。|企劃有點冷場。']],
+     ['輿論風波','網路上出現對你的負面討論。',['理性回應','safe','你條理清楚,風向慢慢轉了。'],['請粉絲聲援','bold','粉絲強力聲援,但也引來罵戰。']],
+     ['電視劇主演','你獲得電視劇的重要角色。',['苦練演技','work','導演稱讚你的進步。'],['拉前輩加持','net','%s的加持讓劇組更看好你。']],
+     ['跨年晚會','你受邀登上跨年晚會舞台。',['感謝觀眾','heart','你的真誠讓全國觀眾感動。'],['驚豔演出','bold','你的舞台成為跨年焦點。'],['穩健表演','safe','你完成了零失誤的演出。']]],
+ us:[['街頭演出','你在街頭表演時,被一位製作人看到影片。',['寄出試聽帶','bold','製作人聽完,約你見面。'],['先上傳社群','safe','你的影片累積了不少觀看。']],
+     ['試鏡與簽約','唱片公司給你簽約提案。',['爭取更多創作權','net','你談到了更好的條件。'],['直接簽約','bold','你立刻簽下,進度很快。']],
+     ['首支單曲','%a說你的第一支單曲要上電台。',['親自跑電台','work','你的誠意打動了主持人。'],['靠社群宣傳','bold','社群聲量帶動了點播。']],
+     ['社群風波','你的一則貼文引發爭論。',['道歉並說明','heart','你的誠意獲得諒解。'],['堅持立場','risk','部分人欣賞你的堅定。|批評聲量很大。']],
+     ['音樂大獎提名','你獲得新人類別的提名。',['低調準備','safe','你的感言真誠簡短,獲得好評。'],['盛大亮相','bold','你的紅毯造型成為焦點。']],
+     ['體育場巡演','你要在大型體育場舉辦首次巡演。',['與歌迷合唱','heart','全場歌迷與你一起合唱。'],['特效舞台','bold','特效與舞台震撼全場。'],['簡單原聲','safe','你用原聲的魅力打動所有人。']]],
+ hw:[['公開試鏡','你在公開試鏡中被選角導演注意到。',['全情投入','work','導演要你留下來再演一次。'],['展現個人風格','bold','你的風格讓評審眼睛一亮。']],
+     ['簽約經紀人','%a願意簽下你,但要求抽成。',['接受條件','safe','你簽下了經紀約。'],['爭取更好條件','net','你談判成功,抽成降低了一點。']],
+     ['影集配角','你獲得影集配角,戲份有限。',['認真準備','work','你的表現獲得好評。'],['即興加戲','risk','即興很加分。|導演覺得你過頭了。']],
+     ['定型角色與簽證','你被貼上固定的角色標籤,工作簽證也在倒數。',['嘗試新類型','bold','你的新嘗試獲得關注。'],['穩住現有形象','safe','你保持穩定,簽證順利延期。']],
+     ['頒獎季','你的作品進入頒獎季,業界都在看你。',['全程宣傳','work','你的曝光大幅增加。'],['低調謙遜','heart','你的謙遜贏得好感。']],
+     ['大片首映','你要主演的電影要舉辦首映。',['感謝劇組','heart','你的致詞感動全場。'],['大膽造型','bold','你的造型成為頭條。'],['專業應對','safe','你專業地完成所有訪問。']]],
+ in:[['孟買試鏡','你在孟買的製作公司參加試鏡。',['歌舞全開','bold','你的熱情讓評審起立鼓掌。'],['穩穩表現','safe','你的穩定讓製片點頭。']],
+     ['歌舞場面拍攝','你要拍攝人生第一個歌舞場面。',['苦練舞步','work','你每天練到深夜,拍攝一次過。'],['注重表情','heart','你的眼神征服了鏡頭。']],
+     ['圈外人的挑戰','媒體討論你是圈外人,資源比不上星二代。',['用作品說話','work','你的作品讓質疑減少。'],['公開回應','risk','你的坦率贏得掌聲。|回應被斷章取義。']],
+     ['排燈節檔期','%a說排燈節檔期是你的機會,但競爭極大。',['爭取檔期','net','你擠進了熱門檔期。'],['避開鋒頭','safe','你選了較穩的檔期。']],
+     ['婚禮演出','一場豪華婚禮邀請你表演,出場費很高。',['精彩演出','bold','你的演出成為賓客的話題。'],['低調演出','safe','你完成了穩定的演出。']],
+     ['年度新人獎與首映','你的電影首映,同時入圍年度新人獎。',['感謝家人','heart','你的感言感動了現場。'],['全場舞動','bold','你帶領全場跳舞,氣氛沸騰。'],['專業應對','safe','你穩穩度過整晚。']]]
+};
+function storyBeat(mk,i){
+  const b=STORY[mk][i],n=X().names,M=MK[mk],last=i===STORY[mk].length-1;
+  const rp=t=>t.replace(/%a/g,n.agent).replace(/%s/g,n.senior);
+  return {mi:0,t:`📖 ${M.n}篇 ${i+1}/6:${b[0]}`,d:rp(b[1]),story:1,id:'S'+mk+i,c:b.slice(2).map(c=>{
+    const st=c[1],res=rp(c[2]);let eff;
+    if(st==='risk'){const [ok,ng]=res.split('|');eff=()=>Math.random()<.55?[last?{fame:4,fans:200,sdone:mk}:{fame:4,fans:200,money:200},ok]:[last?{fame:-1,image:-3,sdone:mk}:{fame:-1,image:-3,money:-150},ng||ok]}
+    else{eff=Object.assign({},STY2[st]);if(last){eff.fame=(eff.fame||0)+3;eff.fans=(eff.fans||0)+150;eff.sdone=mk}}
+    return [c[0],eff,res]})};
+}
+const _ef2=ef;
+ef=function(e){if(e&&e.sdone){const mk=e.sdone;e=Object.assign({},e);delete e.sdone;const d=load();d.story=d.story||{};if(!d.story[mk]){d.story[mk]=1;d.leg=d.leg||[];d.leg.push({t:`📖 ${MK[mk].n}篇章`,e:{fame:5,fans:150,network:5},m:'story'});if(d.leg.length>12){d.leg.shift();if(d.legSel>=0)d.legSel--}save(d);addCoin(30);noteAdd(`📖 ${MK[mk].n}篇章完結!獲得傳承與 30 星幣。`)}}return _ef2(e)};
+function noteAdd(t){if(!G||!G.mode)return;const x=X();if(G.mode==='p')G.note=(G.note?G.note+'<br>':'')+t;else x.sn=(x.sn||[]).concat([t])}
+const EVCAT=()=>{const o=[];for(let i=0;i<DIL.length;i++)o.push('D'+i);Object.keys(CASTD).forEach(k=>{o.push('P'+k+0,'P'+k+1)});o.push('H','C');MKORDER.forEach(mk=>{for(let i=0;i<6;i++)o.push('S'+mk+i)});return o};
+
+// ---- 自動推進 ----
+function bestOpt(ev){let b=0,bs=-1e9;
+  ev.c.forEach((c,i)=>{const e=c[1];let s=1;
+    if(e&&typeof e==='object'){const e2=Object.assign({},e),heat=e2.heat||0,cast=e2.cast?(Array.isArray(e2.cast[0])?e2.cast:[e2.cast]).reduce((a,x)=>a+x[1],0):0;
+      ['heat','cast','later','inj','sal','sdone'].forEach(k=>delete e2[k]);s=evScore(e2)+cast*.4-heat*.6-(e.inj?5:0)}
+    if(s>bs){bs=s;b=i}});return b}
+function autoAct(){
+  const lowE=G.m.some(m=>m.energy<32),hiS=G.m.some(m=>m.stress>65);
+  if(lowE||hiS){if(G.money>=600&&G.m.some(m=>m.stress>80))return pCare('trip');return pCare('rest')}
+  const w=G.week%4,gs=GIGS();
+  if(w===0||w===2){G.target='all';const avg=SKK.map(k=>[k,G.m.reduce((a,m)=>a+m.sk[k],0)]).sort((a,b)=>b[1]-a[1]);const k=avg[R(0,3)][0];if(G.m.every(m=>m.energy>=pCost(15,m)))return pTrain(k)}
+  if(w===1&&G.week>=3){const g=gs.find(x=>x.id==='sp');if(g&&G.m.every(m=>m.energy>=pCost(g.c,m)))return pGig('sp')}
+  if(w===3&&G.week>=3&&G.money>=300&&G.m.every(m=>m.energy>=pCost(30,m)))return pGig('fan');
+  if(G.m.every(m=>m.energy>=pCost(25,m)))return pGig('gig');
+  return pCare('rest');
+}
+function autoMenu(){
+  const p=G.mode==='p',bk=p?'pHub()':'app.innerHTML=LASTF';
+  app.innerHTML=`<button class="back" onclick="${bk}">← 返回</button><h2>🤖 助理代管</h2><div class="card" style="font-size:13px;line-height:1.7">助理會用穩健的方式安排行動和抉擇。「遇到重要抉擇停下」會在限時抉擇與主線故事時交還給你;「全自動」連重要抉擇都幫你決定。</div>`+
+  (p?B('▶️ 代管 1 週','遇到重要抉擇停下','autoPlay(1,false)','alt')+B('⏩ 代管 4 週','遇到重要抉擇停下','autoPlay(4,false)','alt')+B('🚀 全自動到演唱會','包含所有抉擇,結束才回來','autoPlay(999,true)','alt')
+    :B('▶️ 自動選方針、跳過個人時間','遇到事件停下讓你決定','autoStar(1,false)','alt')+B('🚀 全自動玩到最後','包含所有抉擇','autoStar(99,true)','alt'))}
+function autoLog(ev,k){const lb=ev.c[k][0].replace(/\(.*$/,'');AUTO.log.push(`📌 ${ev.t.replace(/^\S+ /,'')}:選了「${lb}」`)}
+function autoFin(){const A=AUTO;AUTOP=0;AUTO=null;if(!A)return;if(/評級|結局:/.test(String(app.innerHTML)))return;
+  const p=G.mode==='p';
+  app.innerHTML=panel(p?hdrP():hdrS())+`<div class="card"><span class="tag">🤖 助理代管完成</span><p style="line-height:1.7">${p?`代管了 ${G.week-A.w0} 週(第 ${A.w0}→${G.week} 週)。`:'已幫你完成這段進度。'}</p>${diff(A.s0,snap())}${A.log.length?`<p style="font-size:12.5px;line-height:1.8">${A.log.slice(-6).join('<br>')}</p>`:''}</div>`+(p?B('回到本週安排','','pHub()'):B('繼續 →','','sFocus()'))}
+function autoStop(){const A=AUTO;AUTOP=0;AUTO=null;const p=G.mode==='p';
+  if(p)pResult();else if(G.pev&&/sEvPick/.test(String(app.innerHTML)))sEvShow(G.pev);
+  app.innerHTML=`<div class="card center" style="font-size:13px">🤖 助理在這裡停下,請你決定。${A&&A.log.length?`<br><span style="opacity:.75">${A.log.slice(-2).join('<br>')}</span>`:''}</div>`+app.innerHTML}
+function autoPlay(n,full){AUTOP=1;AUTO={n,full,s0:snap(),w0:G.week,log:[]};autoStep()}
+function autoStep(){let g=0;
+  try{while(g++<900){
+    const h=String(app.innerHTML);
+    if(!AUTO)return;
+    if(/評級/.test(h)){return autoFin()}
+    if(G.pending){const p=G.pending;if(!AUTO.full&&(p.timed||p.story))return autoStop();const k=bestOpt(p);autoLog(p,k);pChoose(k);continue}
+    if(/繼續培育/.test(h)){weekly();G.week++;pHubNext();continue}
+    if(/pHubNext\(\)/.test(h)){pHubNext();continue}
+    if(/pNext\(\)/.test(h)){if(AUTO.n<=0)return autoFin();AUTO.n--;pNext();continue}
+    if(/本週安排/.test(h)){if(AUTO.n<=0)return autoFin();autoAct();continue}
+    return autoFin();
+  }autoFin()}catch(e){AUTOP=0;AUTO=null;throw e}}
+function autoFocus(){let b=0,bs=-1e9;G.fo.forEach((f,i)=>{if(f[3]&&f[3].__mini)return;const s=evScore(f[3]||{});if(s>bs){bs=s;b=i}});sFocusDo(b)}
+function autoStar(n,full){AUTOP=1;AUTO={n,full,s0:snap(),log:[]};autoStepS()}
+function autoStepS(){let g=0;
+  try{while(g++<700){
+    const h=String(app.innerHTML);
+    if(!AUTO)return;
+    if(/結局:/.test(h))return autoFin();
+    if(/sEvPick\(0\)/.test(h)){const ev=G.pev;if(!AUTO.full&&ev.timed)return autoStop();const k=bestOpt(ev);autoLog(ev,k);sEvPick(k);continue}
+    if(/sChoose\(0\)/.test(h)){const ev=G.q[G.ch][G.n];if(!AUTO.full)return autoStop();const k=bestOpt(ev);autoLog(ev,k);sChoose(k);continue}
+    if(/sRelNext\(\)/.test(h)){sRelNext();continue}
+    if(/sPersonal\(\)/.test(h)){G.pt=0;sShow();continue}
+    if(/sNext\(\)/.test(h)){sNext();continue}
+    if(/sShow\(\)/.test(h)){sShow();continue}
+    if(/sFocusDo/.test(h)){if(AUTO.n<=0)return autoFin();AUTO.n--;autoFocus();continue}
+    return autoFin();
+  }autoFin()}catch(e){AUTOP=0;AUTO=null;throw e}}
+let AUTO=null;
+const _pHub3=pHub;pHub=function(){_pHub3();app.innerHTML+=B('🤖 助理代管','幫你自動安排,忙的時候用','autoMenu()','alt')};
+const _sFocus3=sFocus;sFocus=function(){_sFocus3();LASTF=app.innerHTML;app.innerHTML+=B('🤖 助理代管','自動選方針,或全自動玩到最後','LASTF=app.innerHTML;autoMenu()','alt');LASTF=LASTF};
+
+// =====================================================
+// C2:角色塑造、舞台揭曉、星幣與任務、收藏牆、首頁整合
+// =====================================================
+// ---- 星幣、登入、任務 ----
+const addCoin=n=>{const d=load();d.coin=(d.coin||0)+n;save(d)};
+const QDEF=[['run','完成 1 局遊戲',1],['mile','達成 2 個里程碑',2],['dil','完成 3 次兩難抉擇',3],['aud','選秀打進決賽',1],['mini','小遊戲拿到高分',1],['daily','完成今日挑戰',1],['chal','完成 1 次挑戰模式',1],['story','推進 1 章主線故事',1]];
+let QNOTE=[];
+function questsToday(d){if(!d.q||d.q.day!==dayStr()){d.q={day:dayStr(),list:shuffle(QDEF).slice(0,3).map(q=>({id:q[0],need:q[2],p:0,done:0})),bonus:0};save(d)}return d.q}
+function questBump(id,n){try{const d=load(),q=questsToday(d);let ch=false;
+  q.list.forEach(t=>{if(t.id===id&&!t.done){t.p+=(n||1);ch=true;if(t.p>=t.need){t.done=1;d.coin=(d.coin||0)+12;QNOTE.push(`✅ 任務「${QDEF.find(z=>z[0]===id)[1]}」完成 +12 星幣`)}}});
+  if(q.list.every(t=>t.done)&&!q.bonus){q.bonus=1;d.coin=(d.coin||0)+15;QNOTE.push('🎉 今日任務全部完成 +15 星幣');ch=true}
+  if(ch)save(d)}catch(e){}}
+function loginCheck(){const d=load(),t=dayStr();if(!d.login)d.login={last:'',streak:0};
+  if(d.login.last===t)return '';
+  const y=new Date(Date.now()+8*36e5-864e5).toISOString().slice(0,10);
+  d.login.streak=d.login.last===y?d.login.streak+1:1;d.login.last=t;
+  const n=8+Math.min(d.login.streak,7)*2;d.coin=(d.coin||0)+n;save(d);
+  return `<div class="card center" style="font-size:13px;line-height:1.7">📅 <b>每日登入</b> +${n} 星幣(連續 ${d.login.streak} 天)</div>`}
+function questCard(d){const q=questsToday(d);
+  return `<div class="card" style="font-size:13px;line-height:1.8"><b>📋 今日任務</b> <span style="float:right">🪙 ${d.coin||0}</span><br>`+q.list.map(t=>`${t.done?'✅':'⬜'} ${QDEF.find(z=>z[0]===t.id)[1]}${t.done?'':`(${t.p}/${t.need})`}`).join('<br>')+`</div>`}
+const SHOPC=[['💰','創業基金','開局資金 +600',20,{money:600}],['🌟','話題開局','開局人氣 +5、粉絲 +150、話題 +15',25,{fame:5,fans:150,buzz:15}],['🧠','特訓禮包','開局隨機能力成長',25,{sks:6}],['🤝','人脈禮盒','開局人脈 +10、經紀人與前輩好感提升',25,{network:10,cast:[['agent',15],['senior',10]]}],['🛡️','形象保養','開局形象 +8、口碑 +3',20,{image:8,rep:3}]];
+function coinShop(){const d=load();
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🛒 星幣商店</h2><div class="card center">🪙 你有 <b>${d.coin||0}</b> 星幣<br><span style="font-size:12.5px;opacity:.75">買到的禮包會放進「傳承」,下一局開局生效。</span></div>`+
+  SHOPC.map((s,i)=>B(`${s[0]} ${s[1]}(${s[3]} 星幣)`,s[2],`coinBuy(${i})`,'alt',(d.coin||0)<s[3])).join('')}
+function coinBuy(i){const d=load(),s=SHOPC[i];if((d.coin||0)<s[3])return;d.coin-=s[3];d.leg=d.leg||[];d.leg.push({t:`${s[0]} ${s[1]}`,e:s[4],m:'shop'});if(d.leg.length>12){d.leg.shift();if(d.legSel>=0)d.legSel--}save(d);coinShop()}
+const _legDesc=legDesc;legDesc=function(e){let t=_legDesc(e);if(e.cast)t+=(t?' ':'')+'人物好感+';return t};
+
+// ---- 角色塑造 ----
+const IDE=['⭐','🌸','🔥','🌙','💎','🦋','🎀','🌈','⚡','🍓','🐱','🦊'],IDC=['#ff7ab8','#6ad0ff','#ffd76a','#7dffb0','#b88bff','#ff9f5a'];
+const escI=s=>String(s||'').replace(/[<>&"'`]/g,'');
+function idRead(){const d=load(),i=d.id||{},a=document.getElementById('idn'),b=document.getElementById('idl');if(a)i.n=escI(a.value).slice(0,8);if(b)i.l=escI(b.value).slice(0,20);d.id=i;save(d)}
+function idSet(k,v){idRead();const d=load();d.id=d.id||{};d.id[k]=v;save(d);idMenu()}
+function idSave(){idRead();home()}
+function idMenu(){const i=load().id||{};
+  const inp=(id,v,ml)=>`<input id="${id}" maxlength="${ml}" value="${escI(v)}" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font-size:15px;box-sizing:border-box">`;
+  app.innerHTML=`<button class="back" onclick="idSave()">← 儲存並返回</button><h2>🎭 角色塑造</h2><div class="card" style="font-size:13px;line-height:1.7">設定你的明星形象。做明星和選秀會用這個身分,結局成績卡也會顯示。(自訂角色開局時以自訂為準)</div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">藝名(最多 8 字)</div>${inp('idn',i.n,8)}<div style="font-size:13px;margin:12px 0 6px">招牌台詞(最多 20 字)</div>${inp('idl',i.l,20)}</div>
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">頭像</div><div class="chips sm">`+IDE.map(e=>`<button class="chip ${i.e===e?'sel':''}" onclick="idSet('e','${e}')">${e}</button>`).join('')+`</div><div style="font-size:13px;margin:10px 0 6px">應援色</div><div class="chips sm">`+IDC.map(c=>`<button class="chip ${i.c===c?'sel':''}" style="background:${c};min-width:40px" onclick="idSet('c','${c}')">&nbsp;</button>`).join('')+`</div></div>`+B('💾 儲存','','idSave()','gold')}
+
+// ---- 舞台揭曉 ----
+let CURT=null,CURT_CB=null;
+function curtainCSS(){if(document.getElementById('cstyle'))return;const s=document.createElement('style');s.id='cstyle';
+  s.textContent='@keyframes bm{0%,100%{transform:rotate(-18deg)}50%{transform:rotate(18deg)}}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.stg{position:relative;height:300px;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 120%,#3a1c71,#0d0b26 70%);margin:8px 0}.bm{position:absolute;top:-30px;width:80px;height:360px;background:linear-gradient(rgba(255,230,150,.55),transparent);transform-origin:top center;animation:bm 3s ease-in-out infinite}.crw{position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:space-around;font-size:22px}.crw span{animation:bob 1s ease-in-out infinite}';
+  document.head.appendChild(s)}
+function curtain(title,sub,cb){
+  if(!MINI_ON())return cb();
+  curtainCSS();let done=0;
+  const go=()=>{if(done)return;done=1;if(CURT){clearTimeout(CURT);CURT=null}CURT_CB=null;cb()};
+  CURT_CB=go;try{fanfare()}catch(e){}
+  app.innerHTML=`<div class="stg"><div class="bm" style="left:10%"></div><div class="bm" style="left:42%;animation-delay:-1s"></div><div class="bm" style="left:74%;animation-delay:-2s"></div><div style="position:absolute;top:70px;left:0;right:0;text-align:center"><div style="font-size:26px;font-weight:800;animation:fadein 1s both">${title}</div><div style="font-size:14px;opacity:.85;margin-top:8px;animation:fadein 1s .8s both">${sub}</div><div style="font-size:30px;margin-top:20px;animation:fadein 1s 1.6s both">⭐🎤⭐</div></div><div class="crw">`+['🙌','📣','🎉','💖','🙌','📣','🎉'].map((e,i)=>`<span style="animation-delay:${-i*.15}s">${e}</span>`).join('')+`</div></div>`+B('✨ 揭曉結果','','curtainGo()','gold');
+  CURT=setTimeout(go,6000);
+}
+function curtainGo(){if(CURT_CB)CURT_CB()}
+const _pFinal2=pFinal;pFinal=function(){curtain('🎆 演唱會之夜','燈光暗下,尖叫聲此起彼落……',()=>_pFinal2())};
+const _sEnd2=sEnd;sEnd=function(t){curtain('🌟 人生的最後一幕','回顧一路走來的故事……',()=>_sEnd2(t))};
+const _aEnd2=aEnd;aEnd=function(){curtain('🎙️ 名次揭曉','全場靜了下來……',()=>_aEnd2())};
+const _aPerform2=aPerform;aPerform=function(k){if(G&&G.mode==='a'&&G.r===4&&!G.crtd&&MINI_ON()){G.crtd=1;curtain('📣 決賽之夜','評審正在結算最後的名次……',()=>aPerform(k))}else _aPerform2(k)};
+
+// ---- 收藏牆 ----
+function wallData(){const d=load(),sec=[];
+  const ends=Object.keys(ENDS),de=d.ends||[];sec.push(['🏆 結局',de.length,ends.length,ends.map(k=>de.includes(k)?`${ENDS[k][0]}${ENDS[k][1]}`:'❔')]);
+  sec.push(['🏅 成就',(d.ach||[]).length,ACH.length,null]);
+  sec.push(['🛍️ 商品',Object.keys(d.col||{}).length,SHOPS.reduce((a,s)=>a+s.it.length,0),null]);
+  const sh=Object.keys(SHOWS);sec.push(['📺 選秀節目冠軍',sh.filter(k=>((d.sh||{})[k]||0)>=100).length,sh.length,sh.map(k=>((d.sh||{})[k]||0)>=100?`${SHOWS[k].e}${SHOWS[k].n}`:'❔')]);
+  sec.push(['🌏 到訪市場',(d.mkp||[]).length,MKORDER.length,MKORDER.map(k=>(d.mkp||[]).includes(k)?MK[k].e+MK[k].n:'❔')]);
+  sec.push(['📖 主線篇章',MKORDER.filter(k=>(d.story||{})[k]).length,MKORDER.length,MKORDER.map(k=>(d.story||{})[k]?`${MK[k].e}${MK[k].n}篇 ✅`:`${MK[k].e} ${(d.sp||{})[k]||0}/6`)]);
+  const ec=EVCAT();sec.push(['🎭 事件圖鑑',ec.filter(i=>(d.evs||{})[i]).length,ec.length,null]);
+  sec.push(['🔥 挑戰通關',CHAL.filter(c=>((d.chal||{})[c.id]||{}).won).length,CHAL.length,CHAL.map(c=>((d.chal||{})[c.id]||{}).won?c.e+c.n:'❔')]);
+  return sec}
+const wallPct=()=>{const s=wallData();return Math.round(s.reduce((a,x)=>a+x[1]/x[2],0)/s.length*100)};
+function wallMenu(){const s=wallData(),d=load();
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🖼️ 收藏牆</h2><div class="card center"><div style="font-size:30px;font-weight:800">${wallPct()}%</div><div style="font-size:13px;opacity:.8">整體完成度 · 專屬結果已解鎖 ${(d.out||[]).length} 種</div></div>`+
+  s.map(x=>`<div class="card"><div class="mini"><b style="width:auto;min-width:120px;text-align:left">${x[0]}</b><div class="bar"><i style="width:${x[1]/x[2]*100}%;background:#ffd76a"></i></div><span>${x[1]}/${x[2]}</span></div>${x[3]?`<div style="font-size:12.5px;line-height:1.8;margin-top:6px">${x[3].join(' · ')}</div>`:''}</div>`).join('')}
+// ---- 事件圖鑑記錄、任務計數 ----
+function seeEv(ev){try{if(!ev||!ev.id)return;const d=load();d.evs=d.evs||{};if(!d.evs[ev.id]){d.evs[ev.id]=1;save(d)}if(ev.x2&&!ev.story)questBump('dil');if(ev.story)questBump('story')}catch(e){}}
+const _pChoose2=pChoose;pChoose=function(k){seeEv(G.pending);_pChoose2(k)};
+const _sEvPick2=sEvPick;sEvPick=function(k){seeEv(G.pev);_sEvPick2(k)};
+const _mgDone=mgDone;mgDone=function(s){if(s!=null&&s>=.8)questBump('mini');_mgDone(s)};
+const _msCheck=msCheck;msCheck=function(n){const b=n.length;_msCheck(n);const k=n.length-b;if(k>0)questBump('mile',k)};
+// ---- 結局補強:任務、挑戰 ----
+const _endHook=endHook;
+endHook=function(mode){
+  const was=G&&G.xpDone;QNOTE=[];
+  if(G&&!was){questBump('run');if(mode==='a'&&G.last&&G.last.final)questBump('aud');if(mode==='s'&&G.daily)questBump('daily')}
+  _endHook(mode);
+  if(G&&!was){let extra='';
+    if(mode==='s'&&G.x2&&G.x2.chal)extra+=chalEnd();
+    const id=load().id||{};if(id.l&&(mode==='s'||mode==='a'))extra+=`<div class="card center" style="font-size:14px">🗣️ 招牌台詞:「${escI(id.l)}」</div>`;
+    if(QNOTE.length)extra+=`<div class="card" style="font-size:13px;line-height:1.8">${QNOTE.join('<br>')}</div>`;
+    if(extra){app.innerHTML+=extra;LASTEND=app.innerHTML}}
+};
+// ---- 首頁整合 ----
+const _home3=home;
+home=function(){_home3();
+  const d=load(),lg=loginCheck(),d2=load();
+  const blk=lg+questCard(d2)+
+   `<details class="card"><summary style="cursor:pointer"><b>🎁 更多功能</b>(局長、挑戰、收藏、商店、角色)</summary>`+
+   B(`⏱ 局長:${LENN[RUNLEN]}`,lenTxt(),'cycleLen()','alt')+
+   B('🔥 挑戰模式','固定規則,超過目標分數就通關','chalMenu()','alt')+
+   B(`🖼️ 收藏牆(完成度 ${wallPct()}%)`,'結局、事件、篇章、挑戰','wallMenu()','alt')+
+   B('🛒 星幣商店',`🪙 ${d2.coin||0},買開局禮包`,'coinShop()','alt')+
+   B('🎭 角色塑造','藝名、頭像、應援色、招牌台詞','idMenu()','alt')+`</details>`;
+  const mk='<div class="card center" style="font-size:13px;line-height:1.7">🏆 結局收集';
+  app.innerHTML=String(app.innerHTML).replace(mk,blk+mk)};
+// ---- 存檔摘要與歡迎回來 ----
+const _runInfo=runInfo;
+runInfo=function(){try{const r=JSON.parse(localStorage.getItem(RUNK)||'null');if(!r||!r.G)return '';const g=r.G,M=MK[g.mk];
+  if(g.mode==='p'){const L=g.len||16;return `${M.e} 製作人 · 第 ${g.week}/${L} 週 · 約剩 ${Math.max(1,Math.round((L-g.week+1)*.45))} 分鐘`}
+  if(g.mode==='s'){const S=g.slen||5,c=(g.cc||0);return `${M.e} 做明星 · 階段 ${c+1}/${S} · 約剩 ${Math.max(1,Math.round((S-c)*1.2))} 分鐘`}
+  return `${M.e} 選秀 · ${(SHOWS[g.show]||SHOWS.voice).rn[g.r]}`}catch(e){return ''}};
+const _resumeGame=resumeGame;
+resumeGame=function(){_resumeGame();if(!G||!G.mode)return;
+  const p=G.mode==='p',nx=p?'接著安排本週行動':G.mode==='s'?'選擇這個階段的方針':'準備下一關';
+  app.innerHTML=`<div class="card center" style="font-size:13px;line-height:1.7">👋 歡迎回來!你在 ${MK[G.mk].e} ${MK[G.mk].n}${p?`,第 ${G.week}/${G.len||16} 週`:''}。<br>人氣 ${Math.round(G.fame)} · 粉絲 ${G.fans}<br>下一步:${nx}</div>`+app.innerHTML};
+// ---- 說明補充 ----
+const _helpMenu2=helpMenu;
+helpMenu=function(){_helpMenu2();app.innerHTML+=`<div class="card" style="font-size:13.5px;line-height:1.75"><b>🆕 長短與目標</b><br>• 局長:首頁「更多功能」可切換快速、標準、長期,快速局約 3 到 4 分鐘。<br>• 開局劇本:開始製作人與做明星前,可挑一個有限時目標的劇本。<br>• 主線故事:每個市場 6 章,進度會跨局保存,完結有獎勵。<br>• 助理代管:忙的時候讓助理幫你自動安排,遇到重要抉擇會停下。<br>• 星幣與任務:每日登入、每日任務賺星幣,到商店買開局禮包。<br>• 收藏牆與挑戰模式:收集結局、事件、篇章,挑戰特殊規則。<br>• 角色塑造:設定藝名、頭像、應援色與招牌台詞。</div>`};
 
 loadSet();home();
 </script>
