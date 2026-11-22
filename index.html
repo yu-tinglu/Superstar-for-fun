@@ -2441,7 +2441,7 @@ function coinBuy(i){const d=load(),s=SHOPC[i];if((d.coin||0)<s[3])return;d.coin-
 const _legDesc=legDesc;legDesc=function(e){let t=_legDesc(e);if(e.cast)t+=(t?' ':'')+'人物好感+';return t};
 
 // ---- 角色塑造 ----
-const IDE=['⭐','🌸','🔥','🌙','💎','🦋','🎀','🌈','⚡','🍓','🐱','🦊'],IDC=['#ff7ab8','#6ad0ff','#ffd76a','#7dffb0','#b88bff','#ff9f5a'];
+const IDE=['ic:star','ic:sakura','ic:flame','ic:moon','ic:spark','ic:butterfly','ic:ribbon','ic:rainbow','ic:bolt','ic:berry','ic:cat','ic:fox'],IDC=['#ff7ab8','#6ad0ff','#ffd76a','#7dffb0','#b88bff','#ff9f5a'];
 const escI=s=>String(s||'').replace(/[<>&"'`]/g,'');
 function idRead(){const d=load(),i=d.id||{},a=document.getElementById('idn'),b=document.getElementById('idl');if(a)i.n=escI(a.value).slice(0,8);if(b)i.l=escI(b.value).slice(0,20);d.id=i;save(d)}
 function idSet(k,v){idRead();const d=load();d.id=d.id||{};d.id[k]=v;save(d);idMenu()}
@@ -2696,7 +2696,7 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
 applyPref();
 
 // ================= 標題登入畫面、版本、檢查更新 =================
-const GAME_VER='1.11';
+const GAME_VER='1.12';
 const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
 const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
 const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
@@ -2830,9 +2830,28 @@ const AVS={
  'av:mic':'<rect x="8.500" y="2.500" width="7" height="12" rx="3.500" fill="#ff7ab8" stroke="#fff" stroke-width="1.200"/><path d="M5.500 11.500a6.500 6.500 0 0013 0M12 18v3.500M8.500 21.500h7" fill="none" stroke="#fff" stroke-width="1.800" stroke-linecap="round"/>',
  'av:gem':'<path d="M6 3h12l4 6-10 12L2 9z" fill="#6ad0ff" stroke="#fff" stroke-width="1.200" stroke-linejoin="round"/><path d="M2 9h20M9 3l-2 6 5 12 5-12-2-6" fill="none" stroke="#fff" stroke-width="1" opacity=".8"/>',
  'av:vinyl':'<circle cx="12" cy="12" r="10" fill="#222" stroke="#b88bff" stroke-width="1.500"/><circle cx="12" cy="12" r="6" fill="none" stroke="#555" stroke-width="1"/><circle cx="12" cy="12" r="3.500" fill="#ff9f5a"/><circle cx="12" cy="12" r="1" fill="#222"/>'};
-function avH(e){if(!e)return '⭐';if(AVS[e])return `<svg viewBox="0 0 24 24" width="1.150em" height="1.150em" style="vertical-align:-.2em" aria-label="${AVN[e]}">${AVS[e]}</svg>`;return escI(e)}
+function AVH0(e){return escI(e)}
+function avHold(e){if(AVS[e])return `<svg viewBox="0 0 24 24" width="1.150em" height="1.150em" style="vertical-align:-.2em" aria-label="${AVN[e]}">${AVS[e]}</svg>`;return escI(e)}
 function avUnlock(){try{const d=load();if(d.id&&AVOLD[d.id.e])d.id.e=AVOLD[d.id.e];const n=(d.ach||[]).length,k=Math.min(AVX.length,Math.floor(n/3));d.av=AVX.slice(0,k);save(d);AVX.slice(0,k).forEach(a=>{if(!IDE.includes(a))IDE.push(a)})}catch(e){}}
 avUnlock();
+Object.assign(AVN,{'ic:star':'星星','ic:sakura':'櫻花','ic:flame':'火焰','ic:moon':'月亮','ic:spark':'閃耀','ic:butterfly':'蝴蝶','ic:ribbon':'蝴蝶結','ic:rainbow':'彩虹','ic:bolt':'閃電','ic:berry':'草莓','ic:cat':'貓咪','ic:fox':'狐狸'});
+Object.assign(AVOLD,{'⭐':'ic:star','🌸':'ic:sakura','🔥':'ic:flame','🌙':'ic:moon','💎':'ic:spark','🦋':'ic:butterfly','🎀':'ic:ribbon','🌈':'ic:rainbow','⚡':'ic:bolt','🍓':'ic:berry','🐱':'ic:cat','🦊':'ic:fox'});
+Object.assign(AVS,{
+ 'ic:star':'<polygon points="12,2 15,9 22,9.500 16.500,14.500 18.500,22 12,18 5.500,22 7.500,14.500 2,9.500 9,9" fill="#ffd76a" stroke="#e0a800" stroke-width="1" stroke-linejoin="round"/>',
+ 'ic:sakura':'<g fill="#ff9ec7" stroke="#ff6fa8" stroke-width=".8"><circle cx="12" cy="6" r="4"/><circle cx="18" cy="10.500" r="4"/><circle cx="15.700" cy="17.500" r="4"/><circle cx="8.300" cy="17.500" r="4"/><circle cx="6" cy="10.500" r="4"/></g><circle cx="12" cy="12.500" r="2.500" fill="#ffd76a"/>',
+ 'ic:flame':'<path d="M12 2c1 4.500 6.500 6.500 6.500 12.500a6.500 6.500 0 01-13 0c0-3.500 2.500-5 3.500-8 1.200 1 2 1.500 3-4.500z" fill="#ff7a3d"/><path d="M12 11c.8 2.500 3.500 3.500 3.500 6.500a3.500 3.500 0 01-7 0c0-2 1.500-2.500 2-4.500.700.700 1.200 1 1.500-2z" fill="#ffd76a"/>',
+ 'ic:moon':'<path d="M16.500 3A9.500 9.500 0 1016.500 21 7.500 7.500 0 0116.500 3z" fill="#fff3b0" stroke="#e0c860" stroke-width="1"/><circle cx="18.500" cy="6" r="1" fill="#fff"/><circle cx="20.500" cy="11" r=".7" fill="#fff"/>',
+ 'ic:spark':'<path d="M12 2l2.600 7.400L22 12l-7.400 2.600L12 22l-2.600-7.400L2 12l7.400-2.600z" fill="#6ad0ff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>',
+ 'ic:butterfly':'<path d="M12 12C8 3 2 5 3 11c.5 4 5 4 9 1zM12 12c4-9 10-7 9-1-.5 4-5 4-9 1z" fill="#b88bff" stroke="#8a5ce0" stroke-width="1"/><path d="M12 12c-5 1-8 5-5 8 2 1.500 4-1 5-8zM12 12c5 1 8 5 5 8-2 1.500-4-1-5-8z" fill="#ff9ec7" stroke="#e070a0" stroke-width="1"/><rect x="11.200" y="6" width="1.600" height="13" rx=".8" fill="#333"/>',
+ 'ic:ribbon':'<path d="M12 12L3 6v12zM12 12l9-6v12z" fill="#ff7ab8" stroke="#e0508f" stroke-width="1" stroke-linejoin="round"/><rect x="9.500" y="9.500" width="5" height="5" rx="1.500" fill="#ffb3d4" stroke="#e0508f" stroke-width="1"/>',
+ 'ic:rainbow':'<path d="M2 19a10 10 0 0120 0" fill="none" stroke="#ff6b6b" stroke-width="2.500"/><path d="M5 19a7 7 0 0114 0" fill="none" stroke="#ffd76a" stroke-width="2.500"/><path d="M8 19a4 4 0 018 0" fill="none" stroke="#6ad0ff" stroke-width="2.500"/>',
+ 'ic:bolt':'<path d="M13.500 2L4.500 13.500H10L9 22l10-12.500h-6z" fill="#ffd76a" stroke="#e0a800" stroke-width="1" stroke-linejoin="round"/>',
+ 'ic:berry':'<path d="M12 21C6 18 4 12 5.500 8.500 8 6 16 6 18.500 8.500 20 12 18 18 12 21z" fill="#ff4d6d" stroke="#d92b4b" stroke-width="1"/><path d="M12 7c-2-3-5-3-6-1 2 .5 4 1.500 6 1zM12 7c2-3 5-3 6-1-2 .5-4 1.500-6 1z" fill="#5ed87a"/><g fill="#ffe9a8"><circle cx="9" cy="12" r=".8"/><circle cx="14.500" cy="11.500" r=".8"/><circle cx="12" cy="15.500" r=".8"/><circle cx="9.500" cy="16" r=".7"/><circle cx="14.700" cy="15.500" r=".7"/></g>',
+ 'ic:cat':'<path d="M4 3l5 4h6l5-4v10a8 8 0 01-16 0z" fill="#ffb86b" stroke="#d98a3a" stroke-width="1" stroke-linejoin="round"/><circle cx="9" cy="12" r="1.200" fill="#333"/><circle cx="15" cy="12" r="1.200" fill="#333"/><path d="M10.500 15.500q1.500 1.500 3 0" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round"/>',
+ 'ic:fox':'<path d="M2 3l6 4h8l6-4-1 11-9 8-9-8z" fill="#ff8a3d" stroke="#d9601a" stroke-width="1" stroke-linejoin="round"/><path d="M5 12l7 10 7-10-7 2z" fill="#fff4e6"/><circle cx="9" cy="11" r="1.100" fill="#333"/><circle cx="15" cy="11" r="1.100" fill="#333"/><circle cx="12" cy="19" r="1" fill="#333"/>'});
+function avH(e){if(!e)e='ic:star';if(AVOLD[e])e=AVOLD[e];if(AVS[e])return `<svg viewBox="0 0 24 24" width="1.150em" height="1.150em" style="vertical-align:-.2em" aria-label="${AVN[e]}">${AVS[e]}</svg>`;return AVH0(e)}
+avUnlock();
+
 const _endHookF=endHook;
 endHook=function(m){const b=(load().ach||[]).length,db=Object.keys(load().dex||{}).length;_endHookF(m);
   try{recordDex(m);const a=(load().ach||[]).length,n=a-b;let h='';
