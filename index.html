@@ -2275,7 +2275,7 @@ function chalEnd(){const d=load();d.chal=d.chal||{};const id=G.x2.chal,c=CHAL.fi
 function x2Init2(){const x=X();
   if(G.mode==='p'&&!G.len)G.len=PLEN[FORCELEN||RUNLEN];
   if(G.mode==='s'&&!G.slen)G.slen=SLEN[FORCELEN||RUNLEN];
-  const id=(load().id)||{};if((G.mode==='s'||G.mode==='a')&&!CUST.on){if(id.n)G.m[0].n=id.n;if(id.e)G.m[0].e=id.e}
+  const id=(load().id)||{};if((G.mode==='s'||G.mode==='a')&&!CUST.on){if(id.n)G.m[0].n=id.n;if(id.e)G.m[0].e=avH(id.e)}
   if(G.mode==='a')return;
   if(CHALSET){x.chal=CHALSET;if(CHALSET==='broke'){G.money=0;G.fans=0;G.fame=Math.min(G.fame,3)}if(CHALSET==='heat')x.heat=40}
   else if(SCENID)applyScen();
@@ -2450,7 +2450,7 @@ function idMenu(){const i=load().id||{};
   const inp=(id,v,ml)=>`<input id="${id}" maxlength="${ml}" value="${escI(v)}" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:inherit;font-size:15px;box-sizing:border-box">`;
   app.innerHTML=`<button class="back" onclick="idSave()">← 儲存並返回</button><h2>🎭 角色塑造</h2><div class="card" style="font-size:13px;line-height:1.7">設定你的明星形象。做明星和選秀會用這個身分,結局成績卡也會顯示。(自訂角色開局時以自訂為準)</div>
   <div class="card"><div style="font-size:13px;margin-bottom:6px">藝名(最多 8 字)</div>${inp('idn',i.n,8)}<div style="font-size:13px;margin:12px 0 6px">招牌台詞(最多 20 字)</div>${inp('idl',i.l,20)}</div>
-  <div class="card"><div style="font-size:13px;margin-bottom:6px">頭像</div><div class="chips sm">`+IDE.map(e=>`<button class="chip ${i.e===e?'sel':''}" onclick="idSet('e','${e}')">${e}</button>`).join('')+`</div><div style="font-size:13px;margin:10px 0 6px">應援色</div><div class="chips sm">`+IDC.map(c=>`<button class="chip ${i.c===c?'sel':''}" style="background:${c};min-width:40px" onclick="idSet('c','${c}')">&nbsp;</button>`).join('')+`</div></div>`+B('💾 儲存','','idSave()','gold')}
+  <div class="card"><div style="font-size:13px;margin-bottom:6px">頭像</div><div class="chips sm">`+IDE.map(e=>`<button class="chip ${i.e===e?'sel':''}" onclick="idSet('e','${e}')">${avH(e)}</button>`).join('')+`</div><div style="font-size:13px;margin:10px 0 6px">應援色</div><div class="chips sm">`+IDC.map(c=>`<button class="chip ${i.c===c?'sel':''}" style="background:${c};min-width:40px" onclick="idSet('c','${c}')">&nbsp;</button>`).join('')+`</div></div>`+B('💾 儲存','','idSave()','gold')}
 
 // ---- 舞台揭曉 ----
 let CURT=null,CURT_CB=null;
@@ -2696,7 +2696,7 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
 applyPref();
 
 // ================= 標題登入畫面、版本、檢查更新 =================
-const GAME_VER='1.10';
+const GAME_VER='1.11';
 const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
 const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
 const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
@@ -2720,7 +2720,7 @@ function title(){
    <div style="font-size:64px;line-height:1.1;filter:drop-shadow(0 0 18px rgba(255,215,106,.7))">⭐</div>
    <h1 style="margin:6px 0 4px;font-size:34px;letter-spacing:2px">明星遊戲</h1>
    <div class="sub" style="margin-bottom:22px">製作人 × 做明星 × 選秀</div>
-   ${id.n?`<div class="card center" style="font-size:14px">${escI(id.e||'⭐')} 歡迎回來,<b>${escI(id.n)}</b></div>`:''}
+   ${id.n?`<div class="card center" style="font-size:14px">${avH(id.e)} 歡迎回來,<b>${escI(id.n)}</b></div>`:''}
    ${run?B('▶️ 繼續遊戲',run,'resumeGame()','gold'):''}
    ${B(run?'🏠 進入主畫面':'🎮 開始遊戲','','home()',run?'alt':'gold')}
    ${B('🛠️ 進階設定','','setMenu()','alt')}
@@ -2820,16 +2820,26 @@ x2Tick=function(mode){const r=_x2tF(mode),s=seasonNow();
 // 事件含函式處理:季節事件為純資料,可安全複製
 
 // ---- 1. 成就獎勵與限定頭像 ----
-const AVX=['👑','🦄','🌟','🎖️','🐉','🪩'];
-function avUnlock(){try{const d=load(),n=(d.ach||[]).length,k=Math.min(AVX.length,Math.floor(n/3));d.av=AVX.slice(0,k);save(d);AVX.slice(0,k).forEach(a=>{if(!IDE.includes(a))IDE.push(a)})}catch(e){}}
+const AVX=['av:crown','av:comet','av:laurel','av:mic','av:gem','av:vinyl'];
+const AVN={'av:crown':'皇冠','av:comet':'彗星','av:laurel':'桂冠','av:mic':'麥克風','av:gem':'寶石','av:vinyl':'黑膠'};
+const AVOLD={'👑':'av:crown','🦄':'av:comet','🌟':'av:laurel','🎖️':'av:mic','🐉':'av:gem','🪩':'av:vinyl'};
+const AVS={
+ 'av:crown':'<path d="M3 19h18v2H3z" fill="#b8860b"/><path d="M3 18L2 7l5.5 4.5L12 4l4.5 7.5L22 7l-1 11z" fill="#ffd76a" stroke="#b8860b" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="13" r="1.6" fill="#ff7ab8"/>',
+ 'av:comet':'<path d="M3 21C8 18 12 14 15 10" stroke="#6ad0ff" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M5 17C9 15 12 12 14 9" stroke="#b88bff" stroke-width="2" stroke-linecap="round" opacity=".7"/><circle cx="16.5" cy="7.5" r="4.5" fill="#fff6c8" stroke="#ffd76a" stroke-width="1.5"/>',
+ 'av:laurel':'<path d="M12 21c-5 0-8-4-8-9 0-1 .2-2 .5-3 2 1 3.500 2.500 4 5 .3-3 1.500-5.500 3.500-7" fill="none" stroke="#7dffb0" stroke-width="2" stroke-linecap="round"/><path d="M12 21c5 0 8-4 8-9 0-1-.2-2-.5-3-2 1-3.500 2.500-4 5-.3-3-1.500-5.500-3.500-7" fill="none" stroke="#7dffb0" stroke-width="2" stroke-linecap="round"/><path d="M12 8l1.200 2.600 2.800.4-2 2 .5 2.800L12 14.400 9.500 15.800l.5-2.800-2-2 2.800-.4z" fill="#ffd76a"/>',
+ 'av:mic':'<rect x="8.500" y="2.500" width="7" height="12" rx="3.500" fill="#ff7ab8" stroke="#fff" stroke-width="1.200"/><path d="M5.500 11.500a6.500 6.500 0 0013 0M12 18v3.500M8.500 21.500h7" fill="none" stroke="#fff" stroke-width="1.800" stroke-linecap="round"/>',
+ 'av:gem':'<path d="M6 3h12l4 6-10 12L2 9z" fill="#6ad0ff" stroke="#fff" stroke-width="1.200" stroke-linejoin="round"/><path d="M2 9h20M9 3l-2 6 5 12 5-12-2-6" fill="none" stroke="#fff" stroke-width="1" opacity=".8"/>',
+ 'av:vinyl':'<circle cx="12" cy="12" r="10" fill="#222" stroke="#b88bff" stroke-width="1.500"/><circle cx="12" cy="12" r="6" fill="none" stroke="#555" stroke-width="1"/><circle cx="12" cy="12" r="3.500" fill="#ff9f5a"/><circle cx="12" cy="12" r="1" fill="#222"/>'};
+function avH(e){if(!e)return '⭐';if(AVS[e])return `<svg viewBox="0 0 24 24" width="1.150em" height="1.150em" style="vertical-align:-.2em" aria-label="${AVN[e]}">${AVS[e]}</svg>`;return escI(e)}
+function avUnlock(){try{const d=load();if(d.id&&AVOLD[d.id.e])d.id.e=AVOLD[d.id.e];const n=(d.ach||[]).length,k=Math.min(AVX.length,Math.floor(n/3));d.av=AVX.slice(0,k);save(d);AVX.slice(0,k).forEach(a=>{if(!IDE.includes(a))IDE.push(a)})}catch(e){}}
 avUnlock();
 const _endHookF=endHook;
 endHook=function(m){const b=(load().ach||[]).length,db=Object.keys(load().dex||{}).length;_endHookF(m);
   try{recordDex(m);const a=(load().ach||[]).length,n=a-b;let h='';
    if(n>0){addCoin(10*n);const o=AVX.length,pre=Math.min(o,Math.floor(b/3)),post=Math.min(o,Math.floor(a/3));avUnlock();
-     h+=`<div class="card center" style="font-size:13px;line-height:1.7">🏅 新成就 ${n} 個,獲得 <b>${10*n}</b> 星幣${post>pre?`<br>🎁 解鎖限定頭像 ${AVX.slice(pre,post).join(' ')}`:''}</div>`}
+     h+=`<div class="card center" style="font-size:13px;line-height:1.7">🏅 新成就 ${n} 個,獲得 <b>${10*n}</b> 星幣${post>pre?`<br>🎁 解鎖限定頭像 ${AVX.slice(pre,post).map(a=>avH(a)+AVN[a]).join('、')}`:''}</div>`}
    h+=dexReward();if(h)app.innerHTML+=h}catch(e){}};
-const _achMenuF=achMenu;achMenu=function(){_achMenuF();app.innerHTML+=`<div class="card" style="font-size:12.5px;line-height:1.7">🎁 每個成就 +10 星幣;每解鎖 3 個成就,解鎖一個限定頭像(角色塑造可選)。目前已解鎖 ${(load().av||[]).length}/${AVX.length} 個。</div>`};
+const _achMenuF=achMenu;achMenu=function(){_achMenuF();app.innerHTML+=`<div class="card" style="font-size:12.5px;line-height:1.7">🎁 每個成就 +10 星幣;每解鎖 3 個成就,解鎖一個限定頭像(皇冠、彗星、桂冠、麥克風、寶石、黑膠;角色塑造可選)。目前已解鎖 ${(load().av||[]).length}/${AVX.length} 個。</div>`};
 
 // ---- 4. 藝人養成圖鑑 ----
 function recordDex(m){if(m!=='p'||!G||!G.m)return;const d=load();d.dex=d.dex||{};let ch=0;
