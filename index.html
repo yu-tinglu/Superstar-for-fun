@@ -2696,10 +2696,11 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
 applyPref();
 
 // ================= 標題登入畫面、版本、檢查更新 =================
-const GAME_VER='1.20';
+const GAME_VER='1.21';
 const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
 const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
 const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
+const DL_URL='https://github.com/yu-tinglu/Superstar-for-fun/blob/main/index.html';
 const PAGE_URL='https://claude.ai/artifact/HMKpg2FeoMEbKC2oRzoFwo';
 const verNum=v=>String(v).split('.').map(n=>parseInt(n,10)||0);
 function verCmp(a,b){const x=verNum(a),y=verNum(b);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0}
@@ -2711,7 +2712,7 @@ async function checkUpdate(silent){
     if(!r.ok)throw new Error('http '+r.status);const j=await r.json();
     if(!j||!j.version)throw new Error('bad');
     if(verCmp(j.version,GAME_VER)>0){const d=load();d.newv=j.version;save(d);
-      updMsg(`🆕 有新版本 <b>${escI(j.version)}</b>${j.notes?`<br><span style="opacity:.85">${escI(j.notes)}</span>`:''}<br><a href="${PAGE_URL}" target="_blank" style="color:#ffd76a">前往更新頁面</a>(重新整理即可取得最新版)`)}
+      updMsg(`🆕 有新版本 <b>${escI(j.version)}</b>${j.notes?`<br><span style="opacity:.85">${escI(j.notes)}</span>`:''}<br>${/^file:/.test(location.protocol)?`<a href="${DL_URL}" target="_blank" style="color:#ffd76a">前往下載最新版</a>(開啟後按「Download raw file」存檔,取代桌面的舊檔)`:`<a href="${PAGE_URL}" target="_blank" style="color:#ffd76a">前往更新頁面</a>(重新整理即可取得最新版)`}`)}
     else updMsg('✅ 已是最新版本');
   }catch(e){updMsg(silent?'':'⚠️ 暫時無法檢查更新(可能離線,或來源未開放)')}}
 function title(){
