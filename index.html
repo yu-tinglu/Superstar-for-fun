@@ -323,7 +323,7 @@ function fmtSelect(){
   app.innerHTML=`<button class="back" onclick="mkSelect('p')">← 換市場</button><h2>${M.e} ${M.n}:出道形式</h2><div class="card">人數越多,陣容越強,但成員的體力、壓力、<b>默契</b>與彼此關係也越難照顧。最多可組 12 人大團。</div>`+
   [1,2,3,4,5,6,7,8,9,10,11,12].filter(n=>!(GM==='only'&&GEN!=='x'&&n>ALLR.filter(c=>c.g===GEN).length)).map(n=>B(N[n],n===1?'專注培育一位新人,最簡單':`${n} 位成員共同出道;訓練可選全員或個別特訓`,`fmtPick(${n})`,'alt')).join('');
 }
-const MKNAT=k=>k==='hw'?'us':k;
+const MKNAT=k=>({hw:'us',eu:'uk',sea:'th',me:'in'})[k]||k;
 let RNAT='tw';
 function fmtPick(n){FMT=n;SEL=[];RNAT=MKNAT(MKID);RF=(GM!=='any'&&GEN!=='x')?GEN:'all';rosterSelect()}
 function rosterSelect(){
@@ -1051,6 +1051,9 @@ const GG=[
     if(mk==='us')e={fame:(3.5+p/14)*M.fg,rep:3+p/20,money:(250+p*3)*x.mm,fans:(p/4+R(8,25))*x.fm};
     if(mk==='hw'){e={rep:3+p/16,fame:(3.5+p/13)*M.fg,money:(300+p*4)*x.mm,network:2,fans:(p/4+R(8,25))*x.fm,all:{act:2}};s=7}
     if(mk==='in'){e={fame:(3.8+p/12)*M.fg,fans:(p/2.4+R(12,35))*x.fm,money:(180+p*3)*x.mm,rep:1.5,buzz:R(6,12),all:{dance:2,act:1}};s=6}
+    if(mk==='eu'){e={rep:2.5+p/18,money:(260+p*3)*x.mm,fame:2.5+p/22,fans:(p/4+R(8,22))*x.fm,all:{stage:2}};s=7}
+    if(mk==='sea'){e={fans:(p/2.2+R(14,38))*x.fm,fame:3+p/20,money:(150+p*3)*x.mm,buzz:R(6,14),all:{comedy:2,charm:1}};s=6}
+    if(mk==='me'){e={money:(380+p*5)*x.mm,fame:2.5+p/20,network:2,fans:(p/4+R(8,22))*x.fm,rep:1.5,all:{stage:2}};s=6}
     return {e,s,m,msg:`${M.sp.e} ${M.sp.n}完成!`}}},
  {id:'fan',cat:'演出',n:'🎉 見面會',c:30,cost:300,wk:3,k:['charm','vocal','variety','social'],d:'大量粉絲,成本 300(第3週起)',dr:{extro:.5,agree:.3},
   f:(p,x)=>({e:{fans:(p/2+R(15,50))*x.fm*(x.mk==='jp'?1.3:1),fame:3+p/25,rep:.5},s:3,m:5,msg:'🎉 見面會人潮滿滿!'})},
@@ -2693,7 +2696,7 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
 applyPref();
 
 // ================= 標題登入畫面、版本、檢查更新 =================
-const GAME_VER='1.00';
+const GAME_VER='1.10';
 const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
 const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
 const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
@@ -2727,6 +2730,165 @@ function title(){
    <div style="font-size:11.5px;opacity:.65;line-height:1.8;margin-top:14px">${GAME_COPY}<br>${GAME_NOTE}</div></div>`;
   try{if(typeof process==='undefined'&&navigator.onLine)checkUpdate(true)}catch(e){}}
 const _setMenuE=setMenu;setMenu=function(){_setMenuE();app.innerHTML+=B('🏷️ 標題畫面','版本、版權與檢查更新','title()','alt')};
+
+
+// ================= 擴充包 F:新市場 =================
+(function(){
+const NM={
+eu:{n:'歐洲',e:'🏰',d:'多國多語的舞台與音樂節之地。重視作品、現場與戲劇傳統,巡迴要跨國跨語,收入穩、人氣成長慢。',sm:1,em:1,st:.95,fm:.9,mm:1.3,fg:.74,
+  sp:{n:'音樂節與劇院演出',e:'🎻',k:['vocal','stage','lang','act'],d:'靠現場與語言累積口碑與收入'},aud:'歐洲新聲大賽',fin:'歐洲巡演首場',aw:'年度新銳藝術家獎',end:'你的名字出現在跨國音樂節與劇院的海報上,也寫進評論家的年度名單。'},
+sea:{n:'東南亞',e:'🌴',d:'年輕人口多、社群與直播極為活躍。喜劇、偶像與電視劇受歡迎,粉絲成長快,但各國語言與審查規範不同。',sm:1,em:1.05,st:1.1,fm:1.3,mm:.85,fg:1,
+  sp:{n:'跨國直播與劇集',e:'📱',k:['comedy','charm','variety','dance'],d:'靠親和力與社群快速累積粉絲'},aud:'東南亞新星大賽',fin:'曼谷、雅加達、馬尼拉聯合演唱會',aw:'亞洲新世代人氣獎',end:'你的名字在不同語言的社群裡被一起喊著,成為整個區域的共同話題。'},
+me:{n:'中東',e:'🏙️',d:'新興的娛樂與賽事之都。大型活動與品牌預算驚人,收入頂尖,但文化規範與合約細節需要格外留意。',sm:1,em:1.05,st:1.1,fm:.95,mm:1.5,fg:.74,
+  sp:{n:'盛典與品牌活動',e:'✨',k:['stage','charm','lang','model'],d:'靠大型舞台與品牌合作賺取高收入'},aud:'沙漠星光才藝大賽',fin:'摩天大樓下的開幕盛典',aw:'年度國際新星獎',end:'你的演出在沙漠與摩天大樓之間傳開,成為整個地區矚目的新星。'}};
+Object.assign(MK,NM);['eu','sea','me'].forEach(k=>{if(!MKORDER.includes(k))MKORDER.push(k);if(!MKCOL.includes(k))MKCOL.push(k);WEST.add(k);SURGM[k]=1});
+UNLM.eu=3;UNLM.sea=4;UNLM.me=5;
+PLACES.eu=['歐洲音樂節舞台','古老的劇院','廣播電台','跨國電視台'];
+PLACES.sea=['夜市直播間','電視台攝影棚','購物中心舞台','海灘音樂祭'];
+PLACES.me=['摩天大樓頂樓舞台','沙漠音樂祭','國際賽事開幕場','品牌發表會'];
+PREF.eu='vocal';PREFN.eu='嗓音與現場感';PREF.sea='charm';PREFN.sea='親和力與魅力';PREF.me='stage';PREFN.me='舞台魅力';
+GN.eu={m:['Lukas','Mathis','Emil','Matteo','Jonas','Luca','Felix','Hugo','Nico','Anton'],f:['Clara','Elena','Mila','Sofia','Nora','Lea','Greta','Ines','Alma','Freja']};
+RIV.eu=[[],['Weber','Moreau','Rossi','Novak','Jansen','Lindqvist','Ferrer','Keller','Dubois','Costa','Larsen','Bauer']];
+GN.sea={m:['Arif','Dani','Minh','Rizal','Somchai','Jun','Bayu','Khai','Aiman','Joaquin'],f:['Lan','Siti','Maya','Dara','Anh','Nadia','Aira','Putri','Linh','Bea']};
+RIV.sea=[[],['Tan','Nguyen','Santos','Wijaya','Lim','Reyes','Saelim','Abdullah','Pham','Dela Cruz','Ong','Rahman']];
+GN.me={m:['Omar','Zayed','Karim','Rashid','Idris','Faisal','Sami','Tariq','Nabil','Yusuf'],f:['Layla','Noor','Amira','Salma','Rania','Dalia','Huda','Mariam','Yasmin','Farah']};
+RIV.me=[[],['Haddad','Mansour','Nasser','Khalil','Farouk','Saleh','Darwish','Mahmoud','Suleiman','Rahim','Aziz','Qasim']];
+const FIT={eu:{tw:.4,hk:.45,jp:.5,kr:.45,cn:.4,us:.85,uk:.95,in:.5,th:.4},sea:{tw:.7,hk:.65,jp:.5,kr:.6,cn:.7,us:.45,uk:.4,in:.6,th:1},me:{tw:.35,hk:.4,jp:.35,kr:.4,cn:.4,us:.7,uk:.7,in:.85,th:.45}};
+NATORDER.forEach(n=>{['eu','sea','me'].forEach(m=>{FITN[n][m]=FIT[m][n]})});
+MKR.eu=[{t:'🎻 %n 受邀在小型劇院的午後音樂會演出,評論家寫了短評。',e:{rep:2,fame:1,one:{vocal:3,stage:2}}},{t:'🚆 巡演要搭夜車跨國,%n 在車上練習外語歌詞。',e:{all:{energy:-6,lang:3}}},{t:'🎪 一個音樂節臨時缺人,經紀人請 %n 補上。',e:{money:200,fans:40,all:{energy:-10,stage:2}}}];
+MKR.sea=[{t:'📱 %n 的直播片段在三個國家同時衝上熱門。',e:{fans:90,buzz:12,fame:2}},{t:'🍜 %n 在夜市直播吃小吃,意外成為話題。',e:{fans:60,image:2,all:{mood:4}}},{t:'🌧️ 海灘音樂祭遇上大雨,%n 堅持唱完全場。',e:{rep:2,fans:70,all:{energy:-12,stress:3}}}];
+MKR.me=[{t:'🏗️ %n 受邀為新地標的開幕典禮演出,酬勞豐厚。',e:{money:400,fame:2,network:2}},{t:'📑 活動合約細節很多,經紀人逐條確認規範。',e:{rep:1,money:-80,all:{stress:-1}}},{t:'🐪 %n 在沙漠音樂祭的日落場表演,畫面被大量轉發。',e:{fans:80,buzz:10,image:2}}];
+MKC.eu={t:'🎻 音樂節旺季',d:'夏季音樂節輪番登場,各國舞台都在找新面孔。',c:[['全力跑音樂節',{fans:100,fame:3,money:200,all:{energy:-22,stress:6,vocal:2}},'你在幾個舞台都獲得好評。'],['只選精華場次',{fans:50,rep:2,all:{energy:-10}},'你把精力留給最適合的舞台。']]};
+MKC.sea={t:'📱 直播購物節',d:'一年一度的購物節,品牌與平台都在搶藝人。',c:[['全力直播衝量',{fans:140,money:260,fame:3,all:{energy:-20,stress:6}},'你的場次創下平台紀錄。'],['只接品牌合作',{money:160,image:2,all:{energy:-8}},'你選擇穩定的合作。']]};
+MKC.me={t:'🏙️ 大型盛典季',d:'盛典與賽事密集舉辦,品牌預算充足,舞台一個接一個。',c:[['全力接盛典',{money:420,fame:3,network:3,all:{energy:-20,stress:6}},'酬勞豐厚,舞台也夠大。'],['挑選規模適中的活動',{money:220,rep:2,all:{energy:-8}},'你把體力留給最重要的場次。']]};
+MEV.eu=[
+ {t:'跨國巡演的第一站',d:'巡演要連續在三個國家演出,語言與時差都是挑戰。',c:[['認真學當地語言問候語',{fans:60,rep:2,all:{lang:6,energy:-12}},'你用當地語言打招呼,全場報以掌聲。'],['專心打磨演出',{fame:3,all:{stage:5,vocal:3,energy:-14}},'你的演出細膩穩定。'],['靠翻譯和巡演經理',{money:-100,all:{energy:-6,stress:3}},'行程順利,但少了與觀眾的連結。']]},
+ {t:'評論家的深度專訪',d:'一位資深評論家想為你寫長篇側寫,問題很深入。',c:[['坦率分享創作與掙扎',{rep:5,image:2,all:{mood:3}},'文章寫得真誠,讀者很有共鳴。'],['保持神秘感',{buzz:10,image:1},'你留下了想像空間。'],['請經紀人把關問題',{rep:2,network:2},'訪談順利,但略顯保守。']]},
+ {t:'劇院與流行舞台',d:'你同時收到古典劇院與大型流行音樂節的邀約。',c:[['選劇院,追求藝術口碑',{rep:5,fame:2,all:{act:3,stage:4,energy:-10}},'劇院的掌聲很安靜,也很珍貴。'],['選音樂節,擴大觀眾',{fans:180,fame:4,money:250,all:{energy:-16}},'十萬人一起合唱。'],['兩邊都接,壓縮休息',{fans:100,rep:3,all:{energy:-26,stress:10}},'你兩邊都完成了,但很累。']]},
+ {t:'多國合作專輯',d:'製作人想邀你參與以多種語言錄製的合作專輯。',c:[['學會每首歌的語言',{rep:4,fans:120,all:{lang:8,vocal:3,energy:-16,stress:6}},'每種語言的聽眾都感受到誠意。'],['挑兩種語言演唱',{rep:3,fans:80,all:{lang:4,energy:-10}},'你量力而為,成果不錯。'],['只唱母語,其餘請合作者',{fans:50,network:4},'分工清楚,專輯順利。']]},
+ {t:'年度新銳提名',d:'你被提名年度新銳藝術家獎,典禮上要現場演出。',c:[['演出原創作品',{rep:6,fame:4,all:{compose:3,stage:3,energy:-14,stress:6}},'原創曲目讓評審印象深刻。'],['選擇經典曲目的新詮釋',{rep:4,fame:3,all:{vocal:4,energy:-10}},'你的詮釋獲得好評。'],['邀請合作樂手同台',{network:6,rep:3,fans:80},'你把舞台分給夥伴,氣氛很好。']]}];
+MEV.sea=[
+ {t:'一夜爆紅的短影片',d:'你的一段短影片在三個國家同時爆紅,各國品牌都來詢價。',c:[['趁熱度密集接案',{money:300,fans:200,fame:3,all:{energy:-20,stress:8}},'收入與粉絲雙雙成長。'],['精選品牌合作',{money:180,image:3,fans:100},'你維持了形象。'],['趁勢推出原創內容',{fans:150,rep:3,all:{writing:3,energy:-14}},'原創內容的互動率特別高。']]},
+ {t:'多語言直播',d:'你的直播觀眾來自泰語、印尼語、越南語與英語圈。',c:[['學幾句各國問候語',{fans:140,image:2,all:{lang:6,energy:-10}},'觀眾覺得你很用心。'],['請即時字幕輔助',{money:-80,fans:90},'溝通順暢,效率不錯。'],['只用英語並專注內容',{fans:60,all:{energy:-6}},'你保持自己的節奏。']]},
+ {t:'喜劇節目客串',d:'一個收視很高的喜劇節目邀你客串,要即興演出。',c:[['放開來即興搞笑',{fans:160,buzz:12,all:{comedy:6,improv:4,energy:-14}},'你的即興成為全網梗圖。'],['照劇本穩穩演',{fans:70,rep:2,all:{comedy:3,energy:-8}},'表現穩定,導演很放心。'],['提議加入自己的段子',{fans:100,rep:3,all:{writing:3,comedy:4,energy:-12}},'你的段子被留在正式播出版本。']]},
+ {t:'跨國連線演唱會',d:'平台要辦一場跨三國連線的演唱會,技術與時差都是挑戰。',c:[['彩排到最後一刻',{fame:4,fans:140,all:{stage:4,energy:-22,stress:8}},'連線全程順利,線上同時破百萬人次。'],['簡化流程確保穩定',{fame:3,fans:90,rep:2,all:{energy:-12}},'你選擇穩定,演出很流暢。'],['邀請各國藝人連線合唱',{network:7,fans:120,rep:3,all:{energy:-16}},'各國粉絲因為合唱而互相認識。']]},
+ {t:'年度人氣獎',d:'你在區域的人氣票選中進入決選,粉絲們自發組織應援。',c:[['感謝粉絲的直播答謝',{fans:200,image:3,rep:2,all:{mood:6,energy:-12}},'答謝直播創下新紀錄。'],['發表一首為粉絲寫的歌',{fans:160,rep:4,all:{compose:4,writing:3,energy:-14}},'這首歌成為應援代表曲。'],['低調準備頒獎典禮',{rep:3,all:{mood:4}},'你把心力放在表現上。']]}];
+MEV.me=[
+ {t:'摩天大樓下的開幕盛典',d:'新地標的開幕盛典邀你壓軸演出,現場有數萬名觀眾與全球直播。',c:[['全力準備大型舞台秀',{fame:5,money:500,fans:150,all:{stage:5,energy:-22,stress:8}},'燈光、煙火與你的歌聲同時爆發。'],['精簡演出,控制品質',{fame:3,money:300,rep:2,all:{stage:3,energy:-12}},'你用穩定的演出贏得好評。'],['邀請當地藝人同台',{network:6,rep:3,fans:100,all:{lang:3,energy:-14}},'跨文化的合作讓氣氛特別熱烈。']]},
+ {t:'活動規範與合約',d:'活動方提供詳細的演出規範與合約,內容有不少需要注意的細節。',c:[['請律師逐條確認',{money:-250,rep:3,all:{stress:-2}},'你搞清楚所有條款,合作很順利。'],['請當地經紀人說明',{network:3,money:-100},'經紀人幫你處理好細節。'],['依照範本簽署',{money:100,all:{stress:4}},'流程快,但有些條款事後才發現。']]},
+ {t:'品牌代言邀約',d:'一家大型品牌想找你擔任區域代言人,酬勞可觀但要配合長期行程。',c:[['簽長期代言',{money:600,image:3,fans:80,all:{energy:-14,stress:6}},'穩定的收入與曝光。'],['先簽一年,保留彈性',{money:350,image:2},'你保留了選擇空間。'],['婉拒,專注作品',{rep:4,all:{mood:4}},'你把重心放在作品上。']]},
+ {t:'跨文化的舞台',d:'觀眾來自世界各地,節目希望你的演出能兼顧多元文化。',c:[['學習當地音樂元素融入演出',{rep:4,fans:140,all:{lang:4,stage:4,energy:-16}},'融合的編曲讓觀眾眼睛一亮。'],['以國際通用的曲目演出',{fans:100,fame:3,all:{energy:-10}},'表演大方穩定。'],['邀請當地樂手伴奏',{network:5,rep:3,fans:90,all:{energy:-12}},'現場氣氛因為合作而很溫暖。']]},
+ {t:'國際賽事開幕',d:'一項國際賽事邀你演唱開幕曲,全球轉播。',c:[['創作專屬的開幕曲',{fame:6,rep:4,fans:200,all:{compose:4,writing:3,energy:-20,stress:8}},'開幕曲被各國頻道反覆播放。'],['演唱既有的經典曲目',{fame:4,fans:140,all:{vocal:3,energy:-12}},'經典曲目全場大合唱。'],['與各國藝人合唱',{network:8,fans:160,rep:3,all:{energy:-16}},'多國藝人同台,畫面感動全場。']]}];
+CUL.eu=[{t:'🗣️ 多語言的巡演現場',d:'後台同時有五種語言,指示很快,你需要靠語言與反應跟上。',c:[['請翻譯並主動請教','social',{network:2,one:{lang:3}},{one:{mood:-3}},'大家耐心幫你。','溝通有些落差。'],['自己邊聽邊學','lang',{rep:1,one:{lang:5}},{one:{stress:4}},'你很快跟上節奏。','你錯過了幾個細節。']]},{t:'🍷 用餐與社交禮儀',d:'晚餐社交是談合作的重要場合,禮儀與話題都有講究。',c:[['先觀察再參與','social',{network:3},{one:{mood:-2}},'你自然融入了。','氣氛有點僵。'],['主動聊自己的作品','confid',{rep:1,network:2},{one:{stress:3}},'大家對你的作品很有興趣。','話題沒有接上。']]}];
+CUL.sea=[{t:'🌶️ 各國飲食與作息',d:'行程跨國,飲食與作息大不相同,你需要適應。',c:[['入境隨俗','open',{one:{mood:3,energy:2}},{one:{energy:-6}},'你很快適應了。','腸胃有些不適。'],['自備熟悉的食物','consc',{one:{energy:3}},{one:{mood:-2}},'你保持了好狀態。','食物吃完後有點想家。']]},{t:'📲 社群規範與平台差異',d:'每個國家的熱門平台、禁忌話題與審查都不同。',c:[['研究各國平台規則','pr',{fans:80,image:2},{fans:10,image:-2},'你的內容順利分發。','有幾則內容被下架。'],['請當地團隊處理','agree',{fans:50,money:-100},{money:-100},'團隊處理得很專業。','溝通出了一點誤會。']]}];
+CUL.me=[{t:'🕌 文化與服裝規範',d:'演出與公開場合有明確的服裝與行為規範,需要事先了解。',c:[['請當地顧問先說明','pr',{image:2,rep:1},{image:-1},'你的造型得體受歡迎。','有一套服裝需要臨時更換。'],['自行查閱規範','consc',{image:1},{image:-2,one:{stress:3}},'你準備得很周全。','細節漏掉了一些。']]},{t:'🌡️ 高溫與日夜顛倒',d:'白天酷熱、活動多在深夜舉行,作息被完全打亂。',c:[['調整作息並補水','consc',{one:{energy:3}},{one:{energy:-8,stress:4}},'你保持了好狀態。','還是累壞了。'],['白天補眠,晚上全力演出','resil',{fans:40,one:{energy:-4}},{one:{energy:-10,mood:-3}},'演出狀態很好。','體力透支了。']]}];
+})();
+
+// ================= 擴充包 F2:劇情、季節、成就獎勵、排行、圖鑑、PWA =================
+STORY.eu=[['街頭藝人的午後','你在廣場演唱時,一位劇院總監停下腳步。',['演唱原創曲','bold','總監說想看你完整的作品。'],['演唱經典老歌','safe','你的穩定引來一小群觀眾。']],
+ ['語言課與試音','%a替你安排了語言課,下個月有跨國試音。',['每天練習','work','你的發音進步明顯。'],['靠自然環境學習','heart','你和當地朋友一起學,也交到了朋友。']],
+ ['音樂節替補','一位主角臨時缺席,你被請上音樂節的舞台。',['接受挑戰','bold','你完成了一場讓人難忘的演出。'],['請前輩建議','net','前輩給了你關鍵建議。']],
+ ['評論家的長文','一篇長篇評論把你的作品拿來細細拆解。',['坦然接受批評','heart','你在批評裡找到了新方向。'],['公開回應','bold','你的回應引發了正面討論。']],
+ ['多國合作','幾位不同國家的藝人邀你一起錄製專輯。',['主動負責協調','work','專輯在你的協調下順利完成。'],['專心貢獻自己的部分','safe','你的段落成為專輯亮點。']],
+ ['古老劇院的演唱會','你要在百年劇院舉辦一場演唱會。',['無電力的原聲演出','heart','全場安靜聆聽,結束後掌聲不斷。'],['加入現代舞台設計','bold','古典與現代的對比成為話題。'],['穩健演出經典選曲','safe','你完成了一場零失誤的演出。']]];
+STORY.sea=[['夜市直播','你在夜市隨手直播,一晚吸引了兩萬人。',['持續每日直播','work','你的觀眾每天都在增加。'],['開始接小品牌','safe','小品牌帶來第一筆穩定收入。']],
+ ['跨國合作邀約','%a說三個國家的平台都想找你。',['同時接洽所有平台','bold','你同時開了三個頻道。'],['先選一個市場深耕','safe','你穩穩累積了第一批核心粉絲。']],
+ ['語言挑戰','你的觀眾來自多種語言,留言越來越多。',['學習各國問候語','heart','觀眾驚喜地發現你用心學了他們的話。'],['請翻譯志工協助','net','志工團隊幫你處理留言。']],
+ ['喜劇節目試鏡','一個喜劇節目邀你試鏡。',['放開即興','bold','你的即興讓導演大笑。'],['按劇本演出','safe','你穩穩演出,評價不錯。']],
+ ['大雨中的音樂祭','海灘音樂祭遇上大雨,現場觀眾也沒有離開。',['堅持唱完','heart','全場的手機燈光在雨中亮起。'],['縮短演出保護設備','safe','你的決定被稱讚為專業。']],
+ ['區域聯合演唱會','你要在曼谷、雅加達與馬尼拉舉行聯合演唱會。',['與三地粉絲共唱','heart','你用三種語言對粉絲說謝謝。'],['全程特效舞台','bold','特效讓畫面登上各國新聞。'],['穩健完成行程','safe','你完成了三場零失誤的演出。']]];
+STORY.me=[['沙漠音樂祭','你在沙漠音樂祭的日落場表演,影片被大量轉發。',['持續創作','work','你的新歌在音樂祭後獲得許多關注。'],['接下幾個活動','safe','你累積了第一批穩定的演出機會。']],
+ ['合約的細節','%a幫你確認一份大型活動合約。',['找律師逐條審閱','safe','你確保了所有條款清楚。'],['爭取更好條件','net','你談到了更好的酬勞。']],
+ ['品牌代言','一家大品牌想找你當代言人。',['簽長期合約','bold','你的曝光大幅增加。'],['先短期合作','safe','你保留了彈性。']],
+ ['文化交流','主辦單位希望你的演出融入在地音樂元素。',['與在地樂手合作','heart','融合的編曲獲得好評。'],['以現有風格演出','safe','你的風格讓大家感受到真誠。']],
+ ['新地標開幕','你被邀請在新地標的開幕典禮演出。',['全力準備','work','你的演出被評為開幕亮點。'],['邀請夥伴同台','net','夥伴們讓舞台更有層次。']],
+ ['國際賽事開幕','全球轉播的賽事邀你演唱開幕曲。',['創作專屬主題曲','bold','主題曲被各國頻道反覆播放。'],['與各國藝人合唱','heart','多國藝人同台,畫面感動全場。'],['演唱經典曲目','safe','經典曲目全場大合唱。']]];
+
+// ---- 5. 季節活動 ----
+const SEAS=[
+ {id:'Z0',n:'跨年星光晚會',e:'🎆',a:[12,20],b:[1,5],ev:{t:'🎆 跨年星光晚會',d:'電視台邀你參加跨年晚會,倒數時全國都在看。',c:[['壓軸演出,全力以赴',{fame:5,fans:180,buzz:12,all:{energy:-22,stress:6}},'倒數那一刻,你的歌聲響遍全場。'],['與粉絲一起倒數',{fans:140,image:3,all:{mood:8,energy:-10}},'粉絲在螢光棒海中跟你一起倒數。'],['婉拒,和家人跨年',{all:{mood:10,stress:-8}},'你陪家人度過了安靜的跨年。']]}},
+ {id:'Z1',n:'新春特別節目',e:'🧧',a:[1,20],b:[2,20],ev:{t:'🧧 新春特別節目',d:'新春檔期的特別節目邀你拜年,收視預期很高。',c:[['接下拜年單元',{fans:120,rep:2,money:200,all:{energy:-14}},'你的新春造型登上許多版面。'],['錄製新春賀歲歌',{fans:150,fame:3,all:{vocal:2,energy:-16}},'賀歲歌成了開春的洗腦神曲。'],['休息陪家人',{all:{mood:10,stress:-8}},'你好好休息,新的一年更有精神。']]}},
+ {id:'Z2',n:'夏日音樂祭',e:'🏖️',a:[6,15],b:[8,31],ev:{t:'🏖️ 夏日音樂祭',d:'大型夏日音樂祭邀你演出,現場觀眾以年輕人為主。',c:[['上主舞台',{fame:4,fans:200,money:250,all:{stage:3,energy:-22,stress:6}},'日落時段的演出成為現場高潮。'],['上小舞台,自在演出',{fans:90,rep:2,all:{mood:4,energy:-10}},'小舞台氣氛很輕鬆。'],['擔任親子場次嘉賓',{image:3,fans:70,all:{mood:5}},'親子觀眾都很喜歡你。']]}},
+ {id:'Z4',n:'萬聖派對',e:'🎃',a:[10,25],b:[11,2],ev:{t:'🎃 萬聖派對',d:'品牌舉辦萬聖派對,邀你變裝出席。',c:[['大膽變裝',{buzz:14,fans:90,image:2,all:{mood:4}},'你的變裝成為當晚話題。'],['低調參加',{network:3,all:{mood:3}},'你交到了幾位新朋友。'],['主辦粉絲派對',{fans:130,image:3,money:-150,all:{energy:-12}},'粉絲們度過了難忘的夜晚。']]}},
+ {id:'Z3',n:'星光盛典季',e:'🏆',a:[10,15],b:[11,30],ev:{t:'🏆 星光盛典提名',d:'年度星光盛典公布提名,你的名字在名單上。',c:[['積極參與宣傳活動',{rep:5,fame:4,network:4,money:-200,all:{energy:-18,stress:8}},'評審與業界都看到了你。'],['低調準備',{rep:3,fame:2,all:{mood:4}},'你把心力放在作品上。'],['在紅毯上大膽亮相',{buzz:16,fame:3,image:3,money:-150,all:{energy:-12}},'你的造型成為話題。']]}}];
+function seasonNow(dt){const t=dt||new Date(),m=t.getMonth()+1,d=t.getDate();
+  return SEAS.find(s=>{const a=s.a[0]*100+s.a[1],b=s.b[0]*100+s.b[1],v=m*100+d;return a<=b?(v>=a&&v<=b):(v>=a||v<=b)})||null}
+const _x2tF=x2Tick;
+x2Tick=function(mode){const r=_x2tF(mode),s=seasonNow();
+  try{const x=G.x2;if(s&&x&&x.sea!==s.id&&x.turn>=2&&Math.random()<(mode==='p'?.3:.6)){x.sea=s.id;r.evs.unshift(Object.assign({mi:0,x2:1,id:s.id,timed:12},JSON.parse(JSON.stringify(s.ev))))}}catch(e){}
+  return r};
+// 事件含函式處理:季節事件為純資料,可安全複製
+
+// ---- 1. 成就獎勵與限定頭像 ----
+const AVX=['👑','🦄','🌟','🎖️','🐉','🪩'];
+function avUnlock(){try{const d=load(),n=(d.ach||[]).length,k=Math.min(AVX.length,Math.floor(n/3));d.av=AVX.slice(0,k);save(d);AVX.slice(0,k).forEach(a=>{if(!IDE.includes(a))IDE.push(a)})}catch(e){}}
+avUnlock();
+const _endHookF=endHook;
+endHook=function(m){const b=(load().ach||[]).length,db=Object.keys(load().dex||{}).length;_endHookF(m);
+  try{recordDex(m);const a=(load().ach||[]).length,n=a-b;let h='';
+   if(n>0){addCoin(10*n);const o=AVX.length,pre=Math.min(o,Math.floor(b/3)),post=Math.min(o,Math.floor(a/3));avUnlock();
+     h+=`<div class="card center" style="font-size:13px;line-height:1.7">🏅 新成就 ${n} 個,獲得 <b>${10*n}</b> 星幣${post>pre?`<br>🎁 解鎖限定頭像 ${AVX.slice(pre,post).join(' ')}`:''}</div>`}
+   h+=dexReward();if(h)app.innerHTML+=h}catch(e){}};
+const _achMenuF=achMenu;achMenu=function(){_achMenuF();app.innerHTML+=`<div class="card" style="font-size:12.5px;line-height:1.7">🎁 每個成就 +10 星幣;每解鎖 3 個成就,解鎖一個限定頭像(角色塑造可選)。目前已解鎖 ${(load().av||[]).length}/${AVX.length} 個。</div>`};
+
+// ---- 4. 藝人養成圖鑑 ----
+function recordDex(m){if(m!=='p'||!G||!G.m)return;const d=load();d.dex=d.dex||{};let ch=0;
+  G.m.forEach(x=>{const i=ALLR.findIndex(c=>c.n===x.n);if(i<0)return;const r=d.dex[i]||{c:0,b:0};r.c++;r.b=Math.max(r.b,Math.round(pScore()));d.dex[i]=r;ch=1});if(ch)save(d)}
+const dexPct=()=>{const d=load().dex||{};return Math.round(Object.keys(d).length/ALLR.length*100)};
+function dexReward(){const d=load(),p=dexPct();d.dexr=d.dexr||[];let h='';
+  [25,50,75,100].forEach(t=>{if(p>=t&&!d.dexr.includes(t)){d.dexr.push(t);d.coin=(d.coin||0)+t;h+=`<div class="card center" style="font-size:13px">📖 藝人圖鑑達 ${t}%,獲得 ${t} 星幣</div>`}});if(h)save(d);return h}
+function dexMenu(nat){const d=load().dex||{},cnt=Object.keys(d).length;
+  if(!nat){app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>📖 藝人圖鑑</h2><div class="card center"><div style="font-size:28px;font-weight:800">${dexPct()}%</div><div style="font-size:12.5px;opacity:.8">已培育 ${cnt}/${ALLR.length} 位 · 達 25/50/75/100% 有星幣獎勵</div></div>`+
+    NATORDER.map(n=>{const l=ALLR.map((c,i)=>[c,i]).filter(z=>z[0].nat===n),h=l.filter(z=>d[z[1]]).length;return B(`${NATS[n].e} ${NATS[n].n}`,`${h}/${l.length}`,`dexMenu("${n}")`,'alt')}).join('');return}
+  const l=ALLR.map((c,i)=>[c,i]).filter(z=>z[0].nat===nat);
+  app.innerHTML=`<button class="back" onclick="dexMenu()">← 回圖鑑</button><h2>${NATS[nat].e} ${NATS[nat].n}藝人</h2>`+l.map(z=>{const c=z[0],r=d[z[1]];
+    return `<div class="card" style="font-size:13px;line-height:1.7;${r?'':'opacity:.55'}">${r?`${c.e} <b>${c.n}</b> ${c.g==='f'?'♀':'♂'}<br>${AR[c.a][0]} · ${TR[c.t].n}<br>培育 ${r.c} 次 · 最佳分數 ${r.b}`:`❔ 尚未培育<br><span style="font-size:12px">${AR[c.a][0]} · ${TR[c.t].n}</span>`}</div>`}).join('')}
+const _wdF=wallData;wallData=function(){const s=_wdF();const d=load().dex||{};s.push(['📖 藝人圖鑑',Object.keys(d).length,ALLR.length,null]);return s};
+
+// ---- 2. 排行榜與朋友挑戰碼(本機) ----
+const LBN=['星河','Aurora','小夜','Kai','晴空','Mika','阿澈','Luna','小滿','Rex','雨晴','Nova'];
+function lbRivals(ds){const r=prng(seedOf('lb'+ds)),used=new Set(),out=[];
+  while(out.length<9){const n=LBN[Math.floor(r()*LBN.length)]+(r()<.4?'':String(Math.floor(r()*90)+10));if(used.has(n))continue;used.add(n);out.push({n,s:Math.round(30+r()*r()*95+r()*20)})}return out}
+function lbMine(){const d=load(),ds=dayStr();return {ds,s:(d.daily||{})[ds]||0,n:(d.id||{}).n||'你'}}
+function boardMenu(msg){const me=lbMine(),d=load();let rows=lbRivals(me.ds);if(me.s)rows.push({n:me.n+'(你)',s:me.s,me:1});rows.sort((a,b)=>b.s-a.s);
+  const rk=me.s?rows.findIndex(r=>r.me)+1:0,hist=Object.entries(d.daily||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  app.innerHTML=`<button class="back" onclick="home()">← 回首頁</button><h2>🏅 每日排行榜</h2>`+(msg?`<div class="card center" style="font-size:13px">${msg}</div>`:'')+
+  `<div class="card" style="font-size:12.5px;line-height:1.7">今天的挑戰分數榜(${me.ds})。其他名次為依日期產生的虛構對手,全部存在你的裝置上,不會連到線上。${me.s?'':'<br>今天還沒挑戰,到「每日挑戰」玩一局就會出現你的名次。'}</div>`+
+  `<div class="card" style="font-size:13.5px;line-height:1.9">`+rows.map((r,i)=>`<div style="${r.me?'color:#ffd76a;font-weight:700':''}">${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${r.n} <span style="float:right">${r.s}</span></div>`).join('')+`</div>`+
+  (rk?`<div class="card center">你今天第 <b>${rk}</b> 名</div>`:'')+
+  (hist.length?`<div class="card" style="font-size:12.5px;line-height:1.8"><b>歷史最佳</b><br>${hist.map(h=>`${h[0]}:${h[1]}`).join('<br>')}</div>`:'')+
+  B('🤝 產生朋友挑戰碼','把今天的分數傳給朋友比','fcMake()','alt')+B('🔎 輸入朋友的挑戰碼','比較分數','fcInput()','alt')}
+function fcMake(){const me=lbMine();if(!me.s)return boardMenu('今天還沒有成績,先玩一局每日挑戰。');
+  const c='FC1:'+b64e(JSON.stringify({d:me.ds,s:me.s,n:me.n}));
+  app.innerHTML=`<button class="back" onclick="boardMenu()">← 回榜單</button><h2>🤝 我的挑戰碼</h2><div class="card" style="font-size:12.5px;line-height:1.7">把整段傳給朋友,對方在「輸入朋友的挑戰碼」貼上就能比較。同一天玩同一個每日挑戰,結果最公平。</div><textarea id="excode" readonly style="width:100%;height:90px;border-radius:10px;padding:8px;box-sizing:border-box;font-size:11px;background:rgba(0,0,0,.3);color:inherit">${c}</textarea>`+B('📋 複製','','copyCode()','gold')}
+function fcInput(msg){app.innerHTML=`<button class="back" onclick="boardMenu()">← 回榜單</button><h2>🔎 朋友挑戰碼</h2>`+(msg?`<div class="card center" style="font-size:13px">${msg}</div>`:'')+`<textarea id="fccode" style="width:100%;height:90px;border-radius:10px;padding:8px;box-sizing:border-box;font-size:11px;background:rgba(0,0,0,.3);color:inherit"></textarea>`+B('比較','','fcGo()','gold')}
+function fcParse(c){c=String(c||'').trim();if(c.indexOf('FC1:')!==0)return null;try{const o=JSON.parse(b64d(c.slice(4)));if(!o||typeof o.s!=='number'||!o.d)return null;return {d:String(o.d).slice(0,12),s:Math.round(o.s),n:escI(o.n||'朋友').slice(0,10)}}catch(e){return null}}
+function fcGo(){let v='';try{v=document.getElementById('fccode').value}catch(e){}const f=fcParse(v);if(!f)return fcInput('挑戰碼格式不對');
+  const me=lbMine(),mine=((load().daily||{})[f.d])||0,same=f.d===me.ds;
+  const res=!mine?`你在 ${f.d} 沒有成績`:mine>f.s?'你贏了!':mine<f.s?'朋友領先':'平手!';
+  boardMenu(`${f.n}(${f.d}):${f.s} 分<br>你(${f.d}):${mine||'—'} 分<br><b>${res}</b>${same?'':'<br><span style="opacity:.7">日期不同,題目不一樣,僅供參考</span>'}`)}
+const _dailyMenuF=dailyMenu;dailyMenu=function(){_dailyMenuF();app.innerHTML+=B('🏅 每日排行榜','看今天的名次、和朋友比分','boardMenu()','alt')};
+
+// ---- 6. PWA ----
+function pwaInit(){try{
+  const icon="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#2a1a5e"/><path d="M256 80l55 112 123 18-89 87 21 123-110-58-110 58 21-123-89-87 123-18z" fill="#ffd76a"/></svg>');
+  const mf={name:'明星遊戲',short_name:'明星遊戲',display:'standalone',orientation:'portrait',background_color:'#1a1038',theme_color:'#1a1038',start_url:'.',icons:[{src:icon,sizes:'512x512',type:'image/svg+xml'}]};
+  const h=document.head;let l=document.createElement('link');l.rel='manifest';l.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));h.appendChild(l);
+  [['theme-color','#1a1038'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','明星遊戲'],['mobile-web-app-capable','yes']].forEach(a=>{const m=document.createElement('meta');m.name=a[0];m.content=a[1];h.appendChild(m)});
+  l=document.createElement('link');l.rel='apple-touch-icon';l.href=icon;h.appendChild(l);
+  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(e){}}
+pwaInit();
+function pwaMenu(){app.innerHTML=`<button class="back" onclick="setMenu()">← 回設定</button><h2>📲 安裝到手機</h2><div class="card" style="font-size:13.5px;line-height:1.9"><b>iPhone(Safari)</b><br>點下方「分享」→「加入主畫面」。<br><br><b>Android(Chrome)</b><br>右上角選單 →「安裝應用程式」或「加到主畫面」。<br><br>加入後會用全螢幕開啟,像一般 App。<br><span style="opacity:.75">離線遊玩需要把遊戲放在自己的網站(例如 GitHub Pages),存檔則一律存在這台裝置上。</span></div>`+B('💾 存檔管理(換手機前先匯出)','','slotMenu()','alt')}
+const _setMenuF=setMenu;setMenu=function(){_setMenuF();app.innerHTML+=B('📲 安裝到手機','加到主畫面,全螢幕玩','pwaMenu()','alt')};
+
+// ---- 首頁整合 ----
+const _homeF=home;
+home=function(){_homeF();try{const s=seasonNow(),d=load();let h=String(app.innerHTML);
+  const ban=s?`<div class="card center" style="font-size:13px;line-height:1.7">${s.e} <b>季節活動:${s.n}</b><br><span style="opacity:.8">期間內遊戲中可能遇到限定事件</span></div>`:'';
+  const add=B(`🏅 每日排行榜`,'名次與朋友挑戰碼','boardMenu()','alt')+B(`📖 藝人圖鑑(${dexPct()}%)`,'已培育的藝人收藏','dexMenu()','alt');
+  h=h.replace('</details>',add+'</details>');
+  if(ban)h=h.replace('<div class="sub">',ban+'<div class="sub">');
+  app.innerHTML=h}catch(e){}};
 
 loadSet();title();
 </script>
