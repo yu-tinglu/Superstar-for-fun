@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>明星遊戲:製作人 × 做明星</title>
+<title>明星遊戲</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:var(--b0,#120a2a);color:#f5f0ff;font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
@@ -2696,7 +2696,7 @@ home=function(){_homeD();try{const d=load();let h=String(app.innerHTML);
 applyPref();
 
 // ================= 標題登入畫面、版本、檢查更新 =================
-const GAME_VER='1.12';
+const GAME_VER='1.20';
 const GAME_COPY='© 2026 明星遊戲 · All Rights Reserved.';   // 版權文字:可依其他遊戲的格式修改
 const GAME_NOTE='本遊戲所有人物、團體、事件皆為虛構,如有雷同純屬巧合。';
 const VER_URL='https://raw.githubusercontent.com/yu-tinglu/Superstar-for-fun/main/version.json';
@@ -2918,6 +2918,140 @@ home=function(){_homeF();try{const s=seasonNow(),d=load();let h=String(app.inner
   h=h.replace('</details>',add+'</details>');
   if(ban)h=h.replace('<div class="sub">',ban+'<div class="sub">');
   app.innerHTML=h}catch(e){}};
+
+
+// ================= 圖示化:表情符號全部換成向量圖示 =================
+const EIC={
+ star:'<polygon points="12,2 15,9 22,9.500 16.500,14.500 18.500,22 12,18 5.500,22 7.500,14.500 2,9.500 9,9" fill="#ffd76a" stroke="#e0a800"/>',
+ spark:'<path d="M12 2l2.600 7.400L22 12l-7.400 2.600L12 22l-2.600-7.400L2 12l7.400-2.600z" fill="#6ad0ff" stroke="#fff" stroke-linejoin="round"/>',
+ mic:'<rect x="8.500" y="2.500" width="7" height="12" rx="3.500" fill="#ff7ab8" stroke="#fff" stroke-width="1.200"/><path d="M5.500 11.500a6.500 6.500 0 0013 0M12 18v3.500M8.500 21.500h7" fill="none" stroke="#fff" stroke-width="1.800" stroke-linecap="round"/>',
+ mask:'<path d="M4 4h16v8c0 5-4 8-8 8s-8-3-8-8z" fill="#ffd76a" stroke="#c99a00"/><path d="M7.500 9.500q1.500-1.500 3 0M13.500 9.500q1.500-1.500 3 0" fill="none" stroke="#333" stroke-width="1.500" stroke-linecap="round"/><path d="M8 14q4 4 8 0" fill="none" stroke="#333" stroke-width="1.500" stroke-linecap="round"/>',
+ note:'<path d="M9 18V5l11-2v13" fill="none" stroke="#b88bff" stroke-width="2" stroke-linejoin="round"/><circle cx="6.500" cy="18" r="3" fill="#b88bff"/><circle cx="17.500" cy="16" r="3" fill="#b88bff"/>',
+ dancer:'<circle cx="12" cy="4.500" r="2.500" fill="#ff9f5a"/><path d="M12 8v7M12 10L5 5M12 10l7-5M12 15l-4 6M12 15l4 6" stroke="#ff9f5a" stroke-width="2.200" stroke-linecap="round" fill="none"/>',
+ person:'<circle cx="12" cy="8" r="4" fill="#9fb4ff"/><path d="M4 21c0-5 4-8 8-8s8 3 8 8z" fill="#9fb4ff"/>',
+ group:'<circle cx="12" cy="8" r="3.500" fill="#9fb4ff"/><circle cx="5.500" cy="10" r="2.500" fill="#7f98ee"/><circle cx="18.500" cy="10" r="2.500" fill="#7f98ee"/><path d="M6 21c0-4 3-6.500 6-6.500s6 2.500 6 6.500z" fill="#9fb4ff"/><path d="M0.500 20c0-3 2-5 5-5 .5 0 1 0 1.500.2-1.500 1.500-2 3-2 4.800zM23.500 20c0-3-2-5-5-5-.5 0-1 0-1.500.2 1.500 1.500 2 3 2 4.800z" fill="#7f98ee"/>',
+ pair:'<circle cx="8" cy="8" r="3.500" fill="#9fb4ff"/><circle cx="16" cy="8" r="3.500" fill="#ff9ec7"/><path d="M2 21c0-4 3-6.500 6-6.500s6 2.500 6 6.500zM10 21c0-4 3-6.500 6-6.500s6 2.500 6 6.500z" fill="#8aa0f0" opacity=".9"/>',
+ heart:'<path d="M12 21C4 15 2 10.500 4 7c2-3 6-2.500 8 .5C14 4.500 18 4 20 7c2 3.500 0 8-8 14z" fill="#ff5b7f" stroke="#d93a5f"/>',
+ heartbreak:'<path d="M12 21C4 15 2 10.500 4 7c2-3 6-2.500 8 .5C14 4.500 18 4 20 7c2 3.500 0 8-8 14z" fill="#c9506a" stroke="#8f2f45"/><path d="M12 7.500l-2 4 3 2-2 4" fill="none" stroke="#fff" stroke-width="1.500" stroke-linejoin="round"/>',
+ flame:'<path d="M12 2c1 4.500 6.500 6.500 6.500 12.500a6.500 6.500 0 01-13 0c0-3.500 2.500-5 3.500-8 1.200 1 2 1.500 3-4.500z" fill="#ff7a3d"/><path d="M12 11c.8 2.500 3.500 3.500 3.500 6.500a3.500 3.500 0 01-7 0c0-2 1.500-2.500 2-4.500.700.700 1.200 1 1.500-2z" fill="#ffd76a"/>',
+ coin:'<circle cx="12" cy="12" r="9.500" fill="#ffd76a" stroke="#c99a00" stroke-width="1.500"/><path d="M12 6v12M9 9.500c0-1.500 1.500-2 3-2s3 .7 3 2-1.500 1.800-3 2.200-3 .8-3 2.300 1.500 2 3 2 3-.5 3-2" fill="none" stroke="#a87a00" stroke-width="1.500" stroke-linecap="round"/>',
+ trophy:'<path d="M7 3h10v6a5 5 0 01-10 0z" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200"/><path d="M7 5H3c0 4 2 5.500 4 5.500M17 5h4c0 4-2 5.500-4 5.500" fill="none" stroke="#c99a00" stroke-width="1.500"/><path d="M12 14v4M8 21h8M9 18h6" stroke="#c99a00" stroke-width="2" stroke-linecap="round"/>',
+ medal:'<path d="M7 2l5 8 5-8" fill="none" stroke="#6ad0ff" stroke-width="2.500" stroke-linejoin="round"/><circle cx="12" cy="15" r="6" fill="#ffd76a" stroke="#c99a00" stroke-width="1.500"/><polygon points="12,11.500 13,14 15.500,14.200 13.600,15.800 14.200,18.200 12,16.900 9.800,18.200 10.400,15.800 8.500,14.200 11,14" fill="#fff3b0"/>',
+ crown:'<path d="M3 19h18v2H3z" fill="#b8860b"/><path d="M3 18L2 7l5.500 4.500L12 4l4.500 7.500L22 7l-1 11z" fill="#ffd76a" stroke="#b8860b" stroke-width="1.200" stroke-linejoin="round"/>',
+ camera:'<rect x="2" y="6" width="20" height="14" rx="3" fill="#8f9bb8" stroke="#5c6785"/><path d="M8 6l1.500-3h5L16 6" fill="#8f9bb8" stroke="#5c6785"/><circle cx="12" cy="13" r="4.500" fill="#2b3350" stroke="#fff" stroke-width="1.200"/><circle cx="12" cy="13" r="1.800" fill="#6ad0ff"/>',
+ tv:'<path d="M8 3l4 4 4-4" fill="none" stroke="#9aa6c8" stroke-width="1.500" stroke-linecap="round"/><rect x="2" y="7" width="20" height="14" rx="2.500" fill="#2b3350" stroke="#9aa6c8" stroke-width="1.500"/><rect x="4.500" y="9.500" width="15" height="9" rx="1" fill="#6ad0ff" opacity=".8"/>',
+ phone:'<rect x="6" y="2" width="12" height="20" rx="2.500" fill="#2b3350" stroke="#9aa6c8" stroke-width="1.500"/><rect x="8" y="5" width="8" height="12" fill="#6ad0ff" opacity=".8"/><circle cx="12" cy="19.500" r="1" fill="#9aa6c8"/>',
+ news:'<rect x="3" y="3" width="18" height="18" rx="2.500" fill="#e9edf8" stroke="#9aa6c8" stroke-width="1.200"/><rect x="6" y="6" width="7" height="5" fill="#9aa6c8"/><path d="M15 7h3M15 10h3M6 14h12M6 17h12" stroke="#9aa6c8" stroke-width="1.500" stroke-linecap="round"/>',
+ book:'<path d="M12 6C9 4 5 4 2 5v14c3-1 7-1 10 1 3-2 7-2 10-1V5c-3-1-7-1-10 1z" fill="#e9edf8" stroke="#6f7ca0" stroke-width="1.300" stroke-linejoin="round"/><path d="M12 6v14" stroke="#6f7ca0" stroke-width="1.300"/>',
+ cal:'<rect x="3" y="4.500" width="18" height="16.500" rx="2.500" fill="#fff" stroke="#9aa6c8" stroke-width="1.300"/><path d="M3 10h18" stroke="#ff7ab8" stroke-width="3"/><path d="M8 2.500v4M16 2.500v4" stroke="#9aa6c8" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="14.500" r="1.200" fill="#6f7ca0"/><circle cx="12" cy="14.500" r="1.200" fill="#6f7ca0"/><circle cx="16" cy="14.500" r="1.200" fill="#6f7ca0"/>',
+ clock:'<circle cx="12" cy="12" r="9.500" fill="#fff" stroke="#9aa6c8" stroke-width="1.500"/><path d="M12 6.500V12l4 2.500" fill="none" stroke="#5c6785" stroke-width="2" stroke-linecap="round"/>',
+ gift:'<rect x="3" y="9" width="18" height="12" rx="1.500" fill="#ff7ab8"/><rect x="2" y="6.500" width="20" height="4.500" rx="1.200" fill="#ff9ec7"/><path d="M12 6.500V21" stroke="#ffd76a" stroke-width="2.500"/><path d="M12 6.500C9 6.500 7 5.500 7.500 4c1-2 4 0 4.500 2.500C12.500 4 15.500 2 16.500 4c.5 1.500-1.500 2.500-4.500 2.500z" fill="none" stroke="#ffd76a" stroke-width="1.500"/>',
+ check:'<circle cx="12" cy="12" r="10" fill="#4cd37b"/><path d="M7 12.500l3.500 3.500L17 9" fill="none" stroke="#fff" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>',
+ cross:'<circle cx="12" cy="12" r="10" fill="#ff5b6e"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.500" stroke-linecap="round"/>',
+ warn:'<path d="M12 3L2 21h20z" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200" stroke-linejoin="round"/><path d="M12 9.500v5" stroke="#333" stroke-width="2.200" stroke-linecap="round"/><circle cx="12" cy="17.500" r="1.200" fill="#333"/>',
+ ques:'<circle cx="12" cy="12" r="10" fill="#8e9ac4"/><path d="M9 9.500a3 3 0 116 0c0 2-3 2.500-3 4.500" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round"/><circle cx="12" cy="18" r="1.300" fill="#fff"/>',
+ gear:'<circle cx="12" cy="12" r="3.200" fill="none" stroke="#9aa6c8" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round"/><circle cx="12" cy="12" r="6.500" fill="none" stroke="#9aa6c8" stroke-width="2.200"/>',
+ globe:'<circle cx="12" cy="12" r="10" fill="#3d8fe0" stroke="#fff" stroke-width="1"/><path d="M12 2c-4 3-4 17 0 20M12 2c4 3 4 17 0 20M2 12h20M4 7h16M4 17h16" fill="none" stroke="#bfe0ff" stroke-width="1.200"/>',
+ plane:'<path d="M2 12l20-8-7 18-3-7z" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.200" stroke-linejoin="round"/><path d="M12 15l10-11" stroke="#8f9bb8" stroke-width="1.200"/>',
+ home:'<path d="M3 11l9-8 9 8" fill="none" stroke="#ff9f5a" stroke-width="2.500" stroke-linejoin="round" stroke-linecap="round"/><path d="M5.500 10v11h13V10" fill="#ffd9b0" stroke="#ff9f5a" stroke-width="1.500"/><rect x="10" y="14" width="4" height="7" fill="#ff9f5a"/>',
+ building:'<rect x="5" y="3" width="14" height="18" rx="1.200" fill="#9aa6c8" stroke="#6f7ca0" stroke-width="1.200"/><g fill="#fff"><rect x="8" y="6" width="3" height="3"/><rect x="13" y="6" width="3" height="3"/><rect x="8" y="11" width="3" height="3"/><rect x="13" y="11" width="3" height="3"/></g><rect x="10.500" y="16" width="3" height="5" fill="#6f7ca0"/>',
+ cup:'<path d="M4 8h13v6a6 6 0 01-6 6h-1a6 6 0 01-6-6z" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.300"/><path d="M17 10h2a3 3 0 010 6h-2" fill="none" stroke="#8f9bb8" stroke-width="1.500"/><path d="M8 3c-1 1 1 2 0 3M12 3c-1 1 1 2 0 3" fill="none" stroke="#8f9bb8" stroke-width="1.300" stroke-linecap="round"/>',
+ bowl:'<path d="M3 11h18a9 9 0 01-18 0z" fill="#ffd9b0" stroke="#ff9f5a" stroke-width="1.300"/><path d="M8 4c-1 1.500 1 2.500 0 4M12 4c-1 1.500 1 2.500 0 4M16 4c-1 1.500 1 2.500 0 4" fill="none" stroke="#9aa6c8" stroke-width="1.300" stroke-linecap="round"/>',
+ shirt:'<path d="M8 3l-6 4 3 4 2-1.500V21h10V9.500L19 11l3-4-6-4c0 2-1.500 3-4 3S8 5 8 3z" fill="#8aa0f0" stroke="#5c6fc0" stroke-width="1.200" stroke-linejoin="round"/>',
+ palette:'<path d="M12 3C6 3 2 7 2 12s4 9 8.500 9c2 0 2-1.500 1-3s0-3 2-3h3c3 0 5.500-2 5.500-5C22 6 17.500 3 12 3z" fill="#ffd9b0" stroke="#ff9f5a" stroke-width="1.300"/><circle cx="7.500" cy="11" r="1.600" fill="#ff5b6e"/><circle cx="11" cy="7" r="1.600" fill="#4cd37b"/><circle cx="16" cy="8.500" r="1.600" fill="#6ad0ff"/>',
+ medic:'<rect x="3" y="3" width="18" height="18" rx="4" fill="#fff" stroke="#ff5b6e" stroke-width="1.500"/><path d="M12 7v10M7 12h10" stroke="#ff5b6e" stroke-width="3" stroke-linecap="round"/>',
+ lock:'<rect x="4.500" y="10" width="15" height="11" rx="2.500" fill="#ffd76a" stroke="#c99a00" stroke-width="1.300"/><path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="#c99a00" stroke-width="2"/><circle cx="12" cy="15.500" r="1.500" fill="#7a5a00"/>',
+ chart:'<path d="M3 21h18" stroke="#9aa6c8" stroke-width="1.500"/><rect x="4.500" y="12" width="4" height="9" fill="#6ad0ff"/><rect x="10" y="7" width="4" height="14" fill="#4cd37b"/><rect x="15.500" y="3" width="4" height="18" fill="#ffd76a"/>',
+ target:'<circle cx="12" cy="12" r="10" fill="#fff" stroke="#ff5b6e" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="#ff5b6e" stroke="#fff" stroke-width="1.500"/><circle cx="12" cy="12" r="2.200" fill="#fff"/>',
+ rocket:'<path d="M12 2c4 3 5 8 4 13H8c-1-5 0-10 4-13z" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.200"/><circle cx="12" cy="9" r="2" fill="#6ad0ff"/><path d="M8 13l-3 4 3-.5M16 13l3 4-3-.5" fill="#ff5b6e"/><path d="M10 18c0 2 1 3 2 4 1-1 2-2 2-4z" fill="#ff9f5a"/>',
+ bolt:'<path d="M13.500 2L4.500 13.500H10L9 22l10-12.500h-6z" fill="#ffd76a" stroke="#e0a800" stroke-width="1" stroke-linejoin="round"/>',
+ moon:'<path d="M16.500 3A9.500 9.500 0 1016.500 21 7.500 7.500 0 0116.500 3z" fill="#fff3b0" stroke="#e0c860"/>',
+ sun:'<circle cx="12" cy="12" r="5" fill="#ffd76a" stroke="#e0a800"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="#ffb400" stroke-width="2" stroke-linecap="round"/>',
+ cloud:'<path d="M7 18a4.500 4.500 0 01-.5-9A6 6 0 0118 10a4 4 0 010 8z" fill="#c9d4f0" stroke="#8f9bb8" stroke-width="1.200"/><path d="M8 20.500l-1 2M12 20.500l-1 2M16 20.500l-1 2" stroke="#6ad0ff" stroke-width="1.500" stroke-linecap="round"/>',
+ leaf:'<path d="M5 20C3 10 9 3 21 3c0 11-5 18-14 17" fill="#5ed87a" stroke="#2fa955" stroke-width="1.200" stroke-linejoin="round"/><path d="M5 20C9 14 13 10 17 7" fill="none" stroke="#2fa955" stroke-width="1.300"/>',
+ flower:'<g fill="#ff9ec7" stroke="#ff6fa8" stroke-width=".8"><circle cx="12" cy="6" r="4"/><circle cx="18" cy="10.500" r="4"/><circle cx="15.700" cy="17.500" r="4"/><circle cx="8.300" cy="17.500" r="4"/><circle cx="6" cy="10.500" r="4"/></g><circle cx="12" cy="12.500" r="2.500" fill="#ffd76a"/>',
+ paw:'<g fill="#c8956a"><ellipse cx="6" cy="10" rx="2.200" ry="3"/><ellipse cx="10" cy="5.500" rx="2.200" ry="3"/><ellipse cx="14" cy="5.500" rx="2.200" ry="3"/><ellipse cx="18" cy="10" rx="2.200" ry="3"/><path d="M12 11c-4 0-7 4-6 7 .8 2.500 3.500 2 6 2s5.200.5 6-2c1-3-2-7-6-7z"/></g>',
+ smile:'<circle cx="12" cy="12" r="10" fill="#ffd76a" stroke="#c99a00"/><circle cx="8.500" cy="10" r="1.300" fill="#333"/><circle cx="15.500" cy="10" r="1.300" fill="#333"/><path d="M7.500 14q4.500 5 9 0" fill="none" stroke="#333" stroke-width="1.700" stroke-linecap="round"/>',
+ sad:'<circle cx="12" cy="12" r="10" fill="#ffd76a" stroke="#c99a00"/><circle cx="8.500" cy="10" r="1.300" fill="#333"/><circle cx="15.500" cy="10" r="1.300" fill="#333"/><path d="M8 17q4-4 8 0" fill="none" stroke="#333" stroke-width="1.700" stroke-linecap="round"/><path d="M17.500 12.500c.8 1.500 1 2.500 0 3" stroke="#6ad0ff" stroke-width="1.600" stroke-linecap="round" fill="none"/>',
+ angry:'<circle cx="12" cy="12" r="10" fill="#ff9f7a" stroke="#d9603a"/><path d="M6.500 7.500l4 2M17.500 7.500l-4 2" stroke="#333" stroke-width="1.800" stroke-linecap="round"/><circle cx="8.500" cy="11" r="1.200" fill="#333"/><circle cx="15.500" cy="11" r="1.200" fill="#333"/><path d="M8 17q4-3 8 0" fill="none" stroke="#333" stroke-width="1.700" stroke-linecap="round"/>',
+ up:'<path d="M12 21V4M5 11l7-7 7 7" fill="none" stroke="#9aa6c8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+ right:'<path d="M3 12h17M13 5l7 7-7 7" fill="none" stroke="#9aa6c8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+ down:'<path d="M12 3v17M5 13l7 7 7-7" fill="none" stroke="#9aa6c8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+ speaker:'<path d="M3 9h4l6-5v16l-6-5H3z" fill="#9aa6c8" stroke="#6f7ca0" stroke-width="1.200" stroke-linejoin="round"/><path d="M16 8.500a5 5 0 010 7M18.500 6a8.500 8.500 0 010 12" fill="none" stroke="#9aa6c8" stroke-width="1.800" stroke-linecap="round"/>',
+ mega:'<path d="M3 10v4l3 .5L16 20V4L6 9.500z" fill="#ff9f5a" stroke="#d9783a" stroke-width="1.200" stroke-linejoin="round"/><path d="M19 8.500a5 5 0 010 7" fill="none" stroke="#ff9f5a" stroke-width="2" stroke-linecap="round"/><path d="M6 14.500L7.500 20h3" fill="none" stroke="#d9783a" stroke-width="1.500"/>',
+ phones:'<path d="M4 15v-3a8 8 0 0116 0v3" fill="none" stroke="#9fb4ff" stroke-width="2.200"/><rect x="2.500" y="14" width="4.500" height="7" rx="2" fill="#6f7ca0"/><rect x="17" y="14" width="4.500" height="7" rx="2" fill="#6f7ca0"/>',
+ guitar:'<path d="M15 3l6 6-3 .5-3.500 3.500" fill="#c8956a" stroke="#8f5a2a" stroke-width="1"/><path d="M13 11c-4-2-8 0-8 4s-2 5 0 6c2 1 5 1 7-1s2-6 1-9z" fill="#ffb86b" stroke="#c9773a" stroke-width="1.300" stroke-linejoin="round"/><circle cx="9" cy="16" r="1.600" fill="#7a4a1a"/>',
+ pad:'<rect x="2" y="7" width="20" height="11" rx="5.500" fill="#8f9bb8" stroke="#5c6785" stroke-width="1.200"/><path d="M7 10.500v4M5 12.500h4" stroke="#fff" stroke-width="1.800" stroke-linecap="round"/><circle cx="16" cy="11" r="1.300" fill="#ff5b6e"/><circle cx="18.500" cy="13.500" r="1.300" fill="#4cd37b"/>',
+ dice:'<rect x="3" y="3" width="18" height="18" rx="4" fill="#fff" stroke="#9aa6c8" stroke-width="1.500"/><g fill="#5c6785"><circle cx="8" cy="8" r="1.600"/><circle cx="16" cy="8" r="1.600"/><circle cx="12" cy="12" r="1.600"/><circle cx="8" cy="16" r="1.600"/><circle cx="16" cy="16" r="1.600"/></g>',
+ ticket:'<path d="M2 7h20v3.500a2 2 0 000 3V17H2v-3.500a2 2 0 000-3z" fill="#ff9f5a" stroke="#d9783a" stroke-width="1.200" stroke-linejoin="round"/><path d="M15 7v10" stroke="#fff" stroke-width="1.500" stroke-dasharray="2 2"/>',
+ mail:'<rect x="2" y="5" width="20" height="14" rx="2.500" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.300"/><path d="M3 7l9 7 9-7" fill="none" stroke="#8f9bb8" stroke-width="1.500" stroke-linejoin="round"/>',
+ search:'<circle cx="10" cy="10" r="6.500" fill="#e9f4ff" stroke="#6f7ca0" stroke-width="2"/><path d="M15 15l6 6" stroke="#6f7ca0" stroke-width="3" stroke-linecap="round"/>',
+ pin:'<path d="M12 22c-5-6-7-9-7-13a7 7 0 0114 0c0 4-2 7-7 13z" fill="#ff5b6e" stroke="#c93a4c" stroke-width="1.200"/><circle cx="12" cy="9" r="2.800" fill="#fff"/>',
+ flag:'<path d="M5 22V3" stroke="#6f7ca0" stroke-width="2" stroke-linecap="round"/><path d="M5 4h14l-3 4 3 4H5z" fill="#ff5b6e" stroke="#c93a4c" stroke-width="1" stroke-linejoin="round"/>',
+ shield:'<path d="M12 2l8 3v6c0 5-3.500 9-8 11-4.500-2-8-6-8-11V5z" fill="#6ad0ff" stroke="#fff" stroke-width="1.200" stroke-linejoin="round"/><path d="M8.500 12l2.500 2.500L16 9.500" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+ ring:'<circle cx="12" cy="15" r="6" fill="none" stroke="#ffd76a" stroke-width="2.500"/><path d="M9 4h6l2 3-5 4-5-4z" fill="#6ad0ff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>',
+ gem:'<path d="M6 3h12l4 6-10 12L2 9z" fill="#6ad0ff" stroke="#fff" stroke-width="1.200" stroke-linejoin="round"/><path d="M2 9h20M9 3l-2 6 5 12 5-12-2-6" fill="none" stroke="#fff" stroke-width="1" opacity=".8"/>',
+ party:'<path d="M3 21l5-14 9 9z" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200" stroke-linejoin="round"/><circle cx="15" cy="5" r="1.500" fill="#ff5b6e"/><circle cx="19.500" cy="9" r="1.500" fill="#6ad0ff"/><circle cx="20" cy="3.500" r="1.200" fill="#4cd37b"/><path d="M12 4c2 1 2 3 4 3M18 14c1-2 3-2 4-1" fill="none" stroke="#ff9ec7" stroke-width="1.500" stroke-linecap="round"/>',
+ refresh:'<path d="M20 12a8 8 0 01-14 5.300M4 12a8 8 0 0114-5.300" fill="none" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>',
+ eye:'<path d="M2 12c3-5 7-7 10-7s7 2 10 7c-3 5-7 7-10 7s-7-2-10-7z" fill="#fff" stroke="#6f7ca0" stroke-width="1.500"/><circle cx="12" cy="12" r="3.500" fill="#4a5a9a"/><circle cx="12" cy="12" r="1.400" fill="#fff"/>',
+ hands:'<path d="M12 21c-5 0-8-3-8-7V8a1.800 1.800 0 013.600 0V5.500a1.800 1.800 0 013.600 0V4.500a1.800 1.800 0 013.600 0V6a1.800 1.800 0 013.600 0v8c0 4-3 7-6.400 7z" fill="#ffd9a8" stroke="#d9a060" stroke-width="1.200" stroke-linejoin="round"/>',
+ zzz:'<path d="M4 6h7l-7 8h7M13 12h6l-6 7h6" fill="none" stroke="#9fb4ff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/>',
+ pencil:'<path d="M3 21l1.500-5L17 3.500 20.500 7 8 19.500z" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200" stroke-linejoin="round"/><path d="M15 5.500L18.500 9" stroke="#c99a00" stroke-width="1.200"/><path d="M3 21l1.500-5L8 19.500z" fill="#ffb86b"/>',
+ dumbbell:'<path d="M7 8v8M17 8v8M7 12h10" stroke="#8f9bb8" stroke-width="2.500" stroke-linecap="round"/><rect x="3" y="9" width="4" height="6" rx="1" fill="#6f7ca0"/><rect x="17" y="9" width="4" height="6" rx="1" fill="#6f7ca0"/>',
+ bubble:'<path d="M4 5h16a2 2 0 012 2v8a2 2 0 01-2 2h-8l-5 4v-4H4a2 2 0 01-2-2V7a2 2 0 012-2z" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.300" stroke-linejoin="round"/><path d="M7 10h10M7 13h6" stroke="#8f9bb8" stroke-width="1.500" stroke-linecap="round"/>',
+ disk:'<path d="M4 3h13l3 3v15H4z" fill="#6ad0ff" stroke="#3a8fc0" stroke-width="1.200" stroke-linejoin="round"/><rect x="7" y="3" width="9" height="6" fill="#fff"/><rect x="7" y="13" width="10" height="8" fill="#e9f4ff"/>',
+ bot:'<rect x="4" y="7" width="16" height="13" rx="3.500" fill="#9aa6c8" stroke="#6f7ca0" stroke-width="1.300"/><path d="M12 3v4" stroke="#6f7ca0" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="3" r="1.500" fill="#ff5b6e"/><circle cx="9" cy="13" r="2" fill="#fff"/><circle cx="15" cy="13" r="2" fill="#fff"/><path d="M9 17.500h6" stroke="#fff" stroke-width="1.500" stroke-linecap="round"/>',
+ slider:'<path d="M4 7h16M4 17h16" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round"/><circle cx="9" cy="7" r="3" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200"/><circle cx="15" cy="17" r="3" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200"/>',
+ battery:'<rect x="2" y="7" width="18" height="10" rx="2" fill="none" stroke="#9aa6c8" stroke-width="1.800"/><rect x="21" y="10" width="2" height="4" rx=".6" fill="#9aa6c8"/><rect x="4.500" y="9.500" width="10" height="5" fill="#4cd37b"/>',
+ male:'<circle cx="10" cy="14" r="6" fill="none" stroke="#6ad0ff" stroke-width="2.500"/><path d="M14.500 9.500L21 3M15 3h6v6" fill="none" stroke="#6ad0ff" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/>',
+ female:'<circle cx="12" cy="9" r="6" fill="none" stroke="#ff7ab8" stroke-width="2.500"/><path d="M12 15v7M8.500 19h7" fill="none" stroke="#ff7ab8" stroke-width="2.500" stroke-linecap="round"/>',
+ blast:'<path d="M12 2l2 6 6-2-3 5.500 5 3.500-6 .5L14 22l-2-5-2 5-2-5.500-6-.5 5-3.500L4 6l6 2z" fill="#ffb400" stroke="#ff7a3d" stroke-width="1" stroke-linejoin="round"/>',
+ sprout:'<path d="M12 21v-9" stroke="#2fa955" stroke-width="2.200" stroke-linecap="round"/><path d="M12 12C12 7 8 5 3 5c0 5 3 7 9 7zM12 14c0-4 3-6 8-6 0 4-3 6-8 6z" fill="#5ed87a" stroke="#2fa955" stroke-width="1" stroke-linejoin="round"/>',
+ door:'<rect x="5" y="2.500" width="14" height="19" rx="1.500" fill="#c8956a" stroke="#8f5a2a" stroke-width="1.300"/><circle cx="15.500" cy="12.500" r="1.200" fill="#ffd76a"/>',
+ cart:'<path d="M2 4h3l2.500 11h11l2-8H6.500" fill="none" stroke="#9aa6c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.800" fill="#9aa6c8"/><circle cx="17" cy="20" r="1.800" fill="#9aa6c8"/>',
+ id:'<rect x="2" y="5" width="20" height="14" rx="2.500" fill="#e9edf8" stroke="#8f9bb8" stroke-width="1.300"/><circle cx="8.500" cy="11" r="2.200" fill="#8f9bb8"/><path d="M5 16.500c.5-2 2-3 3.500-3s3 1 3.500 3M14 10h5M14 13.500h4" fill="none" stroke="#8f9bb8" stroke-width="1.500" stroke-linecap="round"/>',
+ play:'<path d="M7 4l13 8-13 8z" fill="#4cd37b" stroke="#2fa955" stroke-width="1.200" stroke-linejoin="round"/>',
+ clap:'<rect x="2" y="9" width="20" height="12" rx="2" fill="#2b3350" stroke="#9aa6c8" stroke-width="1.200"/><path d="M2 9l2-5 18 3-1 3z" fill="#e9edf8" stroke="#9aa6c8" stroke-width="1.200" stroke-linejoin="round"/><path d="M6.500 4.500l2.500 5M11.500 5.500l2.500 5M16.500 6.500l2.500 5" stroke="#2b3350" stroke-width="2"/>',
+ bulb:'<path d="M12 2a6.500 6.500 0 00-3.500 12c.700.600 1 1.500 1 2.500h5c0-1 .3-1.900 1-2.500A6.500 6.500 0 0012 2z" fill="#ffd76a" stroke="#c99a00" stroke-width="1.200"/><path d="M9.500 19h5M10.500 21.500h3" stroke="#9aa6c8" stroke-width="1.800" stroke-linecap="round"/>',
+ brief:'<rect x="2" y="7" width="20" height="14" rx="2.500" fill="#c8956a" stroke="#8f5a2a" stroke-width="1.300"/><path d="M8.500 7V5a2 2 0 012-2h3a2 2 0 012 2v2M2 13h20" fill="none" stroke="#8f5a2a" stroke-width="1.500"/><rect x="10.500" y="11.500" width="3" height="3" rx=".6" fill="#ffd76a"/>',
+ newb:'<rect x="1" y="5" width="22" height="14" rx="4" fill="#ff5b6e" stroke="#fff" stroke-width="1.200"/><text x="12" y="15.500" text-anchor="middle" font-size="8.500" font-weight="800" fill="#fff" font-family="sans-serif">NEW</text>',
+ swords:'<path d="M4 4l14 14M20 4L6 18" stroke="#c9d0ff" stroke-width="2.500" stroke-linecap="round"/><path d="M14 18l3-3M6 14l3 3M10 18l-3 3M18 14l3 3" stroke="#c99a00" stroke-width="2.500" stroke-linecap="round"/>',
+ left:'<path d="M21 12H4M11 5l-7 7 7 7" fill="none" stroke="#9aa6c8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+ box:'<rect x="4" y="4" width="16" height="16" rx="3.500" fill="none" stroke="#9aa6c8" stroke-width="2"/>',
+ ff:'<path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" fill="#9aa6c8" stroke="#6f7ca0" stroke-width="1" stroke-linejoin="round"/>',
+ undo:'<path d="M8 6L3 11l5 5" fill="none" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 11h11a6 6 0 010 12" transform="translate(0 -4)" fill="none" stroke="#9aa6c8" stroke-width="2.500" stroke-linecap="round"/>',
+ dot:'<circle cx="12" cy="12" r="4" fill="#9aa6c8"/>'};
+// emoji → 圖示
+const EMAP=(()=>{const t={
+ star:'🌟 ⭐ 🌠 ✨ 🪩',spark:'💫 🌀',mic:'🎤 🎙️',mask:'🎭 🎪 🎴',note:'🎵 🎶 🎼 🎹 🎻 🥁 🎷',dancer:'🕺 💃 👯 🧘',person:'🧑‍💼 🧑‍🎤 🤵 🙈 👀',group:'👥',pair:'🤝 💑 💞',
+ heart:'❤️ ❤ 💖 💝 💘 💌 🫶',heartbreak:'💔',flame:'🔥',coin:'💰 🪙 💸',trophy:'🏆',medal:'🏅 🎖️ 🥇 🥈 🥉',crown:'👑',camera:'📷 📸 🎥 🎞️ 📼',tv:'📺',phone:'📱 📲 📞',
+ news:'📰 🗞️ 📋 📑 📜 📝 🏷️',book:'📖 📚 📘 🎓',cal:'📅',clock:'⏱ ⏰ ⌛ ⌚ ⏳',gift:'🎁',check:'✅',cross:'❌',warn:'⚠️',ques:'❓ ❔',gear:'⚙️ 🛠️ 🔧 🔠 🌗 📳 🏗️ 🧬 ⬛',
+ globe:'🌐 🌍 🌏 🌎 🗺️ 🧭',plane:'✈️ 🚆 🚌 🚗 🛥️ 🧳',home:'🏠 🏚️ 🛋️',building:'🏢 🏬 🏙️ 🏰 🏫 🏟️ 🕌 🏕️',cup:'☕ 🧋 🥤 🍵 🍸 🍷 🍻',bowl:'🍜 🍲 🥗 🍳 🍰 🥢 🍽️ 🌶️ 🎂',
+ shirt:'👗 👕 🧥 👟 🧣 🕶️ 🧢 👜 👠 🪞',palette:'🎨 💅 💄 🧴 💇 🧖 🖼️',medic:'🏥 🩹 🤒 🤧 🦷 🌡️',lock:'🔒 🔓 🪪 🛂',chart:'📊 📈 📏',target:'🎯',rocket:'🚀',bolt:'⚡',moon:'🌙 🌃',
+ sun:'☀️ 🌻 🏖️ 🌅',cloud:'🌧️ 🌪️ 🌊',leaf:'🌱 🌿 🍀 💐 🌴',sprout:'🌱',flower:'🌸',paw:'🐶 🐱 🦊 🐉 🦄 🐪 🦋',smile:'😂 😅 👍',sad:'😭 😨 😵 😴',angry:'😤 💢',
+ up:'⬆️',right:'➡️',down:'⬇️',speaker:'🔊 🔇',mega:'📣 🗯️ 🗨️ 🗣️',phones:'🎧',guitar:'🎸',pad:'🎮',dice:'🎲',ticket:'🎟️',mail:'✉️',search:'🔎 🕵️ 🔦',pin:'📌',flag:'🏁',shield:'🛡️',ring:'💍',gem:'💎',
+ party:'🎉 🎊 🎆 🧧 🎃 🎡 🪔',refresh:'🔁 🔄',eye:'👁️',hands:'🙌 🙏 👋',zzz:'💤',pencil:'✍️ ✏️',dumbbell:'🏋️ 🏃 🏊 🤸 ⚽ 🏏 🥊 🦾',bubble:'💬',disk:'💾 📤 📥 💿',bot:'🤖',slider:'🎚️',battery:'🔋',
+ male:'♂',female:'♀',blast:'💥',door:'🚪',cart:'🛒 🛍️',id:'🪪',play:'▶️ ▶',clap:'🎬',bulb:'💡 🧠',brief:'💼',newb:'🆕',swords:'⚔️',left:'⬅️',box:'⬜',ff:'⏩',undo:'↩️'};
+ const m={};for(const k in t)t[k].split(' ').forEach(e=>{const n=e.replace(/️/g,'');if(n&&!m[n])m[n]=k});return m})();
+const EMO_RE=/(<[^>]*>)|(\p{Regional_Indicator}{2}|[♀♂]️?|(?![\u00A9\u00AE\u2122\u203C\u2049])\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic}️?)*️?)/gu;
+const FLAGC={TW:'TW',HK:'HK',JP:'JP',KR:'KR',CN:'CN',IN:'IN',US:'US',GB:'UK',TH:'TH'};
+function eIcon(e){const n=e.replace(/️/g,'');
+  if(/^\p{Regional_Indicator}{2}$/u.test(n)){const cs=[...n].map(c=>String.fromCharCode(c.codePointAt(0)-0x1F1E6+65)).join(''),t=FLAGC[cs]||cs;
+    return `<svg viewBox="0 0 30 20" width="1.5em" height="1em" style="vertical-align:-.15em" aria-label="${cs}"><rect x="1" y="1" width="28" height="18" rx="4" fill="#3b3f78" stroke="#c9d0ff" stroke-width="1.400"/><text x="15" y="14.200" text-anchor="middle" font-size="10.500" font-weight="700" fill="#fff" font-family="sans-serif">${t}</text></svg>`}
+  let id=EMAP[n];if(!id){const f=[...n][0];id=EMAP[f]||'dot'}
+  return `<svg viewBox="0 0 24 24" width="1.150em" height="1.150em" style="vertical-align:-.2em" aria-hidden="true">${EIC[id]||EIC.dot}</svg>`}
+function emoSvg(h){return String(h).replace(EMO_RE,(m,tag,emo)=>tag?tag:eIcon(emo))}
+function noEmo(t){return String(t).replace(/\p{Regional_Indicator}{2}|[♀♂]️?|(?![\u00A9\u00AE\u2122\u203C\u2049])\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic}️?)*️?/gu,'').replace(/ {2,}/g,' ').replace(/^ +/gm,'').trim()}
+(function(){try{
+  let proto=app,desc=null;while(proto&&!(desc=Object.getOwnPropertyDescriptor(proto,'innerHTML')))proto=Object.getPrototypeOf(proto);
+  if(!desc)return;let raw=null,last=null,val='';
+  if(desc.get&&desc.set){Object.defineProperty(app,'innerHTML',{configurable:true,get(){const c=desc.get.call(this);return(raw!==null&&c===last)?raw:c},set(v){raw=String(v);desc.set.call(this,emoSvg(raw));last=desc.get.call(this)}})}
+  else{Object.defineProperty(app,'innerHTML',{configurable:true,get(){return raw!==null?raw:val},set(v){raw=String(v);val=emoSvg(raw)}})}
+  const ia=app.insertAdjacentHTML;if(typeof ia==='function')app.insertAdjacentHTML=function(w,h){return ia.call(this,w,emoSvg(h))}
+}catch(e){}})();
+try{document.title='明星遊戲'}catch(e){}
+
+const _shareTextG=shareText;shareText=function(){return noEmo(_shareTextG())};
 
 loadSet();title();
 </script>
